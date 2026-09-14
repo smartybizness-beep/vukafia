@@ -1,0 +1,128 @@
+/**
+ * ╔══════════════════════════════════════════════════════════════╗
+ * ║           VUKAFIA — PAN-AFRICAN MARKETPLACE API              ║
+ * ║           Rising Markets. Connecting Africa.                 ║
+ * ║           https://vukafia.com  |  WhatsApp: +2348101477935  ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ *
+ * Stack:  Node.js + Express + SQLite (dev) / PostgreSQL (prod)
+ * Author: Vukafia Engineering
+ * Deploy: Railway / Render / Heroku / VPS
+ */
+
+'use strict';
+
+require('dotenv').config();
+const express      = require('express');
+const cors         = require('cors');
+const helmet       = require('helmet');
+const morgan       = require('morgan');
+const rateLimit    = require('express-rate-limit');
+const path         = require('path');
+
+const db           = require('./db');
+const listingsRouter = require('./routes/listings');
+const businessRouter = require('./routes/business');
+const authRouter     = require('./routes/auth');
+const adminRouter    = require('./routes/admin');
+const webhookRouter  = require('./routes/webhook');
+
+const app  = express();
+const PORT = process.env.PORT || 5000;
+
+// ─── SECURITY & MIDDLEWARE ─────────────────────────────────────────────────
+app.use(helmet());
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:3000', 'https://vukafia.com', 'https://www.vukafia.com'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+
+// ─── RATE LIMITING ─────────────────────────────────────────────────────────
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please try again shortly.' },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many auth attempts. Please wait 15 minutes.' },
+});
+
+app.use('/api/', apiLimiter);
+app.use('/api/auth/', authLimiter);
+
+// ─── ROUTES ────────────────────────────────────────────────────────────────
+app.use('/api/listings',  listingsRouter);
+app.use('/api/business',  businessRouter);
+app.use('/api/auth',      authRouter);
+app.use('/api/admin',     adminRouter);
+app.use('/api/webhook',   webhookRouter);  // WhatsApp webhook
+
+// ─── HEALTH CHECK ──────────────────────────────────────────────────────────
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    platform: 'Vukafia Trans-African Marketplace',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    db: db.isConnected() ? 'connected' : 'disconnected',
+  });
+});
+
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Vukafia API',
+    tagline: 'Rising Markets. Connecting Africa.',
+    version: '1.0.0',
+    docs: '/api/docs',
+    health: '/health',
+    endpoints: {
+      listings:   'GET  /api/listings',
+      business:   'POST /api/business/register',
+      auth:       'POST /api/auth/login',
+      admin:      'GET  /api/admin/dashboard  (admin only)',
+      webhook:    'POST /api/webhook/whatsapp',
+    },
+  });
+});
+
+// ─── 404 ───────────────────────────────────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found', path: req.path });
+});
+
+// ─── GLOBAL ERROR HANDLER ──────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error('[ERROR]', err.message);
+  if (process.env.NODE_ENV !== 'production') console.error(err.stack);
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({
+    error: err.message || 'Internal server error',
+    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
+  });
+});
+
+// ─── START ─────────────────────────────────────────────────────────────────
+db.init().then(() => {
+  app.listen(PORT, () => {
+    console.log('\n╔══════════════════════════════════════════════╗');
+    console.log(`║  🌍  VUKAFIA API running on port ${PORT}         ║`);
+    console.log(`║  ENV: ${(process.env.NODE_ENV || 'development').padEnd(38)}║`);
+    console.log('╚══════════════════════════════════════════════╝\n');
+  });
+}).catch(err => {
+  console.error('❌ Failed to initialize DB:', err);
+  process.exit(1);
+});
+
+module.exports = app;
