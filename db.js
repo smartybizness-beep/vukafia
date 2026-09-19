@@ -98,6 +98,9 @@ async function init() {
       t.string('emoji', 8);
       t.integer('view_count').defaultTo(0);
       t.integer('contact_count').defaultTo(0);   // how many times contacted
+      t.string('verified_source');                // google_maps, linkedin, facebook, owner_claimed
+      t.timestamp('verified_at');                 // when verified
+      t.integer('verification_score').defaultTo(50); // 1-100: confidence it's real
       t.timestamps(true, true);
     });
   });
