@@ -93,17 +93,19 @@ async function sleep(ms) {
  */
 async function searchPlaces(query, location) {
   try {
-    const url = 'https://maps.googleapis.com/maps/api/place/textsearch/json';
+    const url = 'https://places.googleapis.com/v1/texts:searchText';
 
-    const response = await axios.get(url, {
-      params: {
-        query: `${query} in ${location}`,
-        key: GOOGLE_MAPS_API_KEY,
-        language: 'en'
+    const response = await axios.post(url, {
+      textQuery: `${query} in ${location}`,
+      languageCode: 'en'
+    }, {
+      headers: {
+        'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
+        'Content-Type': 'application/json'
       }
     });
 
-    return response.data.results || [];
+    return response.data.places || [];
   } catch (err) {
     console.error(`Error searching "${query}" in ${location}:`, err.message);
     return [];
@@ -113,22 +115,22 @@ async function searchPlaces(query, location) {
 /**
  * Get place details (phone, website, etc)
  */
-async function getPlaceDetails(placeId) {
+async function getPlaceDetails(placeName) {
   try {
-    const url = 'https://maps.googleapis.com/maps/api/place/details/json';
+    const url = `https://places.googleapis.com/v1/places/${placeName}`;
 
     const response = await axios.get(url, {
       params: {
-        place_id: placeId,
-        fields: 'name,formatted_phone_number,website,formatted_address,rating,user_ratings_total,business_status,geometry',
-        key: GOOGLE_MAPS_API_KEY,
-        language: 'en'
+        fields: 'name,internationalPhoneNumber,websiteUri,formattedAddress,rating,userRatingCount,businessStatus,location'
+      },
+      headers: {
+        'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY
       }
     });
 
-    return response.data.result || null;
+    return response.data || null;
   } catch (err) {
-    console.error(`Error getting details for ${placeId}:`, err.message);
+    console.error(`Error getting details for ${placeName}:`, err.message);
     return null;
   }
 }
@@ -201,41 +203,39 @@ async function crawlGoogleMaps() {
 
           // Get details for top 3 results
           for (const place of places.slice(0, 3)) {
-            const details = await getPlaceDetails(place.place_id);
-
-            if (!details || details.business_status !== 'OPERATIONAL') {
+            // New Places API returns most data directly
+            if (!place.name) {
               skipped++;
-              await sleep(200);
               continue;
             }
 
-            const city_name = extractCity(details.formatted_address);
+            const city_name = extractCity(place.formattedAddress || place.name);
             const category = CATEGORY_MAP[query.toLowerCase()] || 'General Retail';
 
             businesses.push({
-              name: details.name,
-              phone: details.formatted_phone_number || null,
-              website: details.website || null,
-              address: details.formatted_address,
+              name: place.name,
+              phone: place.internationalPhoneNumber || null,
+              website: place.websiteUri || null,
+              address: place.formattedAddress || place.name,
               city: city_name,
               country,
               region: getRegion(country),
               category,
               type: determineType(query),
-              rating: details.rating || 0,
-              review_count: details.user_ratings_total || 0,
-              latitude: details.geometry?.location?.lat || null,
-              longitude: details.geometry?.location?.lng || null,
+              rating: place.rating || 0,
+              review_count: place.userRatingCount || 0,
+              latitude: place.location?.latitude || null,
+              longitude: place.location?.longitude || null,
               verified_source: 'Google Maps',
               verified_at: new Date(),
-              verification_score: calculateScore(details)
+              verification_score: calculateScore(place)
             });
 
             total++;
-            console.log(`      ✅ ${details.name} (${details.rating || 'N/A'} stars)`);
+            console.log(`      ✅ ${place.name} (${place.rating || 'N/A'} stars)`);
 
-            // Rate limiting: Google allows 50 requests/sec, we'll be conservative
-            await sleep(300);
+            // Rate limiting
+            await sleep(200);
           }
         }
 
