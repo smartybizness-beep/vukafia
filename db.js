@@ -84,7 +84,8 @@ async function init() {
       t.string('whatsapp');
       t.string('email');
       t.string('website');
-      t.string('instagram');
+      t.string('instagram');                 // Instagram handle if available
+      t.string('business_website');          // For tracking website separately
       t.decimal('latitude',  10, 6);
       t.decimal('longitude', 10, 6);
       t.decimal('rating', 3, 1).defaultTo(0.0);

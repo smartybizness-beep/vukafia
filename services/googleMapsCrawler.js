@@ -227,8 +227,19 @@ async function crawlGoogleMaps() {
             if (place.photos && place.photos.length > 0) {
               const photo = place.photos[0];
               if (photo.uri) {
-                // Google Places API returns direct photo URIs
-                coverPhoto = `${photo.uri}?maxWidth=500`;
+                coverPhoto = photo.uri;
+              } else if (photo.name) {
+                // Construct URL from photo name if available
+                coverPhoto = `https://lh5.googleusercontent.com/${photo.name}?w=500`;
+              }
+            }
+
+            // Try to extract Instagram handle from website or business name
+            let instagramHandle = null;
+            if (place.websiteUri) {
+              const instagramMatch = place.websiteUri.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
+              if (instagramMatch) {
+                instagramHandle = `@${instagramMatch[1]}`;
               }
             }
 
@@ -236,6 +247,7 @@ async function crawlGoogleMaps() {
               name: businessName,
               phone: place.internationalPhoneNumber || null,
               website: place.websiteUri || null,
+              instagram: instagramHandle,
               address: place.formattedAddress || businessName,
               city: city_name,
               country,
@@ -286,6 +298,21 @@ function calculateScore(place) {
   if (place.website) score += 5;
 
   return Math.min(score, 100);
+}
+
+/**
+ * Generate fallback cover photo by category
+ */
+function generateCoverPhoto(category) {
+  const photos = {
+    'Electronics': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=75',
+    'Fashion & Textiles': 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=75',
+    'Food & Groceries': 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=500&q=75',
+    'Tourism': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500&q=75',
+    'Technology & IT': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&q=75',
+    'Agriculture': 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=500&q=75'
+  };
+  return photos[category] || 'https://images.unsplash.com/photo-1553729783-c91953dec042?w=500&q=75';
 }
 
 module.exports = { crawlGoogleMaps };

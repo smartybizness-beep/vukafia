@@ -43,7 +43,7 @@ router.get('/', optionalAuth, async (req, res, next) => {
       .select([
         'id', 'type', 'region', 'country', 'country_code', 'flag',
         'state', 'city', 'town', 'name', 'category', 'products_services',
-        'description', 'phone', 'whatsapp', 'email', 'website',
+        'description', 'phone', 'whatsapp', 'email', 'website', 'instagram',
         'latitude', 'longitude', 'rating', 'review_count',
         'verified', 'featured', 'is_new', 'cover_photo', 'emoji',
         'view_count', 'contact_count', 'created_at',
