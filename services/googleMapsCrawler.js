@@ -93,7 +93,7 @@ async function sleep(ms) {
  */
 async function searchPlaces(query, location) {
   try {
-    const url = 'https://places.googleapis.com/v1/texts:searchText';
+    const url = 'https://places.googleapis.com/v1/places:searchText';
 
     const response = await axios.post(url, {
       textQuery: `${query} in ${location}`,
