@@ -105,7 +105,7 @@ async function searchPlaces(query, location) {
       headers: {
         'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
         'Content-Type': 'application/json',
-        'X-Goog-FieldMask': 'places.name,places.internationalPhoneNumber,places.websiteUri,places.formattedAddress,places.rating,places.userRatingCount,places.location'
+        'X-Goog-FieldMask': 'places.displayName,places.name,places.internationalPhoneNumber,places.websiteUri,places.formattedAddress,places.rating,places.userRatingCount,places.location'
       }
     });
 
