@@ -211,20 +211,22 @@ async function crawlGoogleMaps() {
 
           // Get details for top 3 results
           for (const place of places.slice(0, 3)) {
-            // New Places API returns most data directly
-            if (!place.name) {
+            // New Places API returns display name in different format
+            const businessName = place.displayName?.text || place.name || null;
+
+            if (!businessName) {
               skipped++;
               continue;
             }
 
-            const city_name = extractCity(place.formattedAddress || place.name);
+            const city_name = extractCity(place.formattedAddress || businessName);
             const category = CATEGORY_MAP[query.toLowerCase()] || 'General Retail';
 
             businesses.push({
-              name: place.name,
+              name: businessName,
               phone: place.internationalPhoneNumber || null,
               website: place.websiteUri || null,
-              address: place.formattedAddress || place.name,
+              address: place.formattedAddress || businessName,
               city: city_name,
               country,
               region: getRegion(country),
@@ -240,7 +242,7 @@ async function crawlGoogleMaps() {
             });
 
             total++;
-            console.log(`      ✅ ${place.name} (${place.rating || 'N/A'} stars)`);
+            console.log(`      ✅ ${businessName} (${place.rating || 'N/A'} stars)`);
 
             // Rate limiting
             await sleep(200);
