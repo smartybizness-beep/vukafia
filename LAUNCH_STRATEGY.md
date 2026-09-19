@@ -69,10 +69,11 @@ Business owners can now **claim their listing**:
 
 ## Launch Timeline
 
-**Day -3: Run Crawler**
+**Day -3: Initial Crawl (Manual)**
 ```bash
 npm run crawl
 ```
+Generates day-1 listing data. Skips if crawled in last 6 hours (prevents rate limiting).
 
 **Day -2: Manual QA**
 - Verify sample businesses look realistic
@@ -92,6 +93,12 @@ railway up
 - Email outreach to discovered businesses
 - "Claim your free listing" campaigns
 - Launch monetization
+
+**Day 2+: Nightly Updates (Automatic)**
+- Railway cron runs `npm run crawl:scheduled` at 2 AM daily
+- Logs to `logs/crawler-YYYY-MM-DD.log`
+- Skips if crawled within 6 hours
+- New businesses added without duplicates
 
 ---
 
@@ -183,6 +190,40 @@ Owners verify they own the business via phone number:
    - Your website is now https://your-app.railway.app
    - Real businesses, day 1
    - Monetization ready
+
+---
+
+## Ongoing Updates: Manual or Scheduled
+
+### Manual Crawl (Anytime)
+```bash
+npm run crawl
+```
+- One-time pull of new businesses
+- Use before major campaigns
+- Skips if crawled in last 6 hours
+- Good for: Testing, on-demand refreshes
+
+### Scheduled Crawl (Nightly)
+```bash
+npm run crawl:scheduled
+```
+- Runs automatically on a schedule
+- Logs to `logs/crawler-YYYY-MM-DD.log`
+- Skips if already crawled today
+- Good for: Production, continuous discovery
+
+**On Railway:**
+```
+Settings → Cron Jobs
+Schedule: 0 2 * * * (2 AM daily)
+Command: npm run crawl:scheduled
+```
+
+Both scripts:
+- ✅ Avoid duplicate businesses
+- ✅ Respect 6-hour rate limit
+- ✅ Work in dev and production
 
 ---
 
