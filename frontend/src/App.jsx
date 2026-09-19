@@ -13,6 +13,17 @@ export default function App() {
   const [categories, setCategories] = useState([])
   const [totalListings, setTotalListings] = useState(0)
 
+  // Claim flow state
+  const [showClaimModal, setShowClaimModal] = useState(false)
+  const [claimStep, setClaimStep] = useState('search') // search, verify, payment
+  const [claimSearch, setClaimSearch] = useState('')
+  const [claimCountry, setClaimCountry] = useState('')
+  const [claimResults, setClaimResults] = useState([])
+  const [selectedClaim, setSelectedClaim] = useState(null)
+  const [claimPhone, setClaimPhone] = useState('')
+  const [claimLoading, setClaimLoading] = useState(false)
+  const [claimMessage, setClaimMessage] = useState('')
+
   const WA_PHONE = '2348101477935'
 
   // Fetch listings
@@ -121,6 +132,78 @@ export default function App() {
     }
   }
 
+  async function searchClaimBusinesses() {
+    if (!claimSearch.trim() || !claimCountry) {
+      setClaimMessage('Please enter business name and select country')
+      return
+    }
+    setClaimLoading(true)
+    setClaimMessage('')
+    try {
+      const res = await fetch(`/api/claims/search?name=${encodeURIComponent(claimSearch)}&country=${claimCountry}`)
+      const data = await res.json()
+      if (data.success) {
+        setClaimResults(data.data || [])
+        if (data.data.length === 0) {
+          setClaimMessage('No businesses found. Contact us to add your business!')
+        }
+      } else {
+        setClaimMessage('Error searching businesses')
+      }
+    } catch (err) {
+      setClaimMessage('Error: ' + err.message)
+    } finally {
+      setClaimLoading(false)
+    }
+  }
+
+  async function verifyOwnership() {
+    if (!selectedClaim || !claimPhone.trim()) {
+      setClaimMessage('Please select a business and enter your phone number')
+      return
+    }
+    setClaimLoading(true)
+    setClaimMessage('')
+    try {
+      const res = await fetch('/api/claims/verify-ownership', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          listing_id: selectedClaim.id,
+          phone: claimPhone
+        })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setClaimStep('payment')
+        setClaimMessage('✅ Phone verified! Proceed to payment')
+      } else {
+        setClaimMessage('❌ ' + (data.error || 'Phone does not match this business'))
+      }
+    } catch (err) {
+      setClaimMessage('Error: ' + err.message)
+    } finally {
+      setClaimLoading(false)
+    }
+  }
+
+  function proceedToPayment() {
+    if (!selectedClaim) return
+    const amount = 15
+    const message = `I want to claim my business listing: ${selectedClaim.name} in ${selectedClaim.country}. Payment amount: $${amount}.`
+    openWhatsApp(message)
+  }
+
+  function resetClaim() {
+    setClaimStep('search')
+    setClaimSearch('')
+    setClaimCountry('')
+    setClaimResults([])
+    setSelectedClaim(null)
+    setClaimPhone('')
+    setClaimMessage('')
+  }
+
   return (
     <>
       <nav>
@@ -151,6 +234,13 @@ export default function App() {
           </div>
           <button className="btn-wa-n" onClick={() => openWhatsApp()}>
             💬 WhatsApp AI
+          </button>
+          <button
+            className="btn-lst"
+            onClick={() => { resetClaim(); setShowClaimModal(true) }}
+            style={{ background: '#10B981', marginRight: '0.5rem' }}
+          >
+            ✓ Claim Business
           </button>
           <button className="btn-lst" onClick={listBusiness}>
             + List Business
@@ -338,6 +428,327 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {/* Claim Business Modal */}
+      {showClaimModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '2rem',
+            maxWidth: '500px',
+            width: '90%',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ margin: 0, color: 'var(--earth)' }}>
+                {claimStep === 'search' && '🔍 Find Your Business'}
+                {claimStep === 'verify' && '📱 Verify Ownership'}
+                {claimStep === 'payment' && '💳 Complete Payment'}
+              </h2>
+              <button onClick={() => setShowClaimModal(false)} style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '1.5rem',
+                cursor: 'pointer'
+              }}>✕</button>
+            </div>
+
+            {/* STEP 1: SEARCH */}
+            {claimStep === 'search' && (
+              <div>
+                <p style={{ color: '#666', marginBottom: '1rem' }}>
+                  Search for your business in our directory. If found, you can claim it and get a verified badge.
+                </p>
+                <input
+                  type="text"
+                  placeholder="Business name (e.g., Nike Store, Mama's Food)"
+                  value={claimSearch}
+                  onChange={e => setClaimSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    marginBottom: '1rem',
+                    boxSizing: 'border-box',
+                    fontSize: '1rem'
+                  }}
+                />
+                <select
+                  value={claimCountry}
+                  onChange={e => setClaimCountry(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    marginBottom: '1rem',
+                    boxSizing: 'border-box',
+                    fontSize: '1rem'
+                  }}
+                >
+                  <option value="">Select Country</option>
+                  {countries.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <button
+                  onClick={searchClaimBusinesses}
+                  disabled={claimLoading}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: 'var(--accent)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: claimLoading ? 'not-allowed' : 'pointer',
+                    opacity: claimLoading ? 0.6 : 1
+                  }}
+                >
+                  {claimLoading ? 'Searching...' : 'Search'}
+                </button>
+
+                {claimMessage && (
+                  <div style={{
+                    marginTop: '1rem',
+                    padding: '1rem',
+                    background: claimMessage.includes('✅') ? '#ECFDF5' : '#FEF2F2',
+                    color: claimMessage.includes('✅') ? '#065F46' : '#7F1D1D',
+                    borderRadius: '8px',
+                    fontSize: '0.9rem'
+                  }}>
+                    {claimMessage}
+                  </div>
+                )}
+
+                {claimResults.length > 0 && (
+                  <div style={{ marginTop: '1.5rem' }}>
+                    <h3 style={{ marginBottom: '1rem', color: '#333' }}>Found Businesses:</h3>
+                    {claimResults.map(business => (
+                      <div
+                        key={business.id}
+                        onClick={() => {
+                          setSelectedClaim(business)
+                          setClaimStep('verify')
+                          setClaimMessage('')
+                        }}
+                        style={{
+                          padding: '1rem',
+                          background: '#F3F4F6',
+                          borderRadius: '8px',
+                          marginBottom: '0.75rem',
+                          cursor: 'pointer',
+                          borderLeft: '4px solid var(--accent)',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseOver={e => e.currentTarget.style.background = '#E5E7EB'}
+                        onMouseOut={e => e.currentTarget.style.background = '#F3F4F6'}
+                      >
+                        <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{business.name}</div>
+                        <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                          {business.category} • {business.city}, {business.country}
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                          ⭐ {business.rating || 'New'} • 📱 {business.phone}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* STEP 2: VERIFY */}
+            {claimStep === 'verify' && selectedClaim && (
+              <div>
+                <p style={{ color: '#666', marginBottom: '1rem' }}>
+                  Verify that you own <strong>{selectedClaim.name}</strong> by confirming your business phone number.
+                </p>
+                <div style={{
+                  padding: '1rem',
+                  background: '#F0FDF4',
+                  borderRadius: '8px',
+                  marginBottom: '1.5rem',
+                  borderLeft: '4px solid #10B981'
+                }}>
+                  <div style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                    <strong>Business Phone on File:</strong>
+                  </div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
+                    {selectedClaim.phone}
+                  </div>
+                </div>
+                <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                  Enter your business phone number to verify:
+                </p>
+                <input
+                  type="tel"
+                  placeholder="+234..."
+                  value={claimPhone}
+                  onChange={e => setClaimPhone(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    marginBottom: '1rem',
+                    boxSizing: 'border-box',
+                    fontSize: '1rem'
+                  }}
+                />
+                <button
+                  onClick={verifyOwnership}
+                  disabled={claimLoading}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: '#10B981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: claimLoading ? 'not-allowed' : 'pointer',
+                    opacity: claimLoading ? 0.6 : 1,
+                    marginBottom: '0.75rem'
+                  }}
+                >
+                  {claimLoading ? 'Verifying...' : 'Verify Phone'}
+                </button>
+                <button
+                  onClick={() => setClaimStep('search')}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: '#E5E7EB',
+                    color: '#333',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Back
+                </button>
+
+                {claimMessage && (
+                  <div style={{
+                    marginTop: '1rem',
+                    padding: '1rem',
+                    background: claimMessage.includes('✅') ? '#ECFDF5' : '#FEF2F2',
+                    color: claimMessage.includes('✅') ? '#065F46' : '#7F1D1D',
+                    borderRadius: '8px',
+                    fontSize: '0.9rem'
+                  }}>
+                    {claimMessage}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* STEP 3: PAYMENT */}
+            {claimStep === 'payment' && selectedClaim && (
+              <div>
+                <div style={{
+                  padding: '1.5rem',
+                  background: '#F9F5E6',
+                  borderRadius: '8px',
+                  marginBottom: '1.5rem',
+                  textAlign: 'center',
+                  borderLeft: '4px solid var(--accent)'
+                }}>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong style={{ fontSize: '1.1rem' }}>{selectedClaim.name}</strong>
+                  </div>
+                  <div style={{ color: '#666', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                    {selectedClaim.city}, {selectedClaim.country}
+                  </div>
+                  <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#D97706', marginBottom: '0.5rem' }}>
+                    $15
+                  </div>
+                  <div style={{ color: '#666', fontSize: '0.9rem' }}>
+                    One-time claim & verification fee
+                  </div>
+                </div>
+
+                <div style={{
+                  background: '#E0F2FE',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  marginBottom: '1.5rem',
+                  fontSize: '0.9rem',
+                  color: '#0369A1',
+                  lineHeight: '1.6'
+                }}>
+                  ✅ <strong>Get a verified badge</strong><br/>
+                  ✅ <strong>Manage your listing</strong><br/>
+                  ✅ <strong>See who contacted you</strong><br/>
+                  ✅ <strong>Access premium features</strong>
+                </div>
+
+                <button
+                  onClick={proceedToPayment}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: 'var(--accent)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    marginBottom: '0.75rem'
+                  }}
+                >
+                  💳 Pay $15 via WhatsApp
+                </button>
+                <button
+                  onClick={() => setShowClaimModal(false)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: '#E5E7EB',
+                    color: '#333',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Close
+                </button>
+
+                <div style={{
+                  marginTop: '1rem',
+                  padding: '1rem',
+                  background: '#FEF3C7',
+                  borderRadius: '8px',
+                  fontSize: '0.85rem',
+                  color: '#92400E'
+                }}>
+                  💬 Click "Pay $15 via WhatsApp" to complete payment through our team.
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <footer style={{
         background: 'var(--earth)',
