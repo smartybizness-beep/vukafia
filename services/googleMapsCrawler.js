@@ -254,12 +254,12 @@ async function crawlGoogleMaps() {
             let coverPhoto = generateCoverPhoto(category); // fallback
             if (place.photos && place.photos.length > 0) {
               const photo = place.photos[0];
-              console.log(`📸 [${businessName}] photo =`, JSON.stringify(photo, null, 2).substring(0, 200));
+              console.log(`📸 [${businessName}] photo.name:`, photo.name?.substring(0, 80));
+              console.log(`   photo keys:`, Object.keys(photo));
               if (photo.name) {
                 // Use Google Places API /media endpoint to get actual photo
-                // This returns a redirect to the real image
                 coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
-                console.log(`✅ Google photo URL: ${coverPhoto.substring(0, 100)}...`);
+                console.log(`✅ Photo URL set for ${businessName}`);
               }
             } else {
               console.log(`❌ [${businessName}] NO PHOTOS from Google`);

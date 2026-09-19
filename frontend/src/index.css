@@ -22,6 +22,10 @@
   --wad: #1ebc5a;
   --sv: #1a6b6b;
   --svl: #2a9090;
+  --tm: #0284c7;
+  --tml: #0ea5e9;
+  --md: #0891b2;
+  --mdl: #06b6d4;
 }
 
 * {
@@ -285,6 +289,14 @@ nav {
 
 .tbtn.s.active {
   background: var(--sv);
+}
+
+.tbtn.t.active {
+  background: var(--tm);
+}
+
+.tbtn.m.active {
+  background: var(--md);
 }
 
 .sw {

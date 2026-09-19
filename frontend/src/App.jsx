@@ -224,6 +224,18 @@ export default function App() {
           >
             🔧 Services
           </button>
+          <button
+            className={`ntab ${type === 'tourism' ? 'active' : ''}`}
+            onClick={() => setType('tourism')}
+          >
+            🏨 Tourism
+          </button>
+          <button
+            className={`ntab ${type === 'medical' ? 'active' : ''}`}
+            onClick={() => setType('medical')}
+          >
+            🏥 Medical
+          </button>
         </div>
         <div className="nav-right">
           <div className="nav-stat">
@@ -266,6 +278,18 @@ export default function App() {
               onClick={() => setType('service')}
             >
               🔧 Services
+            </button>
+            <button
+              className={`tbtn t ${type === 'tourism' ? 'active' : ''}`}
+              onClick={() => setType('tourism')}
+            >
+              🏨 Tourism
+            </button>
+            <button
+              className={`tbtn m ${type === 'medical' ? 'active' : ''}`}
+              onClick={() => setType('medical')}
+            >
+              🏥 Medical
             </button>
           </div>
           <div className="sw">

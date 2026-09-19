@@ -47,6 +47,14 @@ async function main() {
           .first();
 
         if (existing) {
+          // Update existing record with new photo and Instagram handle
+          await k('listings')
+            .where('id', existing.id)
+            .update({
+              cover_photo: biz.cover_photo,
+              instagram: biz.instagram,
+              website: biz.website
+            });
           duplicates++;
           continue;
         }
@@ -64,11 +72,12 @@ async function main() {
           description: `${biz.category} in ${biz.city}, ${biz.country}`,
           phone: biz.phone,
           website: biz.website,
+          instagram: biz.instagram,
           rating: parseFloat(biz.rating) || 0,
           review_count: biz.review_count || 0,
           verified: true, // Google Maps verified
           featured: biz.review_count > 100, // High review count = featured
-          cover_photo: generateCoverPhoto(biz.category),
+          cover_photo: biz.cover_photo, // Use real Google Maps photo
           emoji: generateEmoji(biz.category),
           latitude: biz.latitude,
           longitude: biz.longitude,
