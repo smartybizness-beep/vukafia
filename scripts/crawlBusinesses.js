@@ -22,7 +22,15 @@ async function main() {
 
     console.log('✨ Generating real African businesses...');
     let businesses = await generateBusinesses();
-    console.log(`Generated ${businesses.length} businesses\n`);
+    console.log(`Generated ${businesses.length} businesses`);
+
+    if (businesses.length === 0) {
+      console.log('⚠️  Claude API returned no businesses. Checking API key...');
+      if (!process.env.ANTHROPIC_API_KEY) {
+        console.log('❌ ANTHROPIC_API_KEY not set in .env');
+      }
+      console.log('\n');
+    }
 
     console.log('📸 Enriching businesses with details...');
     const enriched = [];
@@ -45,7 +53,7 @@ async function main() {
 
         if (!existing) {
           await k('listings').insert({
-            user_id: 1, // System user
+            user_id: null, // Leave unclaimed for business owners to claim
             type: biz.type,
             region: biz.region,
             country: biz.country,
