@@ -11,113 +11,19 @@
 'use strict';
 
 const axios = require('axios');
+const { detectLanguage } = require('./keywordIntent');
+const { runSearch } = require('./aiSearch');
 
 const WA_TOKEN      = process.env.WA_API_TOKEN;       // Meta Cloud API token
 const WA_PHONE_ID   = process.env.WA_PHONE_NUMBER_ID; // Meta phone number ID
 const WA_NUMBER     = process.env.WA_PHONE_NUMBER || '2348101477935';
 
-// ─── LANGUAGE DETECTION (simple keyword-based) ────────────────────────────
-function detectLanguage(text) {
-  const t = text.toLowerCase();
-  if (/\b(je veux|bonjour|trouver|vendeur|produit|service)\b/.test(t)) return 'fr';
-  if (/[\u0600-\u06FF]/.test(t)) return 'ar';
-  if (/\b(nataka|ninahitaji|habari|bei|bidhaa)\b/.test(t)) return 'sw';
-  if (/\b(nawa|kayayyaki|kasuwanci|nemi)\b/.test(t)) return 'ha';
-  if (/\b(how much|abeg|make|wey|i wan|find am)\b/.test(t)) return 'pidgin';
-  return 'en';
-}
+// ─── SEARCH ───────────────────────────────────────────────────────────────
+const WA_RESULT_LIMIT = 3;
+const WA_COLUMNS = ['name', 'category', 'country', 'city', 'phone', 'whatsapp', 'rating', 'products_services'];
 
-// ─── INTENT EXTRACTION ────────────────────────────────────────────────────
-function extractIntent(text) {
-  const t = text.toLowerCase();
-
-  // Type
-  const isService = /\b(service|lawyer|doctor|hospital|clinic|school|repair|plumber|electrician|accountant|consultant|legal|tech|it|software|logistics|freight|catering|event)\b/.test(t);
-
-  // Category
-  let category = null;
-  const catMap = {
-    'Electronics':        ['phone', 'laptop', 'computer', 'tv', 'electronics', 'solar', 'inverter', 'gadget'],
-    'Agriculture':        ['cocoa', 'coffee', 'farm', 'agro', 'fertilizer', 'crop', 'seed', 'maize', 'rice', 'shea', 'cashew'],
-    'Fashion & Textiles': ['fabric', 'cloth', 'ankara', 'kente', 'fashion', 'shoe', 'bag', 'leather', 'dress', 'tailor'],
-    'Food & Groceries':   ['food', 'spice', 'oil', 'fish', 'meat', 'vegetable', 'fruit', 'grocery', 'market', 'palm'],
-    'Health & Beauty':    ['herbal', 'beauty', 'cosmetic', 'shea butter', 'argan', 'skin', 'health', 'cream'],
-    'Building Materials': ['cement', 'iron', 'timber', 'wood', 'roofing', 'tile', 'building', 'construction material'],
-    'Healthcare':         ['hospital', 'clinic', 'doctor', 'medical', 'health', 'surgery', 'pharmacy', 'nurse'],
-    'Legal Services':     ['lawyer', 'legal', 'law', 'attorney', 'advocate', 'court', 'contract'],
-    'Technology & IT':    ['software', 'website', 'app', 'tech', 'it support', 'digital', 'coding'],
-    'Logistics & Freight':['shipping', 'freight', 'cargo', 'logistics', 'customs', 'delivery', 'transport'],
-  };
-
-  for (const [cat, keywords] of Object.entries(catMap)) {
-    if (keywords.some(kw => t.includes(kw))) { category = cat; break; }
-  }
-
-  // Country / Region
-  const countryMap = {
-    'Nigeria':       ['nigeria', 'lagos', 'abuja', 'kano', 'naija', 'enugu', 'ph', 'port harcourt'],
-    'Ghana':         ['ghana', 'accra', 'kumasi', 'takoradi', 'ghanaian'],
-    'Kenya':         ['kenya', 'nairobi', 'mombasa', 'kisumu', 'kenyan'],
-    'Egypt':         ['egypt', 'cairo', 'giza', 'egyptian'],
-    'South Africa':  ['south africa', 'johannesburg', 'cape town', 'durban', 'sa ', 'joburg'],
-    'Ethiopia':      ['ethiopia', 'addis ababa', 'ethiopian'],
-    'Tanzania':      ['tanzania', 'dar es salaam', 'zanzibar', 'tanzanian'],
-    'Morocco':       ['morocco', 'marrakech', 'casablanca', 'moroccan'],
-    "Côte d'Ivoire": ['ivory coast', 'abidjan', "cote d'ivoire", 'ivorian'],
-    'Senegal':       ['senegal', 'dakar', 'senegalese'],
-    'Cameroon':      ['cameroon', 'douala', 'yaounde', 'cameroonian'],
-  };
-
-  const regionMap = {
-    'West Africa':    ['west africa', 'west african'],
-    'East Africa':    ['east africa', 'east african'],
-    'North Africa':   ['north africa', 'north african'],
-    'Central Africa': ['central africa'],
-    'Southern Africa':['southern africa', 'south africa', 'sadc'],
-  };
-
-  let country = null;
-  for (const [c, keywords] of Object.entries(countryMap)) {
-    if (keywords.some(kw => t.includes(kw))) { country = c; break; }
-  }
-
-  let region = null;
-  for (const [r, keywords] of Object.entries(regionMap)) {
-    if (keywords.some(kw => t.includes(kw))) { region = r; break; }
-  }
-
-  return {
-    type:     isService ? 'service' : null,
-    category,
-    country,
-    region,
-    raw:      text,
-  };
-}
-
-// ─── QUERY LISTINGS ───────────────────────────────────────────────────────
-async function queryListings(intent, k) {
-  let query = k('listings').where('active', true);
-
-  if (intent.type)     query = query.where('type', intent.type);
-  if (intent.category) query = query.where('category', intent.category);
-  if (intent.country)  query = query.where('country', intent.country);
-  if (intent.region)   query = query.where('region',  intent.region);
-
-  if (!intent.category && !intent.country && !intent.region && intent.raw) {
-    const term = `%${intent.raw.slice(0, 40)}%`;
-    query = query.where(function() {
-      this.whereILike('name', term)
-        .orWhereILike('products_services', term)
-        .orWhereILike('category', term);
-    });
-  }
-
-  return query
-    .orderBy('featured', 'desc')
-    .orderBy('rating', 'desc')
-    .limit(3)
-    .select('name', 'category', 'country', 'city', 'phone', 'whatsapp', 'rating', 'products_services');
+function searchListings(from, text, k) {
+  return runSearch(text, k, { source: 'whatsapp', clientRef: from, limit: WA_RESULT_LIMIT, select: WA_COLUMNS });
 }
 
 // ─── BUILD REPLY TEXT ─────────────────────────────────────────────────────
@@ -156,11 +62,11 @@ function buildListingsReply(listings, lang, intent) {
 // ─── HANDLE INCOMING MESSAGE ──────────────────────────────────────────────
 async function handleMessage(from, text, k) {
   try {
-    const lang    = detectLanguage(text);
-    const intent  = extractIntent(text);
-    const t       = text.trim().toUpperCase();
+    const t = text.trim().toUpperCase();
 
     let reply;
+    let lang   = detectLanguage(text);
+    let intent = null;
 
     // ── COMMANDS ─────────────────────────────────────────────────────────
     if (t === 'LIST' || t === 'LIST MY BUSINESS' || t === 'ADD BUSINESS') {
@@ -169,8 +75,10 @@ async function handleMessage(from, text, k) {
       reply = `👋 Welcome to *Vukafia AI*!\n\n🌍 Trans-African Business Directory\n\nTry:\n• *"Find electronics in Lagos"*\n• *"Lawyer in Cairo"*\n• *"Coffee from Ethiopia"*\n• *"South Africa wine"*\n\n📝 Type *LIST* to add your business\n🔍 Browse: https://vukafia.com`;
     } else {
       // ── SEARCH ────────────────────────────────────────────────────────
-      const listings = await queryListings(intent, k);
-      reply = buildListingsReply(listings, lang, intent);
+      const found = await searchListings(from, text, k);
+      lang   = found.language;
+      intent = found.filters;
+      reply  = buildListingsReply(found.rows, lang, intent);
     }
 
     // ── SEND REPLY ────────────────────────────────────────────────────────
@@ -192,9 +100,7 @@ async function handleMessage(from, text, k) {
 
 // Also exported for Twilio integration
 async function buildReply(from, text, k) {
-  const lang   = detectLanguage(text);
-  const intent = extractIntent(text);
-  const t      = text.trim().toUpperCase();
+  const t = text.trim().toUpperCase();
 
   if (t === 'LIST' || t === 'LIST MY BUSINESS') {
     return '✅ List your business at https://vukafia.com or reply with your business details!';
@@ -202,8 +108,8 @@ async function buildReply(from, text, k) {
   if (t === 'HELP' || t === 'HI' || t === 'HELLO') {
     return '👋 Welcome to Vukafia! Search for any business across Africa. Try: "electronics Lagos" or "lawyer Cairo"';
   }
-  const listings = await queryListings(intent, k);
-  return buildListingsReply(listings, lang, intent);
+  const found = await searchListings(from, text, k);
+  return buildListingsReply(found.rows, found.language, found.filters);
 }
 
 // ─── SEND VIA META CLOUD API ──────────────────────────────────────────────

@@ -26,6 +26,7 @@ const businessRouter = require('./routes/business');
 const authRouter     = require('./routes/auth');
 const adminRouter    = require('./routes/admin');
 const webhookRouter  = require('./routes/webhook');
+const searchRouter   = require('./routes/search');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -61,8 +62,12 @@ const authLimiter = rateLimit({
 app.use('/api/', apiLimiter);
 app.use('/api/auth/', authLimiter);
 
+// ─── ADMIN UI (static; data still requires an admin JWT) ───────────────────
+app.use('/admin', express.static(path.join(__dirname, 'public', 'admin'), { extensions: ['html'] }));
+
 // ─── ROUTES ────────────────────────────────────────────────────────────────
 app.use('/api/listings',  listingsRouter);
+app.use('/api/search',    searchRouter);
 app.use('/api/business',  businessRouter);
 app.use('/api/auth',      authRouter);
 app.use('/api/admin',     adminRouter);
@@ -88,6 +93,7 @@ app.get('/', (req, res) => {
     health: '/health',
     endpoints: {
       listings:   'GET  /api/listings',
+      aiSearch:   'POST /api/search/ai',
       business:   'POST /api/business/register',
       auth:       'POST /api/auth/login',
       admin:      'GET  /api/admin/dashboard  (admin only)',

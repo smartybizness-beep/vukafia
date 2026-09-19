@@ -54,6 +54,22 @@ npm run dev
 | POST   | `/api/listings/:id/contact`      | Track contact event (call/WA/email)  |
 | POST   | `/api/listings/:id/review`       | Submit a review                      |
 
+### AI Search (natural language)
+
+| Method | Endpoint             | Description                                         |
+|--------|----------------------|-----------------------------------------------------|
+| POST   | `/api/search/ai`     | `{ "query": "avocat au Caire", "page": 1, "limit": 20 }` → listings + how the query was interpreted (30 req / 15 min per IP) |
+| GET    | `/api/search/status` | Whether AI parsing is enabled                       |
+
+Claude converts the query (any supported language) into filters that are validated against the
+categories/countries actually in the database. Set `ANTHROPIC_API_KEY` to enable it; without a key,
+or if the call fails, the keyword parser is used. Every search is logged to `search_queries`
+(hashed IP/phone, parsed filters, result count, tokens, latency). The WhatsApp bot uses the same pipeline.
+
+**Search log page:** open `/admin/searches` (e.g. http://localhost:5000/admin/searches) and sign in with an admin
+account — summary tiles, top and not-found searches, and a filterable log. The page is static; all data
+still comes from the admin-only API above.
+
 ### Auth
 
 | Method | Endpoint                    | Description           |
@@ -85,6 +101,8 @@ npm run dev
 | PATCH  | `/api/admin/users/:id/plan`       | Upgrade user plan         |
 | GET    | `/api/admin/reviews/pending`      | Unapproved reviews        |
 | POST   | `/api/admin/reviews/:id/approve`  | Approve review            |
+| GET    | `/api/admin/searches`             | Search log — filter by `source`, `ai`, `zero_results=true`, `days`, `q`; paginated |
+| GET    | `/api/admin/searches/summary`     | `?days=30` — volume, AI vs fallback, zero-result rate, latency, tokens, top queries, top **not found** queries |
 
 ### WhatsApp Webhook
 
@@ -93,6 +111,14 @@ npm run dev
 | GET    | `/api/webhook/whatsapp`    | Meta webhook verification         |
 | POST   | `/api/webhook/whatsapp`    | Receive Meta Cloud API messages   |
 | POST   | `/api/webhook/twilio`      | Receive Twilio WhatsApp messages  |
+
+---
+
+## Database migrations
+
+Base tables are created by `db.js`; anything newer lives in `migrations/` and is applied automatically
+on server start. From the CLI: `npx knex migrate:make <name>`, `npx knex migrate:latest`,
+`npx knex migrate:rollback` (add `--env production` for Postgres).
 
 ---
 

@@ -210,4 +210,96 @@ router.post('/reviews/:id/approve', async (req, res, next) => {
   }
 });
 
+// ─── SEARCH QUERIES (AI discovery log) ────────────────────────────────────
+// 'YYYY-MM-DD HH:MM:SS' in UTC — comparable as a string on both SQLite and Postgres
+function daysAgo(days) {
+  return new Date(Date.now() - days * 86400000).toISOString().slice(0, 19).replace('T', ' ');
+}
+const parseJson = v => (typeof v === 'string' ? JSON.parse(v) : v);
+
+// GET /api/admin/searches
+// Query: source=web|whatsapp  ai=true|false  zero_results=true  days=30  q=text  page  limit (max 100)
+router.get('/searches', async (req, res, next) => {
+  try {
+    const k = db.query();
+    const { source, ai, zero_results, days, q } = req.query;
+    const page   = Math.max(1, parseInt(req.query.page) || 1);
+    const limit  = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
+
+    let query = k('search_queries');
+    if (source === 'web' || source === 'whatsapp') query = query.where('source', source);
+    if (ai === 'true' || ai === 'false')           query = query.where('used_ai', ai === 'true');
+    if (zero_results === 'true')                   query = query.where('result_count', 0);
+    if (parseInt(days) > 0)                        query = query.where('created_at', '>=', daysAgo(parseInt(days)));
+    if (q)                                         query = query.whereILike('query', `%${q}%`);
+
+    const { total } = await query.clone().count('id as total').first();
+    const rows = await query.orderBy('id', 'desc').limit(limit).offset((page - 1) * limit);
+
+    res.json({
+      success: true,
+      data: rows.map(r => ({ ...r, filters: r.filters ? parseJson(r.filters) : null })),
+      pagination: { total: parseInt(total), page, limit, pages: Math.ceil(parseInt(total) / limit) },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/admin/searches/summary?days=30
+// Headline numbers plus what people search for and what they can't find.
+router.get('/searches/summary', async (req, res, next) => {
+  try {
+    const k    = db.query();
+    const days = Math.min(365, Math.max(1, parseInt(req.query.days) || 30));
+    const since = () => k('search_queries').where('created_at', '>=', daysAgo(days));
+    const top = (extra) => {
+      let qb = since();
+      if (extra) qb = extra(qb);
+      return qb.select(k.raw('lower(query) as query')).count('id as count')
+        .groupByRaw('lower(query)').orderBy('count', 'desc').limit(10);
+    };
+
+    const [totals, bySource, byLanguage, topQueries, notFound] = await Promise.all([
+      since().select(
+        k.raw('COUNT(id) as searches'),
+        k.raw('SUM(CASE WHEN used_ai THEN 1 ELSE 0 END) as ai_searches'),
+        k.raw('SUM(CASE WHEN result_count = 0 THEN 1 ELSE 0 END) as zero_results'),
+        k.raw('SUM(CASE WHEN relaxed IS NOT NULL THEN 1 ELSE 0 END) as relaxed'),
+        k.raw('AVG(latency_ms) as avg_latency_ms'),
+        k.raw('SUM(input_tokens) as input_tokens'),
+        k.raw('SUM(output_tokens) as output_tokens'),
+      ).first(),
+      since().select('source').count('id as count').groupBy('source'),
+      since().select('language').count('id as count').groupBy('language').orderBy('count', 'desc'),
+      top(),
+      top(qb => qb.where('result_count', 0)),
+    ]);
+
+    const n = v => parseInt(v || 0);
+    const searches = n(totals.searches);
+    res.json({
+      success: true,
+      data: {
+        days,
+        searches,
+        ai_searches:      n(totals.ai_searches),
+        keyword_fallback: searches - n(totals.ai_searches),
+        zero_results:     n(totals.zero_results),
+        zero_result_rate: searches ? +(n(totals.zero_results) / searches).toFixed(3) : 0,
+        relaxed:          n(totals.relaxed),
+        avg_latency_ms:   Math.round(totals.avg_latency_ms || 0),
+        input_tokens:     n(totals.input_tokens),
+        output_tokens:    n(totals.output_tokens),
+        by_source:        bySource,
+        by_language:      byLanguage,
+        top_queries:      topQueries,
+        top_not_found:    notFound,   // demand the directory can't serve yet
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

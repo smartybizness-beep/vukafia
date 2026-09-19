@@ -162,6 +162,9 @@ async function init() {
     });
   });
 
+  // ── migrations (everything added after the base tables above) ────────
+  await k.migrate.latest({ directory: path.join(__dirname, 'migrations') });
+
   _connected = true;
   console.log('✅ Database schema ready');
   return k;
