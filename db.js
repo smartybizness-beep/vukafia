@@ -68,7 +68,7 @@ async function init() {
     return k.schema.createTable('listings', t => {
       t.increments('id').primary();
       t.integer('user_id').references('id').inTable('users').onDelete('CASCADE');
-      t.enu('type', ['product', 'service']).notNullable();
+      t.enu('type', ['product', 'service', 'tourism', 'medical']).notNullable();
       t.string('region').notNullable();          // West Africa | East Africa ...
       t.string('country').notNullable();
       t.string('country_code', 4);               // NG, GH, KE ...

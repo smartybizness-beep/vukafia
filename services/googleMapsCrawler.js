@@ -24,40 +24,44 @@ const REGIONS = {
         'tech company',
         'agriculture supplier',
         'beauty salon',
-        'phone repair'
+        'phone repair',
+        'hotel',
+        'hospital',
+        'medical clinic',
+        'tourism agency'
       ]
     },
     'Ghana': {
       cities: ['Accra', 'Kumasi', 'Sekondi-Takoradi'],
-      queries: ['electronics store', 'restaurant', 'hotel', 'shop', 'supermarket']
+      queries: ['electronics store', 'restaurant', 'hotel', 'shop', 'supermarket', 'hospital', 'medical clinic', 'tourism']
     },
     'Côte d\'Ivoire': {
       cities: ['Abidjan', 'Yamoussoukro'],
-      queries: ['electronics', 'restaurant', 'hotel']
+      queries: ['electronics', 'restaurant', 'hotel', 'hospital', 'medical clinic', 'tourism']
     }
   },
   'East Africa': {
     'Kenya': {
       cities: ['Nairobi', 'Mombasa', 'Kisumu'],
-      queries: ['electronics store', 'restaurant', 'hotel', 'shop', 'tech startup']
+      queries: ['electronics store', 'restaurant', 'hotel', 'shop', 'tech startup', 'hospital', 'medical clinic', 'safari tourism']
     },
     'Tanzania': {
       cities: ['Dar es Salaam', 'Dodoma'],
-      queries: ['restaurant', 'hotel', 'shop', 'electronics']
+      queries: ['restaurant', 'hotel', 'shop', 'electronics', 'hospital', 'medical clinic', 'tourism']
     },
     'Uganda': {
       cities: ['Kampala', 'Gulu'],
-      queries: ['restaurant', 'hotel', 'shop', 'tech company']
+      queries: ['restaurant', 'hotel', 'shop', 'tech company', 'hospital', 'medical clinic', 'tourism']
     }
   },
   'North Africa': {
     'Egypt': {
       cities: ['Cairo', 'Alexandria', 'Giza'],
-      queries: ['electronics store', 'restaurant', 'hotel', 'shop']
+      queries: ['electronics store', 'restaurant', 'hotel', 'shop', 'hospital', 'medical clinic', 'tourism']
     },
     'Morocco': {
       cities: ['Casablanca', 'Fez', 'Marrakech'],
-      queries: ['restaurant', 'hotel', 'shop', 'electronics']
+      queries: ['restaurant', 'hotel', 'shop', 'electronics', 'hospital', 'medical clinic', 'tourism']
     }
   }
 };
@@ -72,8 +76,8 @@ const CATEGORY_MAP = {
   'supermarket': 'Food & Groceries',
   'restaurant': 'Food & Groceries',
   'cafe': 'Food & Groceries',
-  'hotel': 'Tourism',
-  'guest house': 'Tourism',
+  'hotel': 'Accommodations',
+  'guest house': 'Accommodations',
   'tech company': 'Technology & IT',
   'tech startup': 'Technology & IT',
   'agriculture supplier': 'Agriculture',
@@ -81,7 +85,13 @@ const CATEGORY_MAP = {
   'beauty salon': 'Fashion & Textiles',
   'shop': 'General Retail',
   'store': 'General Retail',
-  'phone repair': 'Technology & IT'
+  'phone repair': 'Technology & IT',
+  'hospital': 'Medical',
+  'medical clinic': 'Medical',
+  'clinic': 'Medical',
+  'tourism agency': 'Tourism',
+  'safari tourism': 'Tourism',
+  'tourism': 'Tourism'
 };
 
 async function sleep(ms) {
@@ -159,8 +169,26 @@ function extractCity(address) {
  * Determine business type (product vs service)
  */
 function determineType(query) {
-  const serviceQueries = ['restaurant', 'cafe', 'hotel', 'salon', 'repair', 'tech company'];
-  return serviceQueries.some(q => query.toLowerCase().includes(q)) ? 'service' : 'product';
+  const q = query.toLowerCase();
+
+  // Check for medical
+  if (q.includes('hospital') || q.includes('medical') || q.includes('clinic')) {
+    return 'medical';
+  }
+
+  // Check for tourism
+  if (q.includes('hotel') || q.includes('guest') || q.includes('tourism') || q.includes('safari')) {
+    return 'tourism';
+  }
+
+  // Check for service
+  const serviceQueries = ['restaurant', 'cafe', 'salon', 'repair', 'tech company'];
+  if (serviceQueries.some(sq => q.includes(sq))) {
+    return 'service';
+  }
+
+  // Default to product
+  return 'product';
 }
 
 /**
@@ -226,11 +254,15 @@ async function crawlGoogleMaps() {
             let coverPhoto = generateCoverPhoto(category); // fallback
             if (place.photos && place.photos.length > 0) {
               const photo = place.photos[0];
+              console.log(`📸 [${businessName}] photo =`, JSON.stringify(photo, null, 2).substring(0, 200));
               if (photo.name) {
                 // Use Google Places API /media endpoint to get actual photo
                 // This returns a redirect to the real image
                 coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
+                console.log(`✅ Google photo URL: ${coverPhoto.substring(0, 100)}...`);
               }
+            } else {
+              console.log(`❌ [${businessName}] NO PHOTOS from Google`);
             }
 
             // Try to extract Instagram handle from website or business name
@@ -308,8 +340,10 @@ function generateCoverPhoto(category) {
     'Fashion & Textiles': 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=75',
     'Food & Groceries': 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=500&q=75',
     'Tourism': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500&q=75',
+    'Accommodations': 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=500&q=75',
     'Technology & IT': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&q=75',
-    'Agriculture': 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=500&q=75'
+    'Agriculture': 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=500&q=75',
+    'Medical': 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=500&q=75'
   };
   return photos[category] || 'https://images.unsplash.com/photo-1553729783-c91953dec042?w=500&q=75';
 }
