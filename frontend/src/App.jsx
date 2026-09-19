@@ -420,6 +420,18 @@ export default function App() {
                           🌐
                         </button>
                       )}
+                      {listing.instagram && (
+                        <button
+                          className="card-btn"
+                          onClick={() => {
+                            const url = `https://instagram.com/${listing.instagram.replace('@', '')}`;
+                            window.open(url, '_blank');
+                          }}
+                          title={listing.instagram}
+                        >
+                          📷
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
