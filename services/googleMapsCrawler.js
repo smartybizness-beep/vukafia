@@ -105,7 +105,7 @@ async function searchPlaces(query, location) {
       headers: {
         'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
         'Content-Type': 'application/json',
-        'X-Goog-FieldMask': 'places.displayName,places.name,places.internationalPhoneNumber,places.websiteUri,places.formattedAddress,places.rating,places.userRatingCount,places.location'
+        'X-Goog-FieldMask': 'places.displayName,places.name,places.internationalPhoneNumber,places.websiteUri,places.formattedAddress,places.rating,places.userRatingCount,places.location,places.photos'
       }
     });
 
@@ -222,6 +222,16 @@ async function crawlGoogleMaps() {
             const city_name = extractCity(place.formattedAddress || businessName);
             const category = CATEGORY_MAP[query.toLowerCase()] || 'General Retail';
 
+            // Extract real photo from Google Maps (if available)
+            let coverPhoto = generateCoverPhoto(category); // fallback
+            if (place.photos && place.photos.length > 0) {
+              const photo = place.photos[0];
+              if (photo.uri) {
+                // Google Places API returns direct photo URIs
+                coverPhoto = `${photo.uri}?maxWidth=500`;
+              }
+            }
+
             businesses.push({
               name: businessName,
               phone: place.internationalPhoneNumber || null,
@@ -236,6 +246,7 @@ async function crawlGoogleMaps() {
               review_count: place.userRatingCount || 0,
               latitude: place.location?.latitude || null,
               longitude: place.location?.longitude || null,
+              cover_photo: coverPhoto,
               verified_source: 'Google Maps',
               verified_at: new Date(),
               verification_score: calculateScore(place)
