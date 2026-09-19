@@ -226,11 +226,10 @@ async function crawlGoogleMaps() {
             let coverPhoto = generateCoverPhoto(category); // fallback
             if (place.photos && place.photos.length > 0) {
               const photo = place.photos[0];
-              if (photo.uri) {
-                coverPhoto = photo.uri;
-              } else if (photo.name) {
-                // Construct URL from photo name if available
-                coverPhoto = `https://lh5.googleusercontent.com/${photo.name}?w=500`;
+              if (photo.name) {
+                // Use Google Places API /media endpoint to get actual photo
+                // This returns a redirect to the real image
+                coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
               }
             }
 
