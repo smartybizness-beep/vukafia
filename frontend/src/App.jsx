@@ -543,23 +543,42 @@ export default function App() {
                       <div
                         key={business.id}
                         onClick={() => {
+                          if (business.claimed) {
+                            setClaimMessage('This business has already been claimed by another owner.');
+                            return
+                          }
                           setSelectedClaim(business)
                           setClaimStep('verify')
                           setClaimMessage('')
                         }}
                         style={{
                           padding: '1rem',
-                          background: '#F3F4F6',
+                          background: business.claimed ? '#FEF2F2' : '#F3F4F6',
                           borderRadius: '8px',
                           marginBottom: '0.75rem',
-                          cursor: 'pointer',
-                          borderLeft: '4px solid var(--accent)',
-                          transition: 'all 0.2s'
+                          cursor: business.claimed ? 'not-allowed' : 'pointer',
+                          borderLeft: `4px solid ${business.claimed ? '#EF4444' : 'var(--accent)'}`,
+                          transition: 'all 0.2s',
+                          opacity: business.claimed ? 0.6 : 1
                         }}
-                        onMouseOver={e => e.currentTarget.style.background = '#E5E7EB'}
-                        onMouseOut={e => e.currentTarget.style.background = '#F3F4F6'}
+                        onMouseOver={e => !business.claimed && (e.currentTarget.style.background = '#E5E7EB')}
+                        onMouseOut={e => (e.currentTarget.style.background = business.claimed ? '#FEF2F2' : '#F3F4F6')}
                       >
-                        <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{business.name}</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.25rem' }}>
+                          <div style={{ fontWeight: 'bold' }}>{business.name}</div>
+                          {business.claimed && (
+                            <span style={{
+                              background: '#EF4444',
+                              color: 'white',
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '4px',
+                              fontSize: '0.7rem',
+                              fontWeight: 'bold'
+                            }}>
+                              CLAIMED
+                            </span>
+                          )}
+                        </div>
                         <div style={{ fontSize: '0.85rem', color: '#666' }}>
                           {business.category} • {business.city}, {business.country}
                         </div>
