@@ -95,19 +95,27 @@ async function searchPlaces(query, location) {
   try {
     const url = 'https://places.googleapis.com/v1/places:searchText';
 
-    const response = await axios.post(url, {
+    const payload = {
       textQuery: `${query} in ${location}`,
-      languageCode: 'en'
-    }, {
+      languageCode: 'en',
+      maxResultCount: 5
+    };
+
+    const response = await axios.post(url, payload, {
       headers: {
         'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Goog-FieldMask': 'places.name,places.internationalPhoneNumber,places.websiteUri,places.formattedAddress,places.rating,places.userRatingCount,places.location'
       }
     });
 
     return response.data.places || [];
   } catch (err) {
-    console.error(`Error searching "${query}" in ${location}:`, err.message);
+    if (err.response) {
+      console.error(`Error searching "${query}" in ${location}:`, err.response.status, err.response.data);
+    } else {
+      console.error(`Error searching "${query}" in ${location}:`, err.message);
+    }
     return [];
   }
 }
