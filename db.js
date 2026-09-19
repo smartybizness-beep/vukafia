@@ -166,6 +166,22 @@ async function init() {
     });
   });
 
+  // ── listing_claims (when a business is claimed with payment) ──────────
+  await k.schema.hasTable('listing_claims').then(exists => {
+    if (exists) return;
+    return k.schema.createTable('listing_claims', t => {
+      t.increments('id').primary();
+      t.integer('listing_id').references('id').inTable('listings').onDelete('CASCADE');
+      t.integer('user_id').references('id').inTable('users').onDelete('CASCADE');
+      t.string('payment_ref').notNullable();
+      t.integer('payment_amount');
+      t.string('payment_status').defaultTo('completed');
+      t.enu('status', ['pending','completed','cancelled']).defaultTo('completed');
+      t.timestamp('claimed_at');
+      t.timestamps(true, true);
+    });
+  });
+
   // ── migrations (everything added after the base tables above) ────────
   await k.migrate.latest({ directory: path.join(__dirname, 'migrations') });
 

@@ -8,7 +8,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, optionalAuth } = require('../middleware/auth');
+const { initializePayment, verifyPayment, getClaimFee, PAYSTACK_PUBLIC } = require('../services/paystack');
 
 // ─── GET /api/claims/search ────────────────────────────────────────────────
 // Search for a listing to claim (by name + country)
@@ -63,6 +64,117 @@ router.post('/verify-ownership', async (req, res, next) => {
     }
 
     res.json({ success: true, verified: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── GET /api/claims/fee ──────────────────────────────────────────────────
+// Get claim fee for a listing
+router.get('/fee', (req, res) => {
+  const { currency = 'NGN' } = req.query;
+  const fee = getClaimFee(currency);
+  res.json({
+    success: true,
+    fee,
+    currency,
+    paystack_public_key: PAYSTACK_PUBLIC
+  });
+});
+
+// ─── POST /api/claims/initialize-payment ──────────────────────────────────
+// Initialize Paystack payment for claiming
+router.post('/initialize-payment', requireAuth, async (req, res, next) => {
+  try {
+    const { listing_id, currency = 'NGN' } = req.body;
+    if (!listing_id) {
+      return res.status(400).json({ error: 'listing_id is required' });
+    }
+
+    const k = db.query();
+    const listing = await k('listings').where('id', listing_id).first();
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+
+    if (listing.user_id && listing.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'Listing already claimed by another user' });
+    }
+
+    const result = await initializePayment({
+      email: req.user.email,
+      listing_id,
+      user_id: req.user.id,
+      currency
+    });
+
+    if (result.success) {
+      res.json({
+        success: true,
+        authorization_url: result.authorization_url,
+        access_code: result.access_code,
+        reference: result.reference,
+        amount: result.amount
+      });
+    } else {
+      res.status(400).json({ success: false, error: result.error });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── POST /api/claims/verify-payment ──────────────────────────────────────
+// Verify Paystack payment and complete claim
+router.post('/verify-payment', requireAuth, async (req, res, next) => {
+  try {
+    const { reference, listing_id, phone } = req.body;
+    if (!reference || !listing_id) {
+      return res.status(400).json({ error: 'reference and listing_id are required' });
+    }
+
+    // Verify payment with Paystack
+    const paymentResult = await verifyPayment(reference);
+    if (!paymentResult.success) {
+      return res.status(400).json({ success: false, error: 'Payment verification failed' });
+    }
+
+    const k = db.query();
+    const listing = await k('listings').where('id', listing_id).first();
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+
+    // Optional: verify phone if provided
+    if (phone) {
+      const normalizePhone = (p) => p.replace(/\D/g, '');
+      if (normalizePhone(listing.phone) !== normalizePhone(phone)) {
+        return res.status(403).json({ error: 'Phone does not match this business' });
+      }
+    }
+
+    // Mark listing as claimed
+    await k('listings').where('id', listing_id).update({
+      user_id: req.user.id,
+      verified: true
+    });
+
+    // Log the claim with payment info
+    await k('listing_claims').insert({
+      listing_id,
+      user_id: req.user.id,
+      payment_ref: reference,
+      payment_amount: paymentResult.amount,
+      payment_status: 'completed',
+      status: 'completed',
+      claimed_at: new Date()
+    }).catch(() => {}); // Table may not exist yet
+
+    res.json({
+      success: true,
+      message: 'Business claimed successfully!',
+      listing_id
+    });
   } catch (err) {
     next(err);
   }

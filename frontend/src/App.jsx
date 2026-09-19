@@ -23,6 +23,9 @@ export default function App() {
   const [claimPhone, setClaimPhone] = useState('')
   const [claimLoading, setClaimLoading] = useState(false)
   const [claimMessage, setClaimMessage] = useState('')
+  const [claimFee, setClaimFee] = useState(15)
+  const [currency, setCurrency] = useState('NGN')
+  const [paystackLoading, setPaystackLoading] = useState(false)
 
   const WA_PHONE = '2348101477935'
 
@@ -36,6 +39,48 @@ export default function App() {
   useEffect(() => {
     applyFilters()
   }, [listings, type, search, country, category])
+
+  // Handle Paystack payment callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const reference = params.get('reference')
+    const listing_id = sessionStorage.getItem('pending_claim_listing_id')
+
+    if (reference && listing_id) {
+      verifyPaymentAndCompleteClaim(reference, listing_id)
+      sessionStorage.removeItem('pending_claim_listing_id')
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [])
+
+  async function verifyPaymentAndCompleteClaim(reference, listing_id) {
+    try {
+      const token = localStorage.getItem('auth_token')
+      if (!token) return
+
+      const res = await fetch('/api/claims/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ reference, listing_id })
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        setShowClaimModal(false)
+        resetClaim()
+        alert('✅ Business claimed successfully! You can now manage your listing.')
+        fetchListings()
+      } else {
+        alert(`❌ Payment verification failed: ${data.error}`)
+      }
+    } catch (err) {
+      console.error('Payment verification error:', err)
+    }
+  }
 
   async function fetchListings() {
     try {
@@ -187,11 +232,48 @@ export default function App() {
     }
   }
 
-  function proceedToPayment() {
+  async function proceedToPayment() {
     if (!selectedClaim) return
-    const amount = 15
-    const message = `I want to claim my business listing: ${selectedClaim.name} in ${selectedClaim.country}. Payment amount: $${amount}.`
-    openWhatsApp(message)
+
+    try {
+      setPaystackLoading(true)
+
+      // Get auth token from localStorage
+      const token = localStorage.getItem('auth_token')
+      if (!token) {
+        setClaimMessage('❌ Please log in first')
+        return
+      }
+
+      // Initialize payment with backend
+      const res = await fetch('/api/claims/initialize-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          listing_id: selectedClaim.id,
+          currency: currency
+        })
+      })
+
+      const data = await res.json()
+      if (!data.success) {
+        setClaimMessage(`❌ ${data.error || 'Failed to initialize payment'}`)
+        return
+      }
+
+      // Store listing_id for callback verification
+      sessionStorage.setItem('pending_claim_listing_id', selectedClaim.id.toString())
+
+      // Redirect to Paystack payment page
+      window.location.href = data.authorization_url
+    } catch (err) {
+      setClaimMessage(`❌ Error: ${err.message}`)
+    } finally {
+      setPaystackLoading(false)
+    }
   }
 
   function resetClaim() {
@@ -734,11 +816,48 @@ export default function App() {
                     {selectedClaim.city}, {selectedClaim.country}
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#D97706', marginBottom: '0.5rem' }}>
-                    $15
+                    {currency === 'NGN' ? '₦' : '$'}{currency === 'NGN' ? '6,000' : '15'}
                   </div>
                   <div style={{ color: '#666', fontSize: '0.9rem' }}>
                     One-time claim & verification fee
                   </div>
+                </div>
+
+                <div style={{
+                  marginBottom: '1.5rem',
+                  display: 'flex',
+                  gap: '0.5rem'
+                }}>
+                  <button
+                    onClick={() => setCurrency('NGN')}
+                    style={{
+                      flex: 1,
+                      padding: '0.5rem',
+                      background: currency === 'NGN' ? '#D97706' : '#E5E7EB',
+                      color: currency === 'NGN' ? 'white' : '#333',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    NGN (Nigeria)
+                  </button>
+                  <button
+                    onClick={() => setCurrency('USD')}
+                    style={{
+                      flex: 1,
+                      padding: '0.5rem',
+                      background: currency === 'USD' ? '#D97706' : '#E5E7EB',
+                      color: currency === 'USD' ? 'white' : '#333',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    USD (International)
+                  </button>
                 </div>
 
                 <div style={{
@@ -756,22 +875,36 @@ export default function App() {
                   ✅ <strong>Access premium features</strong>
                 </div>
 
+                {claimMessage && (
+                  <div style={{
+                    padding: '0.75rem',
+                    background: '#FEE2E2',
+                    color: '#991B1B',
+                    borderRadius: '6px',
+                    marginBottom: '1rem',
+                    fontSize: '0.9rem'
+                  }}>
+                    {claimMessage}
+                  </div>
+                )}
+
                 <button
                   onClick={proceedToPayment}
+                  disabled={paystackLoading}
                   style={{
                     width: '100%',
                     padding: '0.75rem',
-                    background: 'var(--accent)',
+                    background: paystackLoading ? '#D1D5DB' : 'var(--accent)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
                     fontSize: '1rem',
                     fontWeight: 'bold',
-                    cursor: 'pointer',
+                    cursor: paystackLoading ? 'not-allowed' : 'pointer',
                     marginBottom: '0.75rem'
                   }}
                 >
-                  💳 Pay $15 via WhatsApp
+                  {paystackLoading ? '⏳ Processing...' : '💳 Pay with Paystack'}
                 </button>
                 <button
                   onClick={() => setShowClaimModal(false)}
