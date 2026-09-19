@@ -65,6 +65,19 @@ app.use('/api/auth/', authLimiter);
 // ─── ADMIN UI (static; data still requires an admin JWT) ───────────────────
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin'), { extensions: ['html'] }));
 
+// ─── FRONTEND (React SPA) ─────────────────────────────────────────────────────
+// Serve built React app from frontend/dist (production only)
+const frontendPath = path.join(__dirname, 'frontend', 'dist');
+if (fs.existsSync(frontendPath)) {
+  app.use(express.static(frontendPath));
+  // Fallback to index.html for client-side routing
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api') && !req.path.startsWith('/admin')) {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    }
+  });
+}
+
 // ─── ROUTES ────────────────────────────────────────────────────────────────
 app.use('/api/listings',  listingsRouter);
 app.use('/api/search',    searchRouter);

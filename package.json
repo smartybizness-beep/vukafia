@@ -8,7 +8,9 @@
     "dev": "nodemon server.js",
     "seed": "node seed.js",
     "test": "jest --forceExit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build": "cd frontend && npm install && npm run build && cd ..",
+    "build:frontend": "cd frontend && npm run build"
   },
   "keywords": [
     "africa",
