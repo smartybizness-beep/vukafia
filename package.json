@@ -1,7 +1,7 @@
 {
   "name": "vukafia-api",
   "version": "1.0.0",
-  "description": "Vukafia Trans-African Marketplace — Backend API",
+  "description": "Vukafia Trans-African Marketplace \u00e2\u20ac\u201d Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,7 +10,8 @@
     "test": "jest --forceExit",
     "lint": "eslint .",
     "build": "cd frontend && npm install && npm run build && cd ..",
-    "build:frontend": "cd frontend && npm run build"
+    "build:frontend": "cd frontend && npm run build",
+    "crawl": "node scripts/crawlBusinesses.js"
   },
   "keywords": [
     "africa",

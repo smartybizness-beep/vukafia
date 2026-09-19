@@ -13,6 +13,7 @@
 'use strict';
 
 require('dotenv').config();
+const fs           = require('fs');
 const express      = require('express');
 const cors         = require('cors');
 const helmet       = require('helmet');
@@ -27,6 +28,7 @@ const authRouter     = require('./routes/auth');
 const adminRouter    = require('./routes/admin');
 const webhookRouter  = require('./routes/webhook');
 const searchRouter   = require('./routes/search');
+const claimsRouter   = require('./routes/claims');
 
 const app  = express();
 const PORT = process.env.PORT || 5000;
@@ -81,6 +83,7 @@ if (fs.existsSync(frontendPath)) {
 // ─── ROUTES ────────────────────────────────────────────────────────────────
 app.use('/api/listings',  listingsRouter);
 app.use('/api/search',    searchRouter);
+app.use('/api/claims',    claimsRouter);
 app.use('/api/business',  businessRouter);
 app.use('/api/auth',      authRouter);
 app.use('/api/admin',     adminRouter);

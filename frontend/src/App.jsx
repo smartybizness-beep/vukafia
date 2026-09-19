@@ -13,7 +13,6 @@ export default function App() {
   const [categories, setCategories] = useState([])
   const [totalListings, setTotalListings] = useState(0)
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
   const WA_PHONE = '2348101477935'
 
   // Fetch listings
@@ -30,7 +29,7 @@ export default function App() {
   async function fetchListings() {
     try {
       setLoading(true)
-      const res = await fetch(`${API_URL}/listings?limit=1000`)
+      const res = await fetch('/api/listings?limit=1000')
       const data = await res.json()
       if (data.success) {
         setListings(data.data || [])
@@ -45,11 +44,15 @@ export default function App() {
 
   async function fetchMeta() {
     try {
-      const res = await fetch(`${API_URL}/listings/meta/regions`)
+      console.log('Fetching metadata from: /api/listings/meta/regions')
+      const res = await fetch('/api/listings/meta/regions')
       const data = await res.json()
+      console.log('Metadata response:', data)
       if (data.success) {
         const countryList = [...new Set(data.data.countries.map(c => c.country))].sort()
         const categoryList = [...new Set(data.data.categories.map(c => c.category))].sort()
+        console.log('Countries:', countryList)
+        console.log('Categories:', categoryList)
         setCountries(countryList)
         setCategories(categoryList)
       }
@@ -100,7 +103,7 @@ export default function App() {
 
   function contactListing(listing, type) {
     // Track contact
-    fetch(`${API_URL}/listings/${listing.id}/contact`, {
+    fetch(`/api/listings/${listing.id}/contact`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ contact_type: type })
