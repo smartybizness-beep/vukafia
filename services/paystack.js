@@ -32,7 +32,7 @@ async function initializePayment(options) {
     if (!PAYSTACK_SECRET || PAYSTACK_SECRET.includes('your_secret')) {
       return {
         success: false,
-        error: 'Paystack not configured. Add PAYSTACK_SECRET_KEY to .env'
+        error: 'Payments coming soon! Contact us via WhatsApp to claim your business in the meantime.'
       };
     }
 
