@@ -20,7 +20,10 @@ function getKnex() {
     // ── POSTGRESQL (production) ──────────────────────────────────────────
     knex = require('knex')({
       client: 'pg',
-      connection: process.env.DATABASE_URL,
+      connection: {
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+      },
       pool: { min: 2, max: 10 },
       searchPath: ['knex', 'public'],
     });
