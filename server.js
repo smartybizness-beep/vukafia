@@ -75,23 +75,6 @@ if (fs.existsSync(frontendPath)) {
   app.use(express.static(frontendPath));
 }
 
-// ─── ROUTES ────────────────────────────────────────────────────────────────
-app.use('/api/listings',  listingsRouter);
-app.use('/api/search',    searchRouter);
-app.use('/api/claims',    claimsRouter);
-app.use('/api/business',  businessRouter);
-app.use('/api/auth',      authRouter);
-app.use('/api/admin',     adminRouter);
-app.use('/api/webhook',   webhookRouter);  // WhatsApp webhook
-
-// ─── SPA FALLBACK (client-side routing) ────────────────────────────────────
-// Serve index.html for all non-API routes (React Router handles them)
-if (fs.existsSync(frontendPath)) {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'));
-  });
-}
-
 // ─── HEALTH CHECK ──────────────────────────────────────────────────────────
 app.get('/health', (req, res) => {
   res.json({
@@ -120,6 +103,23 @@ app.get('/', (req, res) => {
     },
   });
 });
+
+// ─── ROUTES ────────────────────────────────────────────────────────────────
+app.use('/api/listings',  listingsRouter);
+app.use('/api/search',    searchRouter);
+app.use('/api/claims',    claimsRouter);
+app.use('/api/business',  businessRouter);
+app.use('/api/auth',      authRouter);
+app.use('/api/admin',     adminRouter);
+app.use('/api/webhook',   webhookRouter);  // WhatsApp webhook
+
+// ─── SPA FALLBACK (client-side routing) ────────────────────────────────────
+// Serve index.html for all non-API routes (React Router handles them)
+if (fs.existsSync(frontendPath)) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
 
 // ─── 404 ───────────────────────────────────────────────────────────────────
 app.use((req, res) => {
