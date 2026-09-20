@@ -74,8 +74,8 @@ router.get('/', optionalAuth, async (req, res, next) => {
     }
 
     // ── COUNT (for pagination) ────────────────────────────────────────────
-    const countQuery = query.clone().count('id as total').first();
-    const { total }  = await countQuery;
+    const countResult = await k('listings').where('active', true).count('id as total').first();
+    const { total }  = countResult;
 
     // ── SORT ──────────────────────────────────────────────────────────────
     switch (sort) {
