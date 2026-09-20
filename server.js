@@ -73,12 +73,6 @@ app.use('/admin', express.static(path.join(__dirname, 'public', 'admin'), { exte
 const frontendPath = path.join(__dirname, 'frontend', 'dist');
 if (fs.existsSync(frontendPath)) {
   app.use(express.static(frontendPath));
-  // Fallback to index.html for client-side routing
-  app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api') && !req.path.startsWith('/admin')) {
-      res.sendFile(path.join(frontendPath, 'index.html'));
-    }
-  });
 }
 
 // ─── ROUTES ────────────────────────────────────────────────────────────────
@@ -89,6 +83,14 @@ app.use('/api/business',  businessRouter);
 app.use('/api/auth',      authRouter);
 app.use('/api/admin',     adminRouter);
 app.use('/api/webhook',   webhookRouter);  // WhatsApp webhook
+
+// ─── SPA FALLBACK (client-side routing) ────────────────────────────────────
+// Serve index.html for all non-API routes (React Router handles them)
+if (fs.existsSync(frontendPath)) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
 
 // ─── HEALTH CHECK ──────────────────────────────────────────────────────────
 app.get('/health', (req, res) => {
