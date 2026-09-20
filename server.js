@@ -136,7 +136,7 @@ app.use((err, req, res, next) => {
 
 // ─── START ─────────────────────────────────────────────────────────────────
 db.init().then(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log('\n╔══════════════════════════════════════════════╗');
     console.log(`║  🌍  VUKAFIA API running on port ${PORT}         ║`);
     console.log(`║  ENV: ${(process.env.NODE_ENV || 'development').padEnd(38)}║`);
