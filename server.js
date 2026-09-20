@@ -143,6 +143,7 @@ db.init().then(() => {
     console.log('\n╔══════════════════════════════════════════════╗');
     console.log(`║  🌍  VUKAFIA API running on port ${PORT}         ║`);
     console.log(`║  ENV: ${(process.env.NODE_ENV || 'development').padEnd(38)}║`);
+    console.log(`║  📊 Database: ${(process.env.DATABASE_URL ? 'PostgreSQL' : 'SQLite').padEnd(36)}║`);
     console.log('╚══════════════════════════════════════════════╝\n');
   });
 }).catch(err => {
