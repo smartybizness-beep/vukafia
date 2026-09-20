@@ -124,8 +124,8 @@ async function main() {
 
     process.exit(0);
   } catch (err) {
-    console.error('❌ Crawler failed:', err.message);
-    if (process.env.DEBUG) console.error(err.stack);
+    console.error('❌ Crawler failed:', err.message || err);
+    console.error(err.stack);
     process.exit(1);
   }
 }
