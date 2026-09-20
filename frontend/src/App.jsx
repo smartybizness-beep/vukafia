@@ -28,6 +28,7 @@ export default function App() {
   const [paystackLoading, setPaystackLoading] = useState(false)
 
   const WA_PHONE = '2348101477935'
+  const API_BASE = 'https://vukafia-production.up.railway.app'
 
   // Fetch listings
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function App() {
       const token = localStorage.getItem('auth_token')
       if (!token) return
 
-      const res = await fetch('/api/claims/verify-payment', {
+      const res = await fetch(`${API_BASE}/api/claims/verify-payment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +86,7 @@ export default function App() {
   async function fetchListings() {
     try {
       setLoading(true)
-      const res = await fetch('/api/listings?limit=1000')
+      const res = await fetch(`${API_BASE}/api/listings?limit=1000`)
       const data = await res.json()
       if (data.success) {
         setListings(data.data || [])
@@ -101,7 +102,7 @@ export default function App() {
   async function fetchMeta() {
     try {
       console.log('Fetching metadata from: /api/listings/meta/regions')
-      const res = await fetch('/api/listings/meta/regions')
+      const res = await fetch(`${API_BASE}/api/listings/meta/regions`)
       const data = await res.json()
       console.log('Metadata response:', data)
       if (data.success) {
@@ -159,7 +160,7 @@ export default function App() {
 
   function contactListing(listing, type) {
     // Track contact
-    fetch(`/api/listings/${listing.id}/contact`, {
+    fetch(`${API_BASE}/api/listings/${listing.id}/contact`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ contact_type: type })
@@ -185,7 +186,7 @@ export default function App() {
     setClaimLoading(true)
     setClaimMessage('')
     try {
-      const res = await fetch(`/api/claims/search?name=${encodeURIComponent(claimSearch)}&country=${claimCountry}`)
+      const res = await fetch(`${API_BASE}/api/claims/search?name=${encodeURIComponent(claimSearch)}&country=${claimCountry}`)
       const data = await res.json()
       if (data.success) {
         setClaimResults(data.data || [])
@@ -210,7 +211,7 @@ export default function App() {
     setClaimLoading(true)
     setClaimMessage('')
     try {
-      const res = await fetch('/api/claims/verify-ownership', {
+      const res = await fetch(`${API_BASE}/api/claims/verify-ownership`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
@@ -246,7 +247,7 @@ export default function App() {
       }
 
       // Initialize payment with backend
-      const res = await fetch('/api/claims/initialize-payment', {
+      const res = await fetch(`${API_BASE}/api/claims/initialize-payment`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
