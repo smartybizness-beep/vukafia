@@ -10,7 +10,20 @@ const router  = express.Router();
 const db      = require('../db');
 const { optionalAuth } = require('../middleware/auth');
 
-// ─── GET /api/listings ────────────────────────────────────────────────────
+// ─── GET /api/listings/test-db ─────────────────────────────────────────────
+// Debug endpoint to test database connection
+router.get('/test-db', async (req, res, next) => {
+  try {
+    const k = db.query();
+    const count = await k('listings').where('active', true).count('* as count').first();
+    const sample = await k('listings').where('active', true).limit(1).first();
+    res.json({ success: true, count, sample: sample ? sample.name : null });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── GET /api/listings ────────────────────────────────────────────────────────
 // Query params:
 //   type       product | service
 //   region     West Africa | East Africa | North Africa | Central Africa | Southern Africa
