@@ -15,9 +15,16 @@ const { optionalAuth } = require('../middleware/auth');
 router.get('/test-db', async (req, res, next) => {
   try {
     const k = db.query();
+    const dbUrl = process.env.DATABASE_URL ? process.env.DATABASE_URL.split('@')[0] + '@...' : 'NOT SET';
     const count = await k('listings').where('active', true).count('* as count').first();
     const sample = await k('listings').where('active', true).limit(1).first();
-    res.json({ success: true, count, sample: sample ? sample.name : null });
+    res.json({
+      success: true,
+      database_url: dbUrl,
+      node_env: process.env.NODE_ENV,
+      count,
+      sample: sample ? sample.name : null
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
