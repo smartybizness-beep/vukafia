@@ -7,6 +7,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [type, setType] = useState('product')
   const [search, setSearch] = useState('')
+  const [region, setRegion] = useState('')
   const [country, setCountry] = useState('')
   const [category, setCategory] = useState('')
   const [countries, setCountries] = useState([])
@@ -39,7 +40,7 @@ export default function App() {
   // Filter listings when filters change
   useEffect(() => {
     applyFilters()
-  }, [listings, type, search, country, category])
+  }, [listings, type, search, region, country, category])
 
   // Handle Paystack payment callback
   useEffect(() => {
@@ -134,6 +135,11 @@ export default function App() {
         l.category.toLowerCase().includes(q) ||
         l.products_services.toLowerCase().includes(q)
       )
+    }
+
+    // Filter by region
+    if (region) {
+      filtered = filtered.filter(l => l.region === region)
     }
 
     // Filter by country
@@ -402,12 +408,42 @@ export default function App() {
       </div>
 
       <div className="rbar">
-        <div className="rtab active">🌍 All Africa</div>
-        <div className="rtab">🟤 West Africa</div>
-        <div className="rtab">🟢 East Africa</div>
-        <div className="rtab">🟡 North Africa</div>
-        <div className="rtab">🟠 Central Africa</div>
-        <div className="rtab">🔵 Southern Africa</div>
+        <button
+          className={`rtab ${region === '' ? 'active' : ''}`}
+          onClick={() => setRegion('')}
+        >
+          🌍 All Africa
+        </button>
+        <button
+          className={`rtab ${region === 'West Africa' ? 'active' : ''}`}
+          onClick={() => setRegion('West Africa')}
+        >
+          🟤 West Africa
+        </button>
+        <button
+          className={`rtab ${region === 'East Africa' ? 'active' : ''}`}
+          onClick={() => setRegion('East Africa')}
+        >
+          🟢 East Africa
+        </button>
+        <button
+          className={`rtab ${region === 'North Africa' ? 'active' : ''}`}
+          onClick={() => setRegion('North Africa')}
+        >
+          🟡 North Africa
+        </button>
+        <button
+          className={`rtab ${region === 'Central Africa' ? 'active' : ''}`}
+          onClick={() => setRegion('Central Africa')}
+        >
+          🟠 Central Africa
+        </button>
+        <button
+          className={`rtab ${region === 'Southern Africa' ? 'active' : ''}`}
+          onClick={() => setRegion('Southern Africa')}
+        >
+          🔵 Southern Africa
+        </button>
       </div>
 
       <div className="layout">

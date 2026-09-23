@@ -408,6 +408,9 @@ nav {
   border-bottom: 3px solid transparent;
   transition: all 0.18s;
   flex-shrink: 0;
+  background: none;
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .rtab:hover {
