@@ -15,13 +15,21 @@ const { optionalAuth } = require('../middleware/auth');
 router.get('/test-db', async (req, res, next) => {
   try {
     const k = db.query();
-    const raw = await k.raw('SELECT COUNT(*) as count FROM listings WHERE active = true');
+    let rawResult;
+    try {
+      const raw = await k.raw('SELECT COUNT(*) as count FROM listings WHERE active = true');
+      rawResult = { result: raw, rows: raw.rows, first: raw.rows ? raw.rows[0] : null };
+    } catch (e) {
+      rawResult = { error: e.message };
+    }
     const knexCount = await k('listings').where('active', true).count('* as count').first();
+    const knexAll = await k('listings').where('active', true).select('id', 'name').limit(5);
     const simple = await k('listings').where('active', true).first();
     res.json({
       success: true,
-      raw_query: raw.rows ? raw.rows[0] : raw.rows,
+      raw_query: rawResult,
       knex_count: knexCount,
+      knex_all_5: knexAll.length + ' rows',
       simple_select: simple ? { id: simple.id, name: simple.name } : null
     });
   } catch (err) {
