@@ -414,13 +414,13 @@ export default function App() {
         </div>
       </div>
 
-      <div className="rbar">
-        <button className={`rtab ${region === '' ? 'active' : ''}`} onClick={() => handleRegionClick('')}>🌍 All Africa</button>
-        <button className={`rtab ${region === 'West Africa' ? 'active' : ''}`} onClick={() => handleRegionClick('West Africa')}>🟤 West Africa</button>
-        <button className={`rtab ${region === 'East Africa' ? 'active' : ''}`} onClick={() => handleRegionClick('East Africa')}>🟢 East Africa</button>
-        <button className={`rtab ${region === 'North Africa' ? 'active' : ''}`} onClick={() => handleRegionClick('North Africa')}>🟡 North Africa</button>
-        <button className={`rtab ${region === 'Central Africa' ? 'active' : ''}`} onClick={() => handleRegionClick('Central Africa')}>🟠 Central Africa</button>
-        <button className={`rtab ${region === 'Southern Africa' ? 'active' : ''}`} onClick={() => handleRegionClick('Southern Africa')}>🔵 Southern Africa</button>
+      <div className="rbar" onClick={(e) => { console.log('[RBAR CLICK]', e.target); if (e.target.dataset.region) handleRegionClick(e.target.dataset.region) }}>
+        <button data-region="" className={`rtab ${region === '' ? 'active' : ''}`}>🌍 All Africa</button>
+        <button data-region="West Africa" className={`rtab ${region === 'West Africa' ? 'active' : ''}`}>🟤 West Africa</button>
+        <button data-region="East Africa" className={`rtab ${region === 'East Africa' ? 'active' : ''}`}>🟢 East Africa</button>
+        <button data-region="North Africa" className={`rtab ${region === 'North Africa' ? 'active' : ''}`}>🟡 North Africa</button>
+        <button data-region="Central Africa" className={`rtab ${region === 'Central Africa' ? 'active' : ''}`}>🟠 Central Africa</button>
+        <button data-region="Southern Africa" className={`rtab ${region === 'Southern Africa' ? 'active' : ''}`}>🔵 Southern Africa</button>
       </div>
 
       <div className="layout">
