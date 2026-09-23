@@ -14,25 +14,13 @@ let _connected = false;
 let _lastIsProd = null;
 
 function getKnex() {
-  // Fallback to hardcoded URL if env var not set (Railway issue workaround)
+  if (knex) return knex;
+
+  // Simple logic: if DATABASE_URL is set (to a non-empty string), use PostgreSQL
+  const usePostgres = !!(process.env.DATABASE_URL && process.env.DATABASE_URL.trim());
   const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:sAbPhLWlWEUGSXQDLNNYuPJQIrLDqiOr@metro.proxy.rlwy.net:25557/railway';
-  const nodeEnv = process.env.NODE_ENV || 'production';
-  const isProd = dbUrl && nodeEnv === 'production';
-  console.log('[DB] isProd check - DATABASE_URL:', !!process.env.DATABASE_URL, 'NODE_ENV:', process.env.NODE_ENV, 'result:', isProd);
 
-  // Only use cached knex if we're still in the same mode
-  if (knex && _lastIsProd === isProd) return knex;
-
-  // Reset cache if mode changed
-  if (_lastIsProd !== isProd) {
-    console.log('[DB] Database mode changed, reinitializing');
-    knex = null;
-    _connected = false;
-  }
-
-  _lastIsProd = isProd;
-
-  if (isProd) {
+  if (usePostgres) {
     // ── POSTGRESQL (production) ──────────────────────────────────────────
     knex = require('knex')({
       client: 'pg',
