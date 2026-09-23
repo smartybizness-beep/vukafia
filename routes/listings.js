@@ -27,7 +27,9 @@ const { optionalAuth } = require('../middleware/auth');
 //   limit      20 (max 50)
 router.get('/', optionalAuth, async (req, res, next) => {
   try {
+    console.log('[DEBUG] /api/listings called');
     const k = db.query();
+    console.log('[DEBUG] db.query() initialized');
     const {
       type, region, country, category, state, city,
       q, verified, featured, min_rating,
@@ -114,6 +116,7 @@ router.get('/', optionalAuth, async (req, res, next) => {
     }
 
     const rows = await query.limit(pageSize).offset(offset);
+    console.log('[DEBUG] Query executed, rows returned:', rows.length);
 
     // Parse JSON photos field
     const listings = rows.map(r => ({
