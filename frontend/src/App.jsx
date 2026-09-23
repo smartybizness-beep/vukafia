@@ -119,6 +119,11 @@ export default function App() {
     }
   }
 
+  const handleRegionClick = (newRegion) => {
+    console.log('[REGION CLICK] Setting region to:', newRegion)
+    setRegion(newRegion)
+  }
+
   function applyFilters() {
     console.log('[applyFilters] Called with - type:', type, 'region:', region, 'listings:', listings.length)
     let filtered = [...listings]
@@ -410,60 +415,12 @@ export default function App() {
       </div>
 
       <div className="rbar">
-        <button
-          className={`rtab ${region === '' ? 'active' : ''}`}
-          onClick={() => {
-            console.log('[Region Filter] Clicking All Africa, current region:', region)
-            setRegion('')
-          }}
-        >
-          🌍 All Africa
-        </button>
-        <button
-          className={`rtab ${region === 'West Africa' ? 'active' : ''}`}
-          onClick={() => {
-            console.log('[Region Filter] Clicking West Africa, current region:', region)
-            setRegion('West Africa')
-          }}
-        >
-          🟤 West Africa
-        </button>
-        <button
-          className={`rtab ${region === 'East Africa' ? 'active' : ''}`}
-          onClick={() => {
-            console.log('[Region Filter] Clicking East Africa, current region:', region)
-            setRegion('East Africa')
-          }}
-        >
-          🟢 East Africa
-        </button>
-        <button
-          className={`rtab ${region === 'North Africa' ? 'active' : ''}`}
-          onClick={() => {
-            console.log('[Region Filter] Clicking North Africa, current region:', region)
-            setRegion('North Africa')
-          }}
-        >
-          🟡 North Africa
-        </button>
-        <button
-          className={`rtab ${region === 'Central Africa' ? 'active' : ''}`}
-          onClick={() => {
-            console.log('[Region Filter] Clicking Central Africa, current region:', region)
-            setRegion('Central Africa')
-          }}
-        >
-          🟠 Central Africa
-        </button>
-        <button
-          className={`rtab ${region === 'Southern Africa' ? 'active' : ''}`}
-          onClick={() => {
-            console.log('[Region Filter] Clicking Southern Africa, current region:', region)
-            setRegion('Southern Africa')
-          }}
-        >
-          🔵 Southern Africa
-        </button>
+        <button className={`rtab ${region === '' ? 'active' : ''}`} onClick={() => handleRegionClick('')}>🌍 All Africa</button>
+        <button className={`rtab ${region === 'West Africa' ? 'active' : ''}`} onClick={() => handleRegionClick('West Africa')}>🟤 West Africa</button>
+        <button className={`rtab ${region === 'East Africa' ? 'active' : ''}`} onClick={() => handleRegionClick('East Africa')}>🟢 East Africa</button>
+        <button className={`rtab ${region === 'North Africa' ? 'active' : ''}`} onClick={() => handleRegionClick('North Africa')}>🟡 North Africa</button>
+        <button className={`rtab ${region === 'Central Africa' ? 'active' : ''}`} onClick={() => handleRegionClick('Central Africa')}>🟠 Central Africa</button>
+        <button className={`rtab ${region === 'Southern Africa' ? 'active' : ''}`} onClick={() => handleRegionClick('Southern Africa')}>🔵 Southern Africa</button>
       </div>
 
       <div className="layout">
