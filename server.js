@@ -26,6 +26,7 @@ const listingsRouter = require('./routes/listings');
 const businessRouter = require('./routes/business');
 const authRouter     = require('./routes/auth');
 const adminRouter    = require('./routes/admin');
+const crawlerRouter  = require('./routes/admin-crawler');
 const webhookRouter  = require('./routes/webhook');
 const searchRouter   = require('./routes/search');
 const claimsRouter   = require('./routes/claims');
@@ -111,6 +112,7 @@ app.use('/api/claims',    claimsRouter);
 app.use('/api/business',  businessRouter);
 app.use('/api/auth',      authRouter);
 app.use('/api/admin',     adminRouter);
+app.use('/api/admin',     crawlerRouter);  // Crawler management
 app.use('/api/webhook',   webhookRouter);  // WhatsApp webhook
 
 // ─── SPA FALLBACK (client-side routing) ────────────────────────────────────
@@ -139,6 +141,14 @@ app.use((err, req, res, next) => {
 
 // ─── START ─────────────────────────────────────────────────────────────────
 db.init().then(() => {
+  // Initialize background job scheduler
+  try {
+    const { initializeScheduler } = require('./jobs/scheduler');
+    initializeScheduler();
+  } catch (err) {
+    console.warn('⚠️  Background scheduler initialization failed:', err.message);
+  }
+
   app.listen(PORT, '0.0.0.0', () => {
     console.log('\n╔══════════════════════════════════════════════╗');
     console.log(`║  🌍  VUKAFIA API running on port ${PORT}         ║`);

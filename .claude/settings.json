@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(timeout 5 node server.js)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(git push *)",
+      "Bash(timeout 10 curl -s \"https://vukafia-production.up.railway.app/api/listings?limit=5\")",
+      "Bash(git commit -m 'debug: add simple test endpoint in server.js *)"
     ]
   }
 }
