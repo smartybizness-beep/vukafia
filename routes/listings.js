@@ -15,18 +15,17 @@ const { optionalAuth } = require('../middleware/auth');
 router.get('/test-db', async (req, res, next) => {
   try {
     const k = db.query();
-    const dbUrl = process.env.DATABASE_URL ? process.env.DATABASE_URL.split('@')[0] + '@...' : 'NOT SET';
-    const count = await k('listings').where('active', true).count('* as count').first();
-    const sample = await k('listings').where('active', true).limit(1).first();
+    const raw = await k.raw('SELECT COUNT(*) as count FROM listings WHERE active = true');
+    const knexCount = await k('listings').where('active', true).count('* as count').first();
+    const simple = await k('listings').where('active', true).first();
     res.json({
       success: true,
-      database_url: dbUrl,
-      node_env: process.env.NODE_ENV,
-      count,
-      sample: sample ? sample.name : null
+      raw_query: raw.rows ? raw.rows[0] : raw.rows,
+      knex_count: knexCount,
+      simple_select: simple ? { id: simple.id, name: simple.name } : null
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
 
