@@ -10,35 +10,6 @@ const router  = express.Router();
 const db      = require('../db');
 const { optionalAuth } = require('../middleware/auth');
 
-// ─── GET /api/listings/test-db ─────────────────────────────────────────────
-// Debug endpoint to test database connection
-router.get('/test-db', async (req, res, next) => {
-  try {
-    const k = db.query();
-    const dbName = await k.raw('SELECT current_database()');
-    const tableExists = await k.raw("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'listings')");
-    const tableSchema = await k.raw("SELECT table_schema FROM information_schema.tables WHERE table_name='listings'");
-    let rawResult;
-    try {
-      const raw = await k.raw('SELECT COUNT(*) as count FROM listings WHERE active = true');
-      rawResult = { result: raw.rows };
-    } catch (e) {
-      rawResult = { error: e.message };
-    }
-    const knexCount = await k('listings').where('active', true).count('* as count').first();
-    res.json({
-      success: true,
-      current_database: dbName.rows[0],
-      table_exists: tableExists.rows[0],
-      table_schema: tableSchema.rows,
-      raw_count: rawResult,
-      knex_count: knexCount
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message, stack: err.stack });
-  }
-});
-
 // ─── GET /api/listings ────────────────────────────────────────────────────────
 // Query params:
 //   type       product | service
@@ -103,7 +74,29 @@ router.get('/', optionalAuth, async (req, res, next) => {
     }
 
     // ── COUNT (for pagination) ────────────────────────────────────────────
-    const countResult = await k('listings').where('active', true).count('id as total').first();
+    let countQuery = k('listings').where('active', true);
+    if (type)       countQuery = countQuery.where('type', type);
+    if (region)     countQuery = countQuery.where('region', region);
+    if (country)    countQuery = countQuery.where('country', country);
+    if (category)   countQuery = countQuery.where('category', category);
+    if (state)      countQuery = countQuery.whereILike('state', `%${state}%`);
+    if (city)       countQuery = countQuery.whereILike('city', `%${city}%`);
+    if (verified === 'true')  countQuery = countQuery.where('verified', true);
+    if (featured === 'true')  countQuery = countQuery.where('featured', true);
+    if (min_rating) countQuery = countQuery.where('rating', '>=', parseFloat(min_rating));
+    if (q) {
+      const term = `%${q}%`;
+      countQuery = countQuery.where(function () {
+        this.whereILike('name', term)
+          .orWhereILike('products_services', term)
+          .orWhereILike('category', term)
+          .orWhereILike('country', term)
+          .orWhereILike('city', term)
+          .orWhereILike('state', term)
+          .orWhereILike('description', term);
+      });
+    }
+    const countResult = await countQuery.count('id as total').first();
     const { total }  = countResult;
 
     // ── SORT ──────────────────────────────────────────────────────────────
