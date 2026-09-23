@@ -31,11 +31,11 @@ export default function App() {
   const WA_PHONE = '2348101477935'
   const API_BASE = 'https://vukafia-production.up.railway.app'
 
-  // Fetch listings
+  // Fetch listings when filters change
   useEffect(() => {
     fetchListings()
     fetchMeta()
-  }, [])
+  }, [region, type])
 
   // Filter listings when filters change
   useEffect(() => {
@@ -87,11 +87,17 @@ export default function App() {
   async function fetchListings() {
     try {
       setLoading(true)
-      const res = await fetch(`${API_BASE}/api/listings?limit=1000`)
+      let url = `${API_BASE}/api/listings?limit=1000`
+      if (type) url += `&type=${type}`
+      if (region) url += `&region=${encodeURIComponent(region)}`
+
+      console.log('[fetchListings] URL:', url)
+      const res = await fetch(url)
       const data = await res.json()
       if (data.success) {
         setListings(data.data || [])
         setTotalListings(data.pagination?.total || 0)
+        console.log('[fetchListings] Got', data.data.length, 'listings')
       }
     } catch (err) {
       console.error('Failed to fetch listings:', err)
@@ -414,13 +420,23 @@ export default function App() {
         </div>
       </div>
 
-      <div className="rbar" onClick={(e) => { console.log('[RBAR CLICK]', e.target); if (e.target.dataset.region) handleRegionClick(e.target.dataset.region) }}>
-        <button data-region="" className={`rtab ${region === '' ? 'active' : ''}`}>🌍 All Africa</button>
-        <button data-region="West Africa" className={`rtab ${region === 'West Africa' ? 'active' : ''}`}>🟤 West Africa</button>
-        <button data-region="East Africa" className={`rtab ${region === 'East Africa' ? 'active' : ''}`}>🟢 East Africa</button>
-        <button data-region="North Africa" className={`rtab ${region === 'North Africa' ? 'active' : ''}`}>🟡 North Africa</button>
-        <button data-region="Central Africa" className={`rtab ${region === 'Central Africa' ? 'active' : ''}`}>🟠 Central Africa</button>
-        <button data-region="Southern Africa" className={`rtab ${region === 'Southern Africa' ? 'active' : ''}`}>🔵 Southern Africa</button>
+      <div className="rbar">
+        <select
+          className="lsel"
+          style={{background: 'var(--em)', color: '#fff', border: 'none', borderRadius: '0', padding: '0.75rem 1.2rem', fontSize: '0.79rem'}}
+          value={region}
+          onChange={(e) => {
+            console.log('[Region Select] Changed to:', e.target.value)
+            setRegion(e.target.value)
+          }}
+        >
+          <option value="">🌍 All Africa</option>
+          <option value="West Africa">🟤 West Africa</option>
+          <option value="East Africa">🟢 East Africa</option>
+          <option value="North Africa">🟡 North Africa</option>
+          <option value="Central Africa">🟠 Central Africa</option>
+          <option value="Southern Africa">🔵 Southern Africa</option>
+        </select>
       </div>
 
       <div className="layout">
