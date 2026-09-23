@@ -27,11 +27,7 @@ const { optionalAuth } = require('../middleware/auth');
 //   limit      20 (max 50)
 router.get('/', optionalAuth, async (req, res, next) => {
   try {
-    console.log('[ROUTE] /api/listings called');
     const k = db.query();
-    console.log('[ROUTE] db.query() returned');
-    const testCount = await k('listings').count('* as count').first();
-    console.log('[ROUTE] Test count:', testCount);
     const {
       type, region, country, category, state, city,
       q, verified, featured, min_rating,

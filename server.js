@@ -104,19 +104,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// ─── TEST ENDPOINT ─────────────────────────────────────────────────────────
-app.get('/api/test-simple', (req, res) => {
-  console.log('[TEST] /api/test-simple called');
-  const k = db.query();
-  k('listings').count('* as count').first().then(result => {
-    console.log('[TEST] Count result:', result);
-    res.json({ success: true, count: result.count });
-  }).catch(err => {
-    console.error('[TEST] Error:', err.message);
-    res.status(500).json({ error: err.message });
-  });
-});
-
 // ─── ROUTES ────────────────────────────────────────────────────────────────
 app.use('/api/listings',  listingsRouter);
 app.use('/api/search',    searchRouter);
