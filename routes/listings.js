@@ -15,22 +15,24 @@ const { optionalAuth } = require('../middleware/auth');
 router.get('/test-db', async (req, res, next) => {
   try {
     const k = db.query();
+    const dbName = await k.raw('SELECT current_database()');
+    const tableExists = await k.raw("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'listings')");
+    const tableSchema = await k.raw("SELECT table_schema FROM information_schema.tables WHERE table_name='listings'");
     let rawResult;
     try {
       const raw = await k.raw('SELECT COUNT(*) as count FROM listings WHERE active = true');
-      rawResult = { result: raw, rows: raw.rows, first: raw.rows ? raw.rows[0] : null };
+      rawResult = { result: raw.rows };
     } catch (e) {
       rawResult = { error: e.message };
     }
     const knexCount = await k('listings').where('active', true).count('* as count').first();
-    const knexAll = await k('listings').where('active', true).select('id', 'name').limit(5);
-    const simple = await k('listings').where('active', true).first();
     res.json({
       success: true,
-      raw_query: rawResult,
-      knex_count: knexCount,
-      knex_all_5: knexAll.length + ' rows',
-      simple_select: simple ? { id: simple.id, name: simple.name } : null
+      current_database: dbName.rows[0],
+      table_exists: tableExists.rows[0],
+      table_schema: tableSchema.rows,
+      raw_count: rawResult,
+      knex_count: knexCount
     });
   } catch (err) {
     res.status(500).json({ error: err.message, stack: err.stack });
