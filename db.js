@@ -16,6 +16,7 @@ function getKnex() {
   if (knex) return knex;
 
   const isProd = process.env.DATABASE_URL && process.env.NODE_ENV === 'production';
+  console.log('[DB] isProd check - DATABASE_URL:', !!process.env.DATABASE_URL, 'NODE_ENV:', process.env.NODE_ENV, 'result:', isProd);
 
   if (isProd) {
     // ── POSTGRESQL (production) ──────────────────────────────────────────
