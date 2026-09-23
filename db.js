@@ -11,12 +11,23 @@ const fs     = require('fs');
 
 let knex;
 let _connected = false;
+let _lastIsProd = null;
 
 function getKnex() {
-  if (knex) return knex;
-
   const isProd = process.env.DATABASE_URL && process.env.NODE_ENV === 'production';
   console.log('[DB] isProd check - DATABASE_URL:', !!process.env.DATABASE_URL, 'NODE_ENV:', process.env.NODE_ENV, 'result:', isProd);
+
+  // Only use cached knex if we're still in the same mode
+  if (knex && _lastIsProd === isProd) return knex;
+
+  // Reset cache if mode changed
+  if (_lastIsProd !== isProd) {
+    console.log('[DB] Database mode changed, reinitializing');
+    knex = null;
+    _connected = false;
+  }
+
+  _lastIsProd = isProd;
 
   if (isProd) {
     // ── POSTGRESQL (production) ──────────────────────────────────────────
