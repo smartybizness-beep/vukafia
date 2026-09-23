@@ -8,13 +8,14 @@
 
 const path   = require('path');
 const fs     = require('fs');
-const isProd = process.env.DATABASE_URL && process.env.NODE_ENV === 'production';
 
 let knex;
 let _connected = false;
 
 function getKnex() {
   if (knex) return knex;
+
+  const isProd = process.env.DATABASE_URL && process.env.NODE_ENV === 'production';
 
   if (isProd) {
     // ── POSTGRESQL (production) ──────────────────────────────────────────
