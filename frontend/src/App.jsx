@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import './App.css'
 
 export default function App() {
+  console.log('[Vukafia] App loaded with region filter v2')
   const [listings, setListings] = useState([])
   const [filteredListings, setFilteredListings] = useState([])
   const [loading, setLoading] = useState(true)
