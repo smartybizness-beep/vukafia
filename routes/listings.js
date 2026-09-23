@@ -74,7 +74,29 @@ router.get('/', optionalAuth, async (req, res, next) => {
     }
 
     // ── COUNT (for pagination) ────────────────────────────────────────────
-    const countResult = await k('listings').where('active', true).count('id as total').first();
+    let countQuery = k('listings').where('active', true);
+    if (type)       countQuery = countQuery.where('type', type);
+    if (region)     countQuery = countQuery.where('region', region);
+    if (country)    countQuery = countQuery.where('country', country);
+    if (category)   countQuery = countQuery.where('category', category);
+    if (state)      countQuery = countQuery.whereILike('state', `%${state}%`);
+    if (city)       countQuery = countQuery.whereILike('city', `%${city}%`);
+    if (verified === 'true')  countQuery = countQuery.where('verified', true);
+    if (featured === 'true')  countQuery = countQuery.where('featured', true);
+    if (min_rating) countQuery = countQuery.where('rating', '>=', parseFloat(min_rating));
+    if (q) {
+      const term = `%${q}%`;
+      countQuery = countQuery.where(function () {
+        this.whereILike('name', term)
+          .orWhereILike('products_services', term)
+          .orWhereILike('category', term)
+          .orWhereILike('country', term)
+          .orWhereILike('city', term)
+          .orWhereILike('state', term)
+          .orWhereILike('description', term);
+      });
+    }
+    const countResult = await countQuery.count('id as total').first();
     const { total }  = countResult;
 
     // ── SORT ──────────────────────────────────────────────────────────────
