@@ -29,7 +29,7 @@ export default function App() {
   const [paystackLoading, setPaystackLoading] = useState(false)
 
   const WA_PHONE = '2348101477935'
-  const API_BASE = 'https://vukafia-production.up.railway.app'
+  const API_BASE = ''
 
   // Fetch listings once on mount
   useEffect(() => {
