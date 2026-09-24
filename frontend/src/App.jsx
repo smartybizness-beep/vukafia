@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
+// v2.1 - fixed CORS and relative URLs
 export default function App() {
   const [listings, setListings] = useState([])
   const [filteredListings, setFilteredListings] = useState([])
