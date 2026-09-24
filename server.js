@@ -82,6 +82,29 @@ app.use('/admin', express.static(path.join(__dirname, 'public', 'admin'), { exte
 // Serve built React app from frontend/dist (production only)
 const frontendPath = path.join(__dirname, 'frontend', 'dist');
 if (fs.existsSync(frontendPath)) {
+  // Intercept index.html to inject API URL fixer
+  app.get('/index.html', (req, res) => {
+    const indexPath = path.join(frontendPath, 'index.html');
+    fs.readFile(indexPath, 'utf8', (err, data) => {
+      if (err) return res.status(500).send('Error loading page');
+      const injected = data.replace(
+        '</head>',
+        `<script>
+          const originalFetch = window.fetch;
+          window.fetch = function(...args) {
+            let url = args[0];
+            if (typeof url === 'string' && url.includes('vukafia-production.up.railway.app')) {
+              url = url.replace('https://vukafia-production.up.railway.app', '');
+              args[0] = url;
+            }
+            return originalFetch.apply(this, args);
+          };
+        </script></head>`
+      );
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.send(injected);
+    });
+  });
   app.use(express.static(frontendPath));
 }
 
