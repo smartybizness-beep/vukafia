@@ -1,6 +1,6 @@
 {
   "name": "vukafia-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Vukafia Trans-African Marketplace â€” Backend API",
   "main": "server.js",
   "scripts": {
