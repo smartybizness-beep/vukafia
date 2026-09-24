@@ -40,7 +40,7 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:3000', 'https://vukafia.com', 'https://www.vukafia.com'],
+    : ['http://localhost:3000', 'https://vukafia.com', 'https://www.vukafia.com', 'https://vukafia-production.up.railway.app'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
