@@ -126,7 +126,7 @@ export default function App() {
   }
 
   const handleRegionClick = (newRegion) => {
-    console.log('[REGION CLICK] Setting region to:', newRegion)
+    console.log('[REGION CLICK v3] Setting region to:', newRegion)
     setRegion(newRegion)
   }
 
