@@ -47,9 +47,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:3000', 'https://vukafia.com', 'https://www.vukafia.com', 'https://vukafia-production.up.railway.app'],
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
