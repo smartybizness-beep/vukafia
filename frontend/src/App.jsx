@@ -31,11 +31,11 @@ export default function App() {
   const WA_PHONE = '2348101477935'
   const API_BASE = 'https://vukafia-production.up.railway.app'
 
-  // Fetch listings when filters change
+  // Fetch listings once on mount
   useEffect(() => {
     fetchListings()
     fetchMeta()
-  }, [region, type])
+  }, [])
 
   // Filter listings when filters change
   useEffect(() => {
@@ -87,17 +87,11 @@ export default function App() {
   async function fetchListings() {
     try {
       setLoading(true)
-      let url = `${API_BASE}/api/listings?limit=1000`
-      if (type) url += `&type=${type}`
-      if (region) url += `&region=${encodeURIComponent(region)}`
-
-      console.log('[fetchListings] URL:', url)
-      const res = await fetch(url)
+      const res = await fetch(`${API_BASE}/api/listings?limit=1000`)
       const data = await res.json()
       if (data.success) {
         setListings(data.data || [])
         setTotalListings(data.pagination?.total || 0)
-        console.log('[fetchListings] Got', data.data.length, 'listings')
       }
     } catch (err) {
       console.error('Failed to fetch listings:', err)
