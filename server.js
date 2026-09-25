@@ -37,17 +37,10 @@ const PORT = process.env.PORT || 5000; // v2-force-rebuild
 
 // ─── SECURITY & MIDDLEWARE ─────────────────────────────────────────────────
 app.use(helmet());
-
-// ─── CACHE BUSTING ─────────────────────────────────────────────────────────
-app.use((req, res, next) => {
-  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.set('Pragma', 'no-cache');
-  res.set('Expires', '0');
-  next();
-});
-
 app.use(cors({
-  origin: '*',
+  origin: process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:3000', 'https://vukafia.com', 'https://www.vukafia.com'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
