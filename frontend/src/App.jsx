@@ -361,7 +361,7 @@ export default function App() {
         <div className="hero-pat"></div>
         <div className="hero-in">
           <div className="h-pill">🌍 Rising Markets. Connecting Africa.</div>
-          <h1>Trans-African #1<br /><em>Business Directory 🚀 DEPLOY TEST NOW</em></h1>
+          <h1>Trans-African #1<br /><em>Business Directory</em></h1>
           <p>Discover verified products and services from businesses across all 54 African nations. Search, connect, trade — powered by WhatsApp AI.</p>
           <div className="type-tog">
             <button
