@@ -250,20 +250,23 @@ async function crawlGoogleMaps() {
             const city_name = extractCity(place.formattedAddress || businessName);
             const category = CATEGORY_MAP[query.toLowerCase()] || 'General Retail';
 
-            // Extract real photo from Google Maps (if available)
-            let coverPhoto = generateCoverPhoto(category); // fallback
-            if (place.photos && place.photos.length > 0) {
-              const photo = place.photos[0];
-              console.log(`📸 [${businessName}] photo.name:`, photo.name?.substring(0, 80));
-              console.log(`   photo keys:`, Object.keys(photo));
-              if (photo.name) {
-                // Use Google Places API /media endpoint to get actual photo
-                coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
-                console.log(`✅ Photo URL set for ${businessName}`);
-              }
-            } else {
-              console.log(`❌ [${businessName}] NO PHOTOS from Google`);
+            // Only include businesses with real Google Maps photos (no generic fallbacks)
+            if (!place.photos || place.photos.length === 0) {
+              console.log(`⏭️  [${businessName}] Skipped - no Google Maps photo available`);
+              skipped++;
+              continue;
             }
+
+            const photo = place.photos[0];
+            if (!photo.name) {
+              console.log(`⏭️  [${businessName}] Skipped - invalid photo reference`);
+              skipped++;
+              continue;
+            }
+
+            // Use Google Places API /media endpoint to get actual photo
+            const coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
+            console.log(`✅ [${businessName}] Real photo ready`);
 
             // Try to extract Instagram handle from website or business name
             let instagramHandle = null;
