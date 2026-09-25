@@ -51,7 +51,7 @@ async function main() {
           await k('listings')
             .where('id', existing.id)
             .update({
-              cover_photo: biz.cover_photo,
+              cover_photo: getPhotoForCategory(biz.category),
               instagram: biz.instagram,
               website: biz.website
             });
@@ -77,7 +77,7 @@ async function main() {
           review_count: biz.review_count || 0,
           verified: true, // Google Maps verified
           featured: biz.review_count > 100, // High review count = featured
-          cover_photo: biz.cover_photo, // Use real Google Maps photo
+          cover_photo: getPhotoForCategory(biz.category),
           emoji: generateEmoji(biz.category),
           latitude: biz.latitude,
           longitude: biz.longitude,
