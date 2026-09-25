@@ -39,7 +39,7 @@ const PORT = process.env.PORT || 5000; // v2-force-rebuild
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      imgSrc: ["'self'", 'data:', 'https://images.unsplash.com']
+      imgSrc: ["'self'", 'data:', 'https://images.unsplash.com', 'https://places.googleapis.com']
     }
   }
 }));
