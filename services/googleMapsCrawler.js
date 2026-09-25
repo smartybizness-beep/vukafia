@@ -265,87 +265,84 @@ async function crawlGoogleMaps() {
       // Search top 2-3 products per city to manage API quota
       const queriesToSearch = queries.slice(0, 3);
 
-        for (const query of queriesToSearch) {
-          console.log(`    Searching: "${query}" in ${city}...`);
+      for (const query of queriesToSearch) {
+        console.log(`    Searching: "${query}" in ${city}...`);
 
-          const places = await searchPlaces(query, city);
+        const places = await searchPlaces(query, city);
 
-          if (places.length === 0) {
-            console.log(`      No results`);
-            await sleep(500); // Rate limit
+        if (places.length === 0) {
+          console.log(`      No results`);
+          await sleep(500); // Rate limit
+          continue;
+        }
+
+        // Get details for top 3 results
+        for (const place of places.slice(0, 3)) {
+          // New Places API returns display name in different format
+          const businessName = place.displayName?.text || place.name || null;
+
+          if (!businessName) {
+            skipped++;
             continue;
           }
 
-          // Get details for top 3 results
-          for (const place of places.slice(0, 3)) {
-            // New Places API returns display name in different format
-            const businessName = place.displayName?.text || place.name || null;
+          const city_name = extractCity(place.formattedAddress || businessName);
+          const category = CATEGORY_MAP[query.toLowerCase()] || 'General Retail';
 
-            if (!businessName) {
-              skipped++;
-              continue;
+          // Extract real photo from Google Maps (if available)
+          let coverPhoto = generateCoverPhoto(category); // fallback
+          if (place.photos && place.photos.length > 0) {
+            const photo = place.photos[0];
+            console.log(`📸 [${businessName}] photo.name:`, photo.name?.substring(0, 80));
+            console.log(`   photo keys:`, Object.keys(photo));
+            if (photo.name) {
+              // Use Google Places API /media endpoint to get actual photo
+              coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
+              console.log(`✅ Photo URL set for ${businessName}`);
             }
-
-            const city_name = extractCity(place.formattedAddress || businessName);
-            const category = CATEGORY_MAP[query.toLowerCase()] || 'General Retail';
-
-            // Extract real photo from Google Maps (if available)
-            let coverPhoto = generateCoverPhoto(category); // fallback
-            if (place.photos && place.photos.length > 0) {
-              const photo = place.photos[0];
-              console.log(`📸 [${businessName}] photo.name:`, photo.name?.substring(0, 80));
-              console.log(`   photo keys:`, Object.keys(photo));
-              if (photo.name) {
-                // Use Google Places API /media endpoint to get actual photo
-                coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
-                console.log(`✅ Photo URL set for ${businessName}`);
-              }
-            } else {
-              console.log(`❌ [${businessName}] NO PHOTOS from Google`);
-            }
-
-            // Try to extract Instagram handle from website or business name
-            let instagramHandle = null;
-            if (place.websiteUri) {
-              const instagramMatch = place.websiteUri.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
-              if (instagramMatch) {
-                instagramHandle = `@${instagramMatch[1]}`;
-              }
-            }
-
-            businesses.push({
-              name: businessName,
-              phone: place.internationalPhoneNumber || null,
-              website: place.websiteUri || null,
-              instagram: instagramHandle,
-              address: place.formattedAddress || businessName,
-              city: city_name,
-              country,
-              region: getRegion(country),
-              category,
-              type: determineType(query),
-              rating: place.rating || 0,
-              review_count: place.userRatingCount || 0,
-              latitude: place.location?.latitude || null,
-              longitude: place.location?.longitude || null,
-              cover_photo: coverPhoto,
-              verified_source: 'Google Maps',
-              verified_at: new Date(),
-              verification_score: calculateScore(place)
-            });
-
-            total++;
-            console.log(`      ✅ ${businessName} (${place.rating || 'N/A'} stars)`);
-
-            // Rate limiting
-            await sleep(200);
+          } else {
+            console.log(`❌ [${businessName}] NO PHOTOS from Google`);
           }
-        }
 
-        await sleep(500);
+          // Try to extract Instagram handle from website or business name
+          let instagramHandle = null;
+          if (place.websiteUri) {
+            const instagramMatch = place.websiteUri.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
+            if (instagramMatch) {
+              instagramHandle = `@${instagramMatch[1]}`;
+            }
+          }
+
+          businesses.push({
+            name: businessName,
+            phone: place.internationalPhoneNumber || null,
+            website: place.websiteUri || null,
+            instagram: instagramHandle,
+            address: place.formattedAddress || businessName,
+            city: city_name,
+            country,
+            region: getRegion(country),
+            category,
+            type: determineType(query),
+            rating: place.rating || 0,
+            review_count: place.userRatingCount || 0,
+            latitude: place.location?.latitude || null,
+            longitude: place.location?.longitude || null,
+            cover_photo: coverPhoto,
+            verified_source: 'Google Maps',
+            verified_at: new Date(),
+            verification_score: calculateScore(place)
+          });
+
+          total++;
+          console.log(`      ✅ ${businessName} (${place.rating || 'N/A'} stars)`);
+
+          // Rate limiting
+          await sleep(200);
+        }
       }
 
-      console.log();
+      await sleep(500);
     }
   }
 
