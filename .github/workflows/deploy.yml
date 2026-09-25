@@ -9,6 +9,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: railwayapp/deploy-action@v1
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      # Railway auto-deploy from GitHub is enabled, manual action not needed
+      # If manual deploy needed, configure proper RAILWAY_TOKEN and use official CLI
