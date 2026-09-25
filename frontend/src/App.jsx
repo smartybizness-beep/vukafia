@@ -14,6 +14,9 @@ export default function App() {
   const [countries, setCountries] = useState([])
   const [categories, setCategories] = useState([])
   const [totalListings, setTotalListings] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   // Claim flow state
   const [showClaimModal, setShowClaimModal] = useState(false)
@@ -85,20 +88,36 @@ export default function App() {
     }
   }
 
-  async function fetchListings() {
+  async function fetchListings(page = 1, append = false) {
     try {
-      setLoading(true)
-      const res = await fetch(`${API_BASE}/api/listings?limit=1000`)
+      if (!append) setLoading(true)
+      else setLoadingMore(true)
+
+      const res = await fetch(`${API_BASE}/api/listings?page=${page}&limit=50`)
       const data = await res.json()
       if (data.success) {
-        setListings(data.data || [])
+        const newListings = data.data || []
+
+        if (append) {
+          setListings(prev => [...prev, ...newListings])
+        } else {
+          setListings(newListings)
+        }
+
         setTotalListings(data.pagination?.total || 0)
+        setCurrentPage(page)
+        setHasMore(data.pagination?.has_next || false)
       }
     } catch (err) {
       console.error('Failed to fetch listings:', err)
     } finally {
-      setLoading(false)
+      if (!append) setLoading(false)
+      else setLoadingMore(false)
     }
+  }
+
+  async function loadMore() {
+    await fetchListings(currentPage + 1, true)
   }
 
   async function fetchMeta() {
@@ -567,6 +586,31 @@ export default function App() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {!loading && filteredListings.length > 0 && hasMore && (
+            <div style={{ textAlign: 'center', marginTop: '2rem', marginBottom: '2rem' }}>
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                style={{
+                  padding: '0.75rem 2rem',
+                  background: 'var(--pr)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: loadingMore ? 'not-allowed' : 'pointer',
+                  opacity: loadingMore ? 0.7 : 1,
+                  fontSize: '1rem'
+                }}
+              >
+                {loadingMore ? '⏳ Loading...' : '📥 Load More Listings'}
+              </button>
+              <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--mu)' }}>
+                Showing {listings.length} of {totalListings}
+              </p>
             </div>
           )}
         </main>
