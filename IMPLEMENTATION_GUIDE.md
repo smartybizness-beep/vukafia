@@ -2,8 +2,9 @@
 ## Complete Technical Documentation
 
 **Project**: Vukafia Trans-African Business Directory  
-**Date**: September 24, 2026  
-**Status**: Live & Operational (216 Listings, 54+ Nations)
+**Date**: September 25, 2026 (Updated)  
+**Status**: Live & Operational (218+ Listings, 54+ Nations, Real Photos)  
+**Latest Updates**: Restaurant type filter, B2B commodity focus, Google Maps photos, Pagination
 
 ---
 
@@ -13,10 +14,13 @@
 3. [Deployment Pipeline](#deployment-pipeline)
 4. [API Configuration](#api-configuration)
 5. [Frontend Implementation](#frontend-implementation)
-6. [Domain & DNS Setup](#domain--dns-setup)
+6. [Business Types & Categories](#business-types--categories)
 7. [Image Handling](#image-handling)
-8. [Security Configuration](#security-configuration)
-9. [Troubleshooting Reference](#troubleshooting-reference)
+8. [Domain & DNS Setup](#domain--dns-setup)
+9. [Security Configuration](#security-configuration)
+10. [Google Maps Crawler](#google-maps-crawler)
+11. [Pagination & Performance](#pagination--performance)
+12. [Troubleshooting Reference](#troubleshooting-reference)
 
 ---
 
@@ -142,11 +146,51 @@ const API_BASE = ''  // Relative URLs (calls same origin)
 - No CORS issues with same origin
 
 ### Key Features
-1. **Category Filtering**: Products, Services, Tourism, Medical
-2. **Region Selection**: Dropdown filters by African region
-3. **Business Cards**: Display name, rating, location, contact
-4. **WhatsApp Integration**: Direct messaging buttons
-5. **Claim Business**: Verification flow for business owners
+1. **Type Filtering**: Products, Services, Restaurants, Tourism, Medical (5 types)
+2. **Category Filtering**: Agricultural Products, Minerals & Mining, Manufacturing, Beauty & Personal Care, etc.
+3. **Region Selection**: Dropdown filters by African region
+4. **Business Cards**: Display name, rating, location, contact
+5. **WhatsApp Integration**: Direct messaging buttons
+6. **Claim Business**: Verification flow for business owners
+7. **Pagination**: Load More button to browse all 218+ listings
+
+---
+
+## Business Types & Categories
+
+### Business Types
+**File**: `frontend/src/App.jsx` (line 9)
+
+The marketplace supports 5 business types with dedicated filter buttons:
+
+1. **🛍️ Products** - Agricultural commodities, minerals, manufactured goods
+2. **🔧 Services** - Fintech, tech, logistics, telecoms, banking
+3. **🍽️ Restaurants** - Dining establishments, cafes, food service
+4. **🏨 Tourism** - Hotels, tourism agencies, safari operators
+5. **🏥 Medical** - Hospitals, pharmacies, clinics, healthcare
+
+### Business Categories (Sub-classifications)
+
+Each type can have multiple categories:
+
+**Products**:
+- Agricultural Products (cocoa, coffee, tea, cashew, shea, vanilla, spices, dates, citrus, cut flowers)
+- Minerals & Mining (gold, diamonds, copper, cobalt, platinum, phosphates, oil & gas)
+- Manufacturing (textiles, cement, pharmaceuticals, leather goods, car assembly)
+
+**Services**:
+- Technology & IT, Fintech, Logistics, Telecoms, Banking
+
+**Other**:
+- Accommodations, Beauty & Personal Care, Restaurant, General Retail
+
+### Type & Category Mapping
+**File**: `services/googleMapsCrawler.js` (lines 69-120)
+
+Type is determined by:
+1. **Restaurant category** → Always type: 'restaurant'
+2. **Service keywords** → type: 'service' (tech, fintech, logistics, mining, etc.)
+3. **Default** → type: 'product' (agricultural, minerals, manufacturing)
 
 ---
 
@@ -186,35 +230,36 @@ TTL: Automatic
 
 ## Image Handling
 
-### Image Source
-**Service**: Unsplash (free, high-quality stock photos)
+### Primary Source: Google Maps Photos
+**Real business photos** from Google Places API are prioritized:
+- URL format: `https://places.googleapis.com/v1/{photo.name}/media?key=...`
+- Actual photo URLs served from: `https://lh3.googleusercontent.com/`
+- Quality: Real business photos taken by Google or customers
 
-### Category-to-Image Mapping
-**File**: `scripts/crawlGoogleMaps.js` (lines 133-143)
+### Fallback: Unsplash Category Photos
+When Google Maps photo is unavailable, fallback to category-based Unsplash stock photos:
+- Electronics, Fashion & Textiles, Food & Groceries
+- Restaurant (dining photos)
+- Accommodations, Medical, Agricultural Products, etc.
+
+### Photo Selection Logic
+**File**: `services/googleMapsCrawler.js` (lines 293-305)
 
 ```javascript
-function generateCoverPhoto(category) {
-  const photos = {
-    'Electronics': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=75',
-    'Fashion & Textiles': '...',
-    'Food & Groceries': '...',
-    'Tourism': '...',
-    'Technology & IT': '...',
-    'Agriculture': '...'
-  };
-  return photos[category] || 'https://images.unsplash.com/photo-1553729783-c91953dec042?w=500&q=75';
+let coverPhoto = generateCoverPhoto(category); // fallback
+if (place.photos && place.photos.length > 0) {
+  const photo = place.photos[0];
+  if (photo.name) {
+    // Use real Google Places photo
+    coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
+  }
 }
 ```
 
-### Crawler Integration
-- Crawler assigns category-based photos to each business
-- Photos stored in `listings.cover_photo` column
-- Frontend displays via `<img src={listing.cover_photo} />`
-
-### Running the Crawler
-```bash
-npm run crawl:google-maps  # Updates all businesses with real data + photos
-```
+1. Try to fetch **real photo** from Google Places API
+2. If unavailable, use **category-based Unsplash fallback**
+3. Store URL in `listings.cover_photo` database column
+4. Frontend displays via `<img src={listing.cover_photo} />`
 
 ---
 
@@ -293,6 +338,101 @@ app.use((req, res, next) => {
 
 ---
 
+## Google Maps Crawler
+
+### Purpose
+Extract **real African businesses** from Google Places API across 54 nations, focused on:
+- Agricultural commodities (cocoa, coffee, tea, cashew, shea, vanilla, spices)
+- Minerals & mining (gold, diamonds, copper, cobalt, phosphates)
+- Manufacturing (textiles, cement, pharmaceuticals, leather goods)
+- Services (fintech, tech, logistics, telecoms, banking)
+
+### Crawler Structure
+**File**: `services/googleMapsCrawler.js`
+
+**Data Source**: `PRODUCTS_AND_SERVICES` object maps countries → cities → product queries
+
+Example:
+```javascript
+'Nigeria': {
+  'Lagos': ['cocoa exporter', 'cashew supplier', 'fintech startup', ...],
+  'Abuja': ['agriculture cooperative', 'food processor', ...]
+}
+'Kenya': {
+  'Nairobi': ['coffee exporter', 'tech startup', 'fintech', ...],
+  'Mombasa': ['coffee exporter', 'spice trader', ...]
+}
+```
+
+### Key Features
+1. **Real Photos**: Extracts from Google Places API with fallback to Unsplash
+2. **Rating & Reviews**: Includes Google user ratings and review counts
+3. **Contact Info**: Phone, website, Instagram from Google listings
+4. **Location Data**: Latitude/longitude for map integration
+5. **Categorization**: Auto-maps queries to Vukafia categories
+
+### Running the Crawler
+```bash
+npm run crawl:google-maps
+```
+
+Output:
+- ✅ Found: 218+ businesses (real African suppliers)
+- 📊 Organized by country and region
+- 🔗 Cross-linked on vukafia.com
+
+### B2B Focus (AfCFTA Trade)
+The crawler prioritizes businesses suitable for cross-border trade:
+- **Exporters**: cocoa, coffee, tea, cashew, shea, spices, minerals
+- **Manufacturers**: textiles, cement, pharmaceuticals, leather goods
+- **Service Providers**: fintech, logistics, telecoms for supply chains
+
+---
+
+## Pagination & Performance
+
+### Problem
+- 218+ listings in database but only showing 50 on frontend
+- API max limit was 50 per request
+- Users couldn't browse full marketplace
+
+### Solution: Pagination with "Load More"
+**File**: `frontend/src/App.jsx` (lines 40-65)
+
+**Implementation**:
+1. Initial load: Fetch page 1 (50 listings)
+2. Display listings with "Load More" button
+3. Click button: Fetch page 2, append to list
+4. Shows progress: "Showing 50 of 218"
+5. Button disappears when all loaded
+
+**State Management**:
+```javascript
+const [currentPage, setCurrentPage] = useState(1)
+const [hasMore, setHasMore] = useState(true)
+const [loadingMore, setLoadingMore] = useState(false)
+
+async function loadMore() {
+  await fetchListings(currentPage + 1, true)  // append: true
+}
+```
+
+**API Usage**:
+```
+GET /api/listings?page=1&limit=50
+GET /api/listings?page=2&limit=50
+GET /api/listings?page=3&limit=50
+...
+```
+
+### Benefits
+- Faster initial page load (50 vs 218 items)
+- User controls how much to load
+- Works with all filters (region, country, category, type)
+- Shows total count for transparency
+
+---
+
 ## Key Learnings & Best Practices
 
 ### Deployment
@@ -316,9 +456,22 @@ app.use((req, res, next) => {
 - Validate all external image sources
 
 ### Images
-- Use category-based photo mapping for consistency
-- Prefer free services (Unsplash) for scalability
+- Prioritize real photos from Google Places API
+- Use category-based Unsplash fallback when unavailable
 - Store URLs in database, not binary data
+- Include both primary and secondary CSP domains (places.googleapis.com, lh3.googleusercontent.com)
+
+### Pagination
+- Implement pagination for large datasets (50+ items)
+- Show progress indicator (X of Y)
+- Use API `page` and `limit` parameters for control
+- Keep initial load fast (50 items), let users load more on demand
+
+### B2B Marketplace
+- Focus crawler on high-value commodities and services
+- Target businesses suitable for cross-border trade (AfCFTA)
+- Prioritize real business data over generated content
+- Include contact info (phone, website, Instagram) for easy outreach
 
 ---
 
@@ -346,6 +499,15 @@ Before going live with changes:
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: September 24, 2026  
+**Document Version**: 2.0  
+**Last Updated**: September 25, 2026  
 **Maintained By**: Development Team
+
+## Recent Changes (September 25, 2026)
+- ✅ Added Restaurant (🍽️) as dedicated type filter
+- ✅ Restructured crawler for B2B African commodities & services
+- ✅ Implemented pagination with "Load More" button
+- ✅ Fixed Google Places photo CSP (lh3.googleusercontent.com)
+- ✅ Real business photos from Google Maps API with Unsplash fallback
+- ✅ 218+ African businesses across 54 nations
+- ✅ 5 business types: Products, Services, Restaurants, Tourism, Medical
