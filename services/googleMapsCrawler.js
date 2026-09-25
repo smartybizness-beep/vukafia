@@ -206,21 +206,21 @@ function extractCity(address) {
 /**
  * Determine business type (product, service, restaurant, etc.)
  */
-function determineType(query) {
-  const q = query.toLowerCase();
-
-  // Check for restaurant/cafe
-  if (q.includes('restaurant') || q.includes('cafe')) {
+function determineType(query, category) {
+  // If category is Restaurant, type is restaurant
+  if (category === 'Restaurant') {
     return 'restaurant';
   }
 
+  const q = query.toLowerCase();
+
   // Services
-  const serviceKeywords = ['exporter', 'tech', 'fintech', 'logistics', 'startup', 'processor', 'producer', 'company', 'supplier', 'agency', 'cooperative', 'mining'];
+  const serviceKeywords = ['exporter', 'tech', 'fintech', 'logistics', 'startup', 'processor', 'producer', 'company', 'supplier', 'agency', 'cooperative', 'mining', 'processor', 'manufacturing'];
   if (serviceKeywords.some(kw => q.includes(kw))) {
     return 'service';
   }
 
-  // Products (agricultural, minerals, etc.)
+  // Products (agricultural, minerals, manufacturing, etc.)
   return 'product';
 }
 
@@ -316,7 +316,7 @@ async function crawlGoogleMaps() {
             country,
             region: getRegion(country),
             category,
-            type: determineType(query),
+            type: determineType(query, category),
             rating: place.rating || 0,
             review_count: place.userRatingCount || 0,
             latitude: place.location?.latitude || null,
