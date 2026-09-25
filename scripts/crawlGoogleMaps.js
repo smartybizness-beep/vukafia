@@ -135,9 +135,12 @@ function generateCoverPhoto(category) {
     'Electronics': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=75',
     'Fashion & Textiles': 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&q=75',
     'Food & Groceries': 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=500&q=75',
+    'Restaurant': 'https://images.unsplash.com/photo-1552566626-52f8b29e368c?w=500&q=75',
     'Tourism': 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500&q=75',
+    'Accommodations': 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=500&q=75',
     'Technology & IT': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&q=75',
-    'Agriculture': 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=500&q=75'
+    'Agriculture': 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=500&q=75',
+    'Medical': 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=500&q=75'
   };
   return photos[category] || 'https://images.unsplash.com/photo-1553729783-c91953dec042?w=500&q=75';
 }
