@@ -36,7 +36,13 @@ app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000; // v2-force-rebuild
 
 // ─── SECURITY & MIDDLEWARE ─────────────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      imgSrc: ["'self'", 'data:', 'https://images.unsplash.com']
+    }
+  }
+}));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')
