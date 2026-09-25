@@ -11,87 +11,125 @@ const axios = require('axios');
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
-// Map of African countries to major cities and search queries
-const REGIONS = {
-  'West Africa': {
-    'Nigeria': {
-      cities: ['Lagos', 'Abuja', 'Port Harcourt', 'Kano', 'Ibadan'],
-      queries: [
-        'electronics store',
-        'fashion boutique',
-        'grocery store',
-        'restaurant',
-        'tech company',
-        'agriculture supplier',
-        'beauty salon',
-        'phone repair',
-        'hotel',
-        'hospital',
-        'medical clinic',
-        'tourism agency'
-      ]
-    },
-    'Ghana': {
-      cities: ['Accra', 'Kumasi', 'Sekondi-Takoradi'],
-      queries: ['electronics store', 'restaurant', 'hotel', 'shop', 'supermarket', 'hospital', 'medical clinic', 'tourism']
-    },
-    'Côte d\'Ivoire': {
-      cities: ['Abidjan', 'Yamoussoukro'],
-      queries: ['electronics', 'restaurant', 'hotel', 'hospital', 'medical clinic', 'tourism']
-    }
+// Agricultural products, commodities, minerals & services by country
+// Target specific B2B products for cross-border trade under AfCFTA
+const PRODUCTS_AND_SERVICES = {
+  'Nigeria': {
+    'Lagos': ['cocoa exporter', 'cashew supplier', 'shea butter producer', 'textile manufacturer', 'cement producer', 'fintech startup', 'fashion designer', 'beauty cosmetics', 'pharmaceutical company', 'oil and gas'],
+    'Abuja': ['agriculture cooperative', 'food processor', 'spice producer', 'tech company', 'logistics company', 'payment processor']
   },
-  'East Africa': {
-    'Kenya': {
-      cities: ['Nairobi', 'Mombasa', 'Kisumu'],
-      queries: ['electronics store', 'restaurant', 'hotel', 'shop', 'tech startup', 'hospital', 'medical clinic', 'safari tourism']
-    },
-    'Tanzania': {
-      cities: ['Dar es Salaam', 'Dodoma'],
-      queries: ['restaurant', 'hotel', 'shop', 'electronics', 'hospital', 'medical clinic', 'tourism']
-    },
-    'Uganda': {
-      cities: ['Kampala', 'Gulu'],
-      queries: ['restaurant', 'hotel', 'shop', 'tech company', 'hospital', 'medical clinic', 'tourism']
-    }
+  'Ghana': {
+    'Accra': ['cocoa exporter', 'gold mining', 'shea butter processor', 'textile manufacturer', 'food processor', 'tourism', 'tech startup', 'fintech'],
+    'Kumasi': ['cocoa buying station', 'artisan crafts', 'agriculture cooperative', 'food processing']
   },
-  'North Africa': {
-    'Egypt': {
-      cities: ['Cairo', 'Alexandria', 'Giza'],
-      queries: ['electronics store', 'restaurant', 'hotel', 'shop', 'hospital', 'medical clinic', 'tourism']
-    },
-    'Morocco': {
-      cities: ['Casablanca', 'Fez', 'Marrakech'],
-      queries: ['restaurant', 'hotel', 'shop', 'electronics', 'hospital', 'medical clinic', 'tourism']
-    }
+  'Côte d\'Ivoire': {
+    'Abidjan': ['cocoa exporter', 'cashew processor', 'agricultural cooperative', 'food processor', 'textile company', 'shipping and logistics']
+  },
+  'Kenya': {
+    'Nairobi': ['coffee exporter', 'cut flower supplier', 'tech startup', 'fintech', 'logistics company', 'fashion designer', 'tourism agency', 'agri-tech', 'telecom', 'pharmaceutical'],
+    'Mombasa': ['coffee exporter', 'spice trader', 'shipping port', 'tourism']
+  },
+  'Ethiopia': {
+    'Addis Ababa': ['coffee exporter', 'cut flower supplier', 'textile manufacturer', 'pharmaceutical company', 'leather goods', 'tech startup']
+  },
+  'Uganda': {
+    'Kampala': ['coffee exporter', 'agricultural cooperative', 'tech startup', 'fintech', 'textile company', 'food processor']
+  },
+  'Tanzania': {
+    'Dar es Salaam': ['coffee exporter', 'tea producer', 'cashew processor', 'mining company', 'logistics', 'tourism agency', 'fintech']
+  },
+  'Rwanda': {
+    'Kigali': ['coffee exporter', 'tea producer', 'tech startup', 'fintech', 'pharmaceutical', 'tourism']
+  },
+  'Egypt': {
+    'Cairo': ['cotton exporter', 'date exporter', 'citrus exporter', 'pharmaceutical company', 'textile manufacturer', 'cement producer', 'fintech', 'tourism']
+  },
+  'Morocco': {
+    'Casablanca': ['phosphate exporter', 'leather goods', 'argan oil producer', 'textile manufacturer', 'car assembly', 'fintech', 'tourism']
+  },
+  'South Africa': {
+    'Johannesburg': ['gold mining', 'diamond mining', 'platinum mining', 'car assembly', 'pharmaceutical company', 'textile manufacturer', 'fintech', 'logistics']
+  },
+  'Botswana': {
+    'Gaborone': ['diamond mining', 'beef exporter', 'tourism agency']
+  },
+  'DRC': {
+    'Kinshasa': ['copper mining', 'cobalt mining', 'timber exporter', 'agricultural cooperative']
+  },
+  'Zambia': {
+    'Lusaka': ['copper mining', 'cobalt mining', 'agriculture', 'food processor']
+  },
+  'Madagascar': {
+    'Antananarivo': ['vanilla exporter', 'spice trader', 'textile company', 'mining']
   }
 };
 
-// Category mapping for Vukafia
+// Category mapping for Vukafia - now focused on B2B commodities & services
 const CATEGORY_MAP = {
-  'electronics store': 'Electronics',
-  'electronics repair': 'Electronics',
-  'fashion boutique': 'Fashion & Textiles',
-  'clothing store': 'Fashion & Textiles',
-  'grocery store': 'Food & Groceries',
-  'supermarket': 'Food & Groceries',
+  // Agricultural Products & Commodities
+  'cocoa exporter': 'Agricultural Products',
+  'cocoa buying station': 'Agricultural Products',
+  'coffee exporter': 'Agricultural Products',
+  'tea producer': 'Agricultural Products',
+  'cashew supplier': 'Agricultural Products',
+  'cashew processor': 'Agricultural Products',
+  'shea butter producer': 'Agricultural Products',
+  'shea butter processor': 'Agricultural Products',
+  'spice producer': 'Agricultural Products',
+  'spice trader': 'Agricultural Products',
+  'vanilla exporter': 'Agricultural Products',
+  'date exporter': 'Agricultural Products',
+  'citrus exporter': 'Agricultural Products',
+  'cut flower supplier': 'Agricultural Products',
+  'beef exporter': 'Agricultural Products',
+  'agriculture cooperative': 'Agricultural Products',
+  'agricultural cooperative': 'Agricultural Products',
+  'agri-tech': 'Agricultural Products',
+
+  // Minerals & Mining
+  'gold mining': 'Minerals & Mining',
+  'diamond mining': 'Minerals & Mining',
+  'copper mining': 'Minerals & Mining',
+  'cobalt mining': 'Minerals & Mining',
+  'platinum mining': 'Minerals & Mining',
+  'phosphate exporter': 'Minerals & Mining',
+  'mining company': 'Minerals & Mining',
+  'oil and gas': 'Minerals & Mining',
+
+  // Manufacturing
+  'textile manufacturer': 'Manufacturing',
+  'textile company': 'Manufacturing',
+  'cement producer': 'Manufacturing',
+  'food processor': 'Manufacturing',
+  'fashion designer': 'Manufacturing',
+  'leather goods': 'Manufacturing',
+  'pharmaceutical company': 'Manufacturing',
+  'pharmaceutical': 'Manufacturing',
+  'car assembly': 'Manufacturing',
+
+  // Services
+  'fintech startup': 'Services',
+  'fintech': 'Services',
+  'payment processor': 'Services',
+  'tech startup': 'Services',
+  'tech company': 'Services',
+  'logistics company': 'Services',
+  'logistics': 'Services',
+  'shipping and logistics': 'Services',
+  'telecom': 'Services',
+  'tourism agency': 'Services',
+  'tourism': 'Services',
   'restaurant': 'Restaurant',
   'cafe': 'Restaurant',
-  'hotel': 'Accommodations',
-  'guest house': 'Accommodations',
-  'tech company': 'Technology & IT',
-  'tech startup': 'Technology & IT',
-  'agriculture supplier': 'Agriculture',
-  'farm': 'Agriculture',
-  'beauty salon': 'Fashion & Textiles',
+
+  // Fallbacks
   'shop': 'General Retail',
   'store': 'General Retail',
-  'phone repair': 'Technology & IT',
-  'hospital': 'Medical',
-  'medical clinic': 'Medical',
-  'clinic': 'Medical',
-  'tourism agency': 'Tourism',
-  'safari tourism': 'Tourism',
-  'tourism': 'Tourism'
+  'beauty cosmetics': 'Beauty & Personal Care',
+  'argan oil producer': 'Beauty & Personal Care',
+  'hotel': 'Accommodations',
+  'guest house': 'Accommodations',
+  'shipping port': 'Services'
 };
 
 async function sleep(ms) {
@@ -171,23 +209,13 @@ function extractCity(address) {
 function determineType(query) {
   const q = query.toLowerCase();
 
-  // Check for medical
-  if (q.includes('hospital') || q.includes('medical') || q.includes('clinic')) {
-    return 'medical';
-  }
-
-  // Check for tourism
-  if (q.includes('hotel') || q.includes('guest') || q.includes('tourism') || q.includes('safari')) {
-    return 'tourism';
-  }
-
-  // Check for service
-  const serviceQueries = ['restaurant', 'cafe', 'salon', 'repair', 'tech company'];
-  if (serviceQueries.some(sq => q.includes(sq))) {
+  // Services
+  const serviceKeywords = ['exporter', 'tech', 'fintech', 'logistics', 'startup', 'processor', 'producer', 'company', 'supplier', 'agency', 'cooperative'];
+  if (serviceKeywords.some(kw => q.includes(kw))) {
     return 'service';
   }
 
-  // Default to product
+  // Products
   return 'product';
 }
 
@@ -195,36 +223,47 @@ function determineType(query) {
  * Get region from country
  */
 function getRegion(country) {
-  for (const [region, countries] of Object.entries(REGIONS)) {
-    if (Object.keys(countries).includes(country)) {
-      return region;
-    }
-  }
-  return 'Africa';
+  const regionMap = {
+    'Nigeria': 'West Africa',
+    'Ghana': 'West Africa',
+    'Côte d\'Ivoire': 'West Africa',
+    'Cameroon': 'West Africa',
+    'Senegal': 'West Africa',
+    'Kenya': 'East Africa',
+    'Tanzania': 'East Africa',
+    'Uganda': 'East Africa',
+    'Rwanda': 'East Africa',
+    'Ethiopia': 'East Africa',
+    'Egypt': 'North Africa',
+    'Morocco': 'North Africa',
+    'Algeria': 'North Africa',
+    'South Africa': 'Southern Africa',
+    'Botswana': 'Southern Africa',
+    'Zambia': 'Southern Africa',
+    'DRC': 'Central Africa',
+    'Madagascar': 'East Africa'
+  };
+  return regionMap[country] || 'Africa';
 }
 
 /**
- * Crawl Google Maps for all regions
+ * Crawl Google Maps for B2B commodities and services across Africa
  */
 async function crawlGoogleMaps() {
   const businesses = [];
   let total = 0;
   let skipped = 0;
 
-  console.log('🌐 Starting Google Maps crawl...\n');
+  console.log('🌐 Crawling African B2B commodities & services from Google Maps...\n');
 
-  for (const [region, countries] of Object.entries(REGIONS)) {
-    console.log(`📍 ${region}:`);
+  for (const [country, cities] of Object.entries(PRODUCTS_AND_SERVICES)) {
+    console.log(`🇳🇬 ${country}:`);
 
-    for (const [country, data] of Object.entries(countries)) {
-      console.log(`  🇳🇬 ${country}:`);
+    for (const [city, queries] of Object.entries(cities)) {
+      console.log(`  📍 ${city}:`);
 
-      // Pick 1-2 cities to keep requests reasonable
-      const citiesToSearch = data.cities.slice(0, 2);
-
-      for (const city of citiesToSearch) {
-        // Only search 2-3 top categories per city to stay within free tier
-        const queriesToSearch = data.queries.slice(0, 3);
+      // Search top 2-3 products per city to manage API quota
+      const queriesToSearch = queries.slice(0, 3);
 
         for (const query of queriesToSearch) {
           console.log(`    Searching: "${query}" in ${city}...`);
