@@ -204,18 +204,23 @@ function extractCity(address) {
 }
 
 /**
- * Determine business type (product vs service)
+ * Determine business type (product, service, restaurant, etc.)
  */
 function determineType(query) {
   const q = query.toLowerCase();
 
+  // Check for restaurant/cafe
+  if (q.includes('restaurant') || q.includes('cafe')) {
+    return 'restaurant';
+  }
+
   // Services
-  const serviceKeywords = ['exporter', 'tech', 'fintech', 'logistics', 'startup', 'processor', 'producer', 'company', 'supplier', 'agency', 'cooperative'];
+  const serviceKeywords = ['exporter', 'tech', 'fintech', 'logistics', 'startup', 'processor', 'producer', 'company', 'supplier', 'agency', 'cooperative', 'mining'];
   if (serviceKeywords.some(kw => q.includes(kw))) {
     return 'service';
   }
 
-  // Products
+  // Products (agricultural, minerals, etc.)
   return 'product';
 }
 

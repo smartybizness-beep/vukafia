@@ -341,6 +341,12 @@ export default function App() {
             🔧 Services
           </button>
           <button
+            className={`ntab ${type === 'restaurant' ? 'active' : ''}`}
+            onClick={() => setType('restaurant')}
+          >
+            🍽️ Restaurants
+          </button>
+          <button
             className={`ntab ${type === 'tourism' ? 'active' : ''}`}
             onClick={() => setType('tourism')}
           >
@@ -394,6 +400,12 @@ export default function App() {
               onClick={() => setType('service')}
             >
               🔧 Services
+            </button>
+            <button
+              className={`tbtn r ${type === 'restaurant' ? 'active' : ''}`}
+              onClick={() => setType('restaurant')}
+            >
+              🍽️ Restaurants
             </button>
             <button
               className={`tbtn t ${type === 'tourism' ? 'active' : ''}`}
