@@ -262,25 +262,21 @@ async function crawlGoogleMaps() {
     for (const [city, queries] of Object.entries(cities)) {
       console.log(`  📍 ${city}:`);
 
-      // Search top 2-3 products per city to manage API quota
+      // Search top 2-3 products per city
       const queriesToSearch = queries.slice(0, 3);
 
       for (const query of queriesToSearch) {
         console.log(`    Searching: "${query}" in ${city}...`);
-
         const places = await searchPlaces(query, city);
 
         if (places.length === 0) {
           console.log(`      No results`);
-          await sleep(500); // Rate limit
+          await sleep(500);
           continue;
         }
 
-        // Get details for top 3 results
         for (const place of places.slice(0, 3)) {
-          // New Places API returns display name in different format
           const businessName = place.displayName?.text || place.name || null;
-
           if (!businessName) {
             skipped++;
             continue;
@@ -289,22 +285,14 @@ async function crawlGoogleMaps() {
           const city_name = extractCity(place.formattedAddress || businessName);
           const category = CATEGORY_MAP[query.toLowerCase()] || 'General Retail';
 
-          // Extract real photo from Google Maps (if available)
-          let coverPhoto = generateCoverPhoto(category); // fallback
+          let coverPhoto = generateCoverPhoto(category);
           if (place.photos && place.photos.length > 0) {
             const photo = place.photos[0];
-            console.log(`📸 [${businessName}] photo.name:`, photo.name?.substring(0, 80));
-            console.log(`   photo keys:`, Object.keys(photo));
             if (photo.name) {
-              // Use Google Places API /media endpoint to get actual photo
               coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
-              console.log(`✅ Photo URL set for ${businessName}`);
             }
-          } else {
-            console.log(`❌ [${businessName}] NO PHOTOS from Google`);
           }
 
-          // Try to extract Instagram handle from website or business name
           let instagramHandle = null;
           if (place.websiteUri) {
             const instagramMatch = place.websiteUri.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
@@ -335,21 +323,15 @@ async function crawlGoogleMaps() {
           });
 
           total++;
-          console.log(`      ✅ ${businessName} (${place.rating || 'N/A'} stars)`);
-
-          // Rate limiting
+          console.log(`      ✅ ${businessName}`);
           await sleep(200);
         }
       }
-
       await sleep(500);
     }
   }
 
-  console.log(`\n✅ Crawl complete!`);
-  console.log(`📊 Found: ${total} businesses`);
-  console.log(`⏭️  Skipped: ${skipped} (closed/inactive)`);
-
+  console.log(`\n✅ Crawl complete! Found: ${total} businesses, Skipped: ${skipped}`);
   return businesses;
 }
 
