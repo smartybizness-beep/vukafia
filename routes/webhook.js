@@ -12,10 +12,8 @@ const express = require('express');
 const router  = express.Router();
 const db      = require('../db');
 const { handleWhatsAppMessage } = require('../services/whatsappBot');
-const twilio = require('twilio');
 
 const WA_VERIFY_TOKEN = process.env.WA_VERIFY_TOKEN || 'vukafia_webhook_token';
-const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN || '';
 
 // ─── GET /api/webhook/whatsapp ────────────────────────────────────────────
 // Meta webhook verification (called once during setup)
