@@ -535,11 +535,16 @@ export default function App() {
             <div className="grid">
               {filteredListings.map(listing => (
                 <div key={listing.id} className="card">
-                  <img
-                    src={listing.cover_photo || 'https://images.unsplash.com/photo-1553729783-c91953dec042?w=500&q=75'}
-                    alt={listing.name}
-                    className="card-img"
-                  />
+                  <div className="card-img-container">
+                    <img
+                      src={listing.cover_photo || 'https://images.unsplash.com/photo-1553729783-c91953dec042?w=500&q=75'}
+                      alt={listing.name}
+                      className="card-img"
+                    />
+                    {listing.verified_source === 'Google Maps' && (
+                      <div className="verified-badge">🔍 Google Verified</div>
+                    )}
+                  </div>
                   <div className="card-body">
                     <div className="card-name">{listing.name}</div>
                     <div className="card-cat">{listing.category}</div>

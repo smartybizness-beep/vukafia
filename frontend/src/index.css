@@ -497,11 +497,35 @@ nav {
   box-shadow: 0 8px 32px rgba(45, 31, 14, 0.15);
 }
 
+.card-img-container {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background: var(--sand);
+}
+
 .card-img {
   width: 100%;
   height: 160px;
   object-fit: cover;
   background: var(--sand);
+}
+
+.verified-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .card-body {
