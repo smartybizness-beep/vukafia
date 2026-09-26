@@ -1,9 +1,9 @@
 /**
  * routes/webhook.js
- * WhatsApp Business API webhook
- * Receives inbound messages → AI parses intent → returns listings
+ * WhatsApp Bot webhook
+ * Handles business onboarding through Twilio WhatsApp
  *
- * Compatible with: WhatsApp Cloud API (Meta) / Twilio / Africa's Talking
+ * Flow: Greeting → Register/Claim/Search → Collect details → Payment → Auto-register
  */
 
 'use strict';
@@ -11,9 +11,11 @@
 const express = require('express');
 const router  = express.Router();
 const db      = require('../db');
-const waService = require('../services/whatsapp');
+const { handleWhatsAppMessage } = require('../services/whatsappBot');
+const twilio = require('twilio');
 
 const WA_VERIFY_TOKEN = process.env.WA_VERIFY_TOKEN || 'vukafia_webhook_token';
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN || '';
 
 // ─── GET /api/webhook/whatsapp ────────────────────────────────────────────
 // Meta webhook verification (called once during setup)
@@ -71,30 +73,55 @@ router.post('/whatsapp', async (req, res, next) => {
 });
 
 // ─── POST /api/webhook/twilio ─────────────────────────────────────────────
-// Alternative: Twilio WhatsApp webhook
+// Twilio WhatsApp chatbot webhook
+// Handles onboarding: greeting → register/claim/search → auto-create listing
 router.post('/twilio', async (req, res, next) => {
   try {
+    // Verify Twilio signature (optional, for security)
+    // const twilioSignature = req.get('X-Twilio-Signature');
+    // if (!twilio.validateRequest(TWILIO_AUTH_TOKEN, twilioSignature, ...))
+    //   return res.sendStatus(403);
+
     const from = req.body.From?.replace('whatsapp:', '');
     const text = req.body.Body;
-    if (!from || !text) return res.sendStatus(200);
+    const mediaUrl = req.body.MediaUrl0; // Photo upload
 
+    if (!from) return res.sendStatus(200);
+
+    // Log incoming message
     const k = db.query();
     await k('wa_messages').insert({
       from_number: from,
       to_number:   process.env.WA_PHONE_NUMBER || '2348101477935',
       message:     text,
+      media_url:   mediaUrl,
       direction:   'inbound',
-    });
+    }).catch(() => {}); // Table may not exist yet
 
-    const reply = await waService.buildReply(from, text, k);
-    // Twilio TwiML response
+    // Process message through bot
+    const botReply = await handleWhatsAppMessage(from, text || '', mediaUrl);
+
+    // Log outgoing message
+    await k('wa_messages').insert({
+      from_number: process.env.WA_PHONE_NUMBER || '2348101477935',
+      to_number:   from,
+      message:     botReply,
+      direction:   'outbound',
+    }).catch(() => {});
+
+    // Send Twilio TwiML response
     res.type('text/xml').send(`
       <Response>
-        <Message><Body>${reply}</Body></Message>
+        <Message><Body>${botReply}</Body></Message>
       </Response>
     `);
   } catch (err) {
-    next(err);
+    console.error('[TWILIO WEBHOOK ERROR]', err.message);
+    res.type('text/xml').send(`
+      <Response>
+        <Message><Body>❌ Sorry, something went wrong. Please try again.</Body></Message>
+      </Response>
+    `);
   }
 });
 
