@@ -513,19 +513,21 @@ nav {
 
 .verified-badge {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(0, 0, 0, 0.75);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
   color: #fff;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 0;
+  font-size: 0.7rem;
   font-weight: 600;
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
-  gap: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  justify-content: center;
+  gap: 3px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .card-body {
