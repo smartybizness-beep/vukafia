@@ -46,7 +46,7 @@ router.get('/', optionalAuth, async (req, res, next) => {
         'description', 'phone', 'whatsapp', 'email', 'website', 'instagram',
         'latitude', 'longitude', 'rating', 'review_count',
         'verified', 'featured', 'is_new', 'cover_photo', 'emoji',
-        'view_count', 'contact_count', 'created_at',
+        'view_count', 'contact_count', 'created_at', 'verified_source',
       ]);
 
     // ── FILTERS ──────────────────────────────────────────────────────────
