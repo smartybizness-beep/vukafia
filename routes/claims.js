@@ -153,10 +153,11 @@ router.post('/verify-payment', requireAuth, async (req, res, next) => {
       }
     }
 
-    // Mark listing as claimed
+    // Mark listing as claimed by WhatsApp AI verified user
     await k('listings').where('id', listing_id).update({
       user_id: req.user.id,
-      verified: true
+      verified: true,
+      verified_source: 'WhatsApp AI'
     });
 
     // Log the claim with payment info

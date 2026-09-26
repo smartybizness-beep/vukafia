@@ -541,8 +541,11 @@ export default function App() {
                       alt={listing.name}
                       className="card-img"
                     />
+                    {listing.verified_source === 'WhatsApp AI' && (
+                      <div className="verified-badge whatsapp-verified">💬 WhatsApp AI Verified</div>
+                    )}
                     {listing.verified_source === 'Google Maps' && (
-                      <div className="verified-badge">🔍 Google Verified</div>
+                      <div className="verified-badge google-verified">🔍 Google Verified</div>
                     )}
                   </div>
                   <div className="card-body">

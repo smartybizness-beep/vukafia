@@ -516,8 +516,6 @@ nav {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
   padding: 0.35rem 0.8rem;
   border-radius: 0;
   font-size: 0.7rem;
@@ -527,7 +525,18 @@ nav {
   align-items: center;
   justify-content: center;
   gap: 3px;
+}
+
+.verified-badge.google-verified {
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.verified-badge.whatsapp-verified {
+  background: var(--wa);
+  color: #fff;
+  box-shadow: 0 -2px 8px rgba(37, 211, 102, 0.3);
 }
 
 .card-body {
