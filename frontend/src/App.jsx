@@ -422,7 +422,20 @@ export default function App() {
             <strong>54+</strong>{t.nations}
           </div>
 
-          {/* Language Selector */}
+          <button className="btn-wa-n" onClick={() => openWhatsApp(`👋 Welcome to Vukafia! I'm Trima, your AI assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}>
+            {t.whatsappAi}
+          </button>
+          <button
+            className="btn-lst"
+            onClick={() => { resetClaim(); setShowClaimModal(true) }}
+          >
+            {t.claimBusiness}
+          </button>
+          <button className="btn-lst" onClick={listBusiness}>
+            {t.listBusiness}
+          </button>
+
+          {/* Language Selector (Last) */}
           <div style={{ position: 'relative' }}>
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
@@ -430,12 +443,13 @@ export default function App() {
                 background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.3)',
                 color: '#fff',
-                padding: '0.5rem 0.8rem',
+                padding: 'clamp(0.3rem, 2vw, 0.5rem) clamp(0.5rem, 3vw, 0.8rem)',
                 borderRadius: '6px',
                 cursor: 'pointer',
-                fontSize: '0.75rem',
+                fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
                 fontWeight: 'bold',
-                minWidth: '100px'
+                minWidth: 'clamp(60px, 15vw, 100px)',
+                whiteSpace: 'nowrap'
               }}
             >
               🌐 {language.toUpperCase()}
@@ -475,19 +489,6 @@ export default function App() {
               </div>
             )}
           </div>
-
-          <button className="btn-wa-n" onClick={() => openWhatsApp(`👋 Welcome to Vukafia! I'm Trima, your AI assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}>
-            {t.whatsappAi}
-          </button>
-          <button
-            className="btn-lst"
-            onClick={() => { resetClaim(); setShowClaimModal(true) }}
-          >
-            {t.claimBusiness}
-          </button>
-          <button className="btn-lst" onClick={listBusiness}>
-            {t.listBusiness}
-          </button>
         </div>
       </nav>
 
