@@ -70,7 +70,8 @@ export default function BusinessDetailPage() {
 
   const openWhatsApp = () => {
     const message = `Hi, I'm interested in your business on Vukafia: ${business.name}`;
-    window.open(`https://wa.me/${business.phone}?text=${encodeURIComponent(message)}`);
+    const cleanPhone = business.phone.replace(/\s+/g, '').replace(/^0+/, '');
+    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`);
   };
 
   const shareLink = () => {
