@@ -10,8 +10,15 @@ const router  = express.Router();
 const db      = require('../db');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
-// All admin routes require auth + admin role
-router.use(requireAuth, requireAdmin);
+// Skip auth for crawler endpoints (they use x-admin-token instead)
+router.use((req, res, next) => {
+  if (req.path.startsWith('/crawler/')) {
+    return next();
+  }
+  requireAuth(req, res, () => {
+    requireAdmin(req, res, next);
+  });
+});
 
 // ─── GET /api/admin/dashboard ─────────────────────────────────────────────
 router.get('/dashboard', async (req, res, next) => {
