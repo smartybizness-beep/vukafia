@@ -611,22 +611,24 @@ export default function App() {
           {!loading && filteredListings.length > 0 && hasMore && (
             <div style={{ textAlign: 'center', marginTop: '2rem', marginBottom: '2rem' }}>
               <button
-                onClick={() => window.scrollBy({ top: 400, behavior: 'smooth' })}
+                onClick={loadMore}
+                disabled={loadingMore}
                 style={{
                   padding: '0.75rem 2.5rem',
-                  background: 'var(--t)',
+                  background: loadingMore ? '#ccc' : 'var(--t)',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '8px',
                   fontWeight: 700,
-                  cursor: 'pointer',
+                  cursor: loadingMore ? 'not-allowed' : 'pointer',
                   fontSize: '1.1rem',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  opacity: loadingMore ? 0.7 : 1
                 }}
-                onMouseOver={e => e.target.style.background = 'var(--tl)'}
-                onMouseOut={e => e.target.style.background = 'var(--t)'}
+                onMouseOver={e => !loadingMore && (e.target.style.background = 'var(--tl)')}
+                onMouseOut={e => !loadingMore && (e.target.style.background = 'var(--t)')}
               >
-                ↓ Scroll Down
+                {loadingMore ? '⏳ Loading...' : '↓ Scroll Down'}
               </button>
             </div>
           )}
