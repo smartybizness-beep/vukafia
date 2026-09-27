@@ -3,6 +3,17 @@ import { Link, useNavigate } from 'react-router-dom'
 import { LANGUAGE_NAMES, TRANSLATIONS } from './languages'
 import './App.css'
 
+const BusinessCardLink = ({ listing, children }) => {
+  return (
+    <Link
+      to={`/business/${listing.id}`}
+      style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+    >
+      {children}
+    </Link>
+  );
+}
+
 // v2.1 - fixed CORS and relative URLs
 export default function App() {
   const navigate = useNavigate()
@@ -623,77 +634,79 @@ export default function App() {
           {!loading && filteredListings.length > 0 && (
             <div className="grid">
               {filteredListings.map(listing => (
-                <div key={listing.id} className="card">
-                  <div className="card-img-container">
-                    <img
-                      src={listing.cover_photo || 'https://images.unsplash.com/photo-1553729783-c91953dec042?w=500&q=75'}
-                      alt={listing.name}
-                      className="card-img"
-                    />
-                    {listing.verified_source === 'WhatsApp AI' && (
-                      <div className="verified-badge whatsapp-verified">💬 WhatsApp AI Verified</div>
-                    )}
-                    {listing.verified_source === 'Google Maps' && (
-                      <div className="verified-badge google-verified">🔍 Google Verified</div>
-                    )}
+                <BusinessCardLink key={listing.id} listing={listing}>
+                  <div className="card">
+                    <div className="card-img-container">
+                      <img
+                        src={listing.cover_photo || 'https://images.unsplash.com/photo-1553729783-c91953dec042?w=500&q=75'}
+                        alt={listing.name}
+                        className="card-img"
+                      />
+                      {listing.verified_source === 'WhatsApp AI' && (
+                        <div className="verified-badge whatsapp-verified">💬 WhatsApp AI Verified</div>
+                      )}
+                      {listing.verified_source === 'Google Maps' && (
+                        <div className="verified-badge google-verified">🔍 Google Verified</div>
+                      )}
+                    </div>
+                    <div className="card-body">
+                      <div className="card-name">{listing.name}</div>
+                      <div className="card-cat">{listing.category}</div>
+                      <div className="card-rating">
+                        ⭐ {listing.rating || 'New'} ({listing.review_count || 0})
+                      </div>
+                      <div className="card-location">
+                        📍 {listing.city || listing.state}, {listing.country}
+                      </div>
+                      <div className="card-btns">
+                        {listing.phone && (
+                          <button
+                            className="card-btn"
+                            onClick={() => contactListing(listing, 'call')}
+                          >
+                            📞
+                          </button>
+                        )}
+                        {listing.whatsapp && (
+                          <button
+                            className="card-btn"
+                            onClick={() => contactListing(listing, 'whatsapp')}
+                          >
+                            💬
+                          </button>
+                        )}
+                        {listing.email && (
+                          <button
+                            className="card-btn"
+                            onClick={() => contactListing(listing, 'email')}
+                          >
+                            ✉️
+                          </button>
+                        )}
+                        {listing.website && (
+                          <button
+                            className="card-btn"
+                            onClick={() => contactListing(listing, 'website')}
+                          >
+                            🌐
+                          </button>
+                        )}
+                        {listing.instagram && (
+                          <button
+                            className="card-btn"
+                            onClick={() => {
+                              const url = `https://instagram.com/${listing.instagram.replace('@', '')}`;
+                              window.open(url, '_blank');
+                            }}
+                            title={listing.instagram}
+                          >
+                            📷
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="card-body">
-                    <div className="card-name">{listing.name}</div>
-                    <div className="card-cat">{listing.category}</div>
-                    <div className="card-rating">
-                      ⭐ {listing.rating || 'New'} ({listing.review_count || 0})
-                    </div>
-                    <div className="card-location">
-                      📍 {listing.city || listing.state}, {listing.country}
-                    </div>
-                    <div className="card-btns">
-                      {listing.phone && (
-                        <button
-                          className="card-btn"
-                          onClick={() => contactListing(listing, 'call')}
-                        >
-                          📞
-                        </button>
-                      )}
-                      {listing.whatsapp && (
-                        <button
-                          className="card-btn"
-                          onClick={() => contactListing(listing, 'whatsapp')}
-                        >
-                          💬
-                        </button>
-                      )}
-                      {listing.email && (
-                        <button
-                          className="card-btn"
-                          onClick={() => contactListing(listing, 'email')}
-                        >
-                          ✉️
-                        </button>
-                      )}
-                      {listing.website && (
-                        <button
-                          className="card-btn"
-                          onClick={() => contactListing(listing, 'website')}
-                        >
-                          🌐
-                        </button>
-                      )}
-                      {listing.instagram && (
-                        <button
-                          className="card-btn"
-                          onClick={() => {
-                            const url = `https://instagram.com/${listing.instagram.replace('@', '')}`;
-                            window.open(url, '_blank');
-                          }}
-                          title={listing.instagram}
-                        >
-                          📷
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                </BusinessCardLink>
               ))}
             </div>
           )}
