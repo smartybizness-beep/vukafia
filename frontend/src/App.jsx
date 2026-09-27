@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './App.css'
 
 // v2.1 - fixed CORS and relative URLs
 export default function App() {
+  const navigate = useNavigate()
   const [listings, setListings] = useState([])
   const [filteredListings, setFilteredListings] = useState([])
   const [loading, setLoading] = useState(true)
@@ -18,6 +19,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [showFooterAbout, setShowFooterAbout] = useState(false)
 
   // Claim flow state
   const [showClaimModal, setShowClaimModal] = useState(false)
@@ -377,8 +379,6 @@ export default function App() {
           <div className="nav-stat">
             <strong>54+</strong>Nations
           </div>
-          <Link to="/about" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}>About</Link>
-          <Link to="/contact" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}>Contact</Link>
           <button className="btn-wa-n" onClick={() => openWhatsApp(`👋 Welcome to VukaFia! My name is Tumi and I'll be your bot assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}>
             💬 WhatsApp AI
           </button>
@@ -1051,17 +1051,124 @@ export default function App() {
       )}
 
       <footer style={{
-        background: 'var(--earth)',
-        color: 'rgba(255,255,255,.5)',
-        padding: '2rem',
-        marginTop: '2rem',
-        textAlign: 'center'
+        background: '#2d1f0e',
+        color: '#fff',
+        padding: '2rem 1.5rem',
+        marginTop: '3rem',
+        borderTop: '1px solid rgba(255,255,255,0.1)'
       }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          <img src="/assets/vukafia-logo.png" alt="Vukafia" className="footer-logo" />
-          <div style={{ fontSize: '0.75rem', marginTop: '1rem' }}>
-            Rising Markets. Connecting Africa. · vukafia.com
+        {/* Main Footer Content */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '2rem',
+          maxWidth: '1200px',
+          margin: '0 auto 2rem'
+        }}>
+          {/* About Section */}
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>About Vukafia</h3>
+            <p style={{ fontSize: '0.9rem', lineHeight: 1.6, opacity: 0.9 }}>
+              Trans-African Business Directory connecting 54+ countries with 10,000+ verified businesses. Rising Markets. Connecting Africa.
+            </p>
+            <button onClick={() => setShowFooterAbout(!showFooterAbout)} style={{
+              background: 'transparent',
+              color: '#d4a017',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.85rem',
+              marginTop: '0.5rem',
+              padding: 0
+            }}>
+              {showFooterAbout ? '▼ Less' : '▶ Learn More'}
+            </button>
           </div>
+
+          {/* Contact Section */}
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Contact Us</h3>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <a href="https://wa.me/2348101477935" style={{ color: '#25D366', textDecoration: 'none', fontWeight: 600 }}>
+                💬 WhatsApp: +234 810 147 7935
+              </a>
+            </p>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <a href="mailto:hello@vukafia.com" style={{ color: '#d4a017', textDecoration: 'none' }}>
+                📧 Email: hello@vukafia.com
+              </a>
+            </p>
+            <button onClick={() => navigate('/contact')} style={{
+              background: '#c0522a',
+              color: '#fff',
+              border: 'none',
+              padding: '0.4rem 0.8rem',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              marginTop: '0.5rem',
+              fontWeight: 600
+            }}>
+              Send Inquiry
+            </button>
+          </div>
+
+          {/* Quick Links */}
+          <div style={{ textAlign: 'center' }}>
+            <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Quick Links</h3>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <Link to="/" style={{ color: '#d4a017', textDecoration: 'none' }}>Home</Link>
+            </p>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <a href="https://vukafia.com" style={{ color: '#d4a017', textDecoration: 'none' }}>Browse Businesses</a>
+            </p>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <button onClick={() => navigate('/contact')} style={{
+                background: 'transparent',
+                color: '#d4a017',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: '0.9rem',
+                textDecoration: 'none'
+              }}>
+                Contact Support
+              </button>
+            </p>
+          </div>
+        </div>
+
+        {/* Expanded About Section */}
+        {showFooterAbout && (
+          <div style={{
+            background: 'rgba(255,255,255,0.05)',
+            padding: '1.5rem',
+            borderRadius: '8px',
+            marginBottom: '1.5rem',
+            maxWidth: '900px',
+            margin: '0 auto 1.5rem'
+          }}>
+            <h4 style={{ marginBottom: '0.8rem' }}>Our Mission</h4>
+            <p style={{ fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1rem', opacity: 0.9 }}>
+              Vukafia is revolutionizing cross-border trade in Africa by creating a verified, transparent marketplace where businesses can discover, connect, and trade with verified partners across 54+ African nations.
+            </p>
+            <h4 style={{ marginBottom: '0.8rem' }}>Why Choose Vukafia?</h4>
+            <ul style={{ fontSize: '0.9rem', lineHeight: 1.8, marginLeft: '1.5rem', opacity: 0.9 }}>
+              <li>✅ Verified Listings - Real businesses from Google Maps</li>
+              <li>✅ WhatsApp Integration - Direct messaging, no emails</li>
+              <li>✅ Trans-African Reach - 54+ countries</li>
+              <li>✅ B2B Focused - Built for exporters and suppliers</li>
+            </ul>
+          </div>
+        )}
+
+        {/* Copyright */}
+        <div style={{ textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
+          <p style={{ margin: '0.5rem 0', fontSize: '0.85rem', opacity: 0.7 }}>
+            © 2026 Vukafia. Rising Markets. Connecting Africa.
+          </p>
+          <p style={{ margin: '0.5rem 0', fontSize: '0.75rem', opacity: 0.6 }}>
+            Serving businesses across Africa | Privacy Policy | Terms of Service
+          </p>
         </div>
       </footer>
     </>

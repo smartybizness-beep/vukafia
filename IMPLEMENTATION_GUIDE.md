@@ -735,7 +735,81 @@ Before going live with changes:
 **Last Updated**: September 25, 2026  
 **Maintained By**: Development Team
 
-## Recent Changes (September 25, 2026)
+## Navigation Architecture (Mobile-First Redesign)
+
+### About Us & Contact Us Moved to Footer
+
+**Why**: Separate About and Contact pages added clutter to the navbar on mobile devices, creating a poor user experience.
+
+**Solution**: Integrated About Us and Contact Us sections directly into the footer on all pages.
+
+### Navigation Structure
+
+**Navbar** (Simple and Clean):
+- Logo (left)
+- Business counts (center)
+- Action buttons: WhatsApp AI, Claim Business, List Business (right)
+- About and Contact links removed
+
+**Footer** (Rich, Informative):
+Replaces the separate page routes with integrated footer sections on all pages:
+
+1. **About Vukafia Section**
+   - Brief mission statement
+   - "Learn More" toggle button to expand detailed information
+   - Expanded content includes: Mission, Vision, and "Why Choose Vukafia?" bullet points
+
+2. **Contact Us Section**
+   - WhatsApp link with phone number (+234 810 147 7935)
+   - Email link (hello@vukafia.com)
+   - "Send Inquiry" button (navigates to /contact form)
+
+3. **Quick Links Section**
+   - Home (back to listings)
+   - Browse Businesses
+   - Contact Support
+
+4. **Expandable About Details** (Collapsible)
+   - Full mission statement
+   - Verification story
+   - Why Choose Vukafia (5 key features)
+
+### Implementation Details
+
+**Files Changed**:
+- `frontend/src/components/Layout.jsx` - Updated footer with expandable About and Contact sections
+- `frontend/src/App.jsx` - Removed About/Contact navbar links, integrated footer with sections
+- `frontend/src/AppWrapper.jsx` - Removed /about route, kept /contact route for full form page
+
+**Routes**:
+- `/` - Home page (with integrated footer)
+- `/contact` - Full contact form page (for detailed inquiries)
+- `/about` - REMOVED (content now in footer)
+
+**Key Features**:
+- Footer uses responsive grid layout (auto-fit columns)
+- "Learn More" button in About section toggles expanded content
+- Mobile-friendly (stacks on small screens)
+- Consistent footer on all pages (home, contact form)
+
+### Benefits
+- ✅ Cleaner navbar for mobile (less clutter)
+- ✅ About and Contact always accessible (in footer)
+- ✅ Reduces page load for About page
+- ✅ Improved mobile UX (natural place for secondary content)
+- ✅ Footer provides context on every page
+
+---
+
+## Recent Changes (September 27, 2026)
+- ✅ Moved About Us and Contact Us from separate pages to footer sections
+- ✅ Implemented expandable "About" section in footer with Learn More toggle
+- ✅ Removed About/Contact links from navbar for cleaner mobile design
+- ✅ Integrated footer on all pages (home and contact form)
+- ✅ Removed /about route (content in footer)
+- ✅ /contact route still available for detailed inquiry form
+
+**Previous Changes** (September 25, 2026):
 - ✅ Added Restaurant (🍽️) as dedicated type filter
 - ✅ Restructured crawler for B2B African commodities & services
 - ✅ Implemented pagination with "Load More" button
