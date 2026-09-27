@@ -379,7 +379,7 @@ export default function App() {
           <div className="nav-stat">
             <strong>54+</strong>Nations
           </div>
-          <button className="btn-wa-n" onClick={() => openWhatsApp(`👋 Welcome to VukaFia! My name is Tumi and I'll be your bot assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}>
+          <button className="btn-wa-n" onClick={() => openWhatsApp(`👋 Welcome to Vukafia! I'm Trima, your AI assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}>
             💬 WhatsApp AI
           </button>
           <button
@@ -514,7 +514,7 @@ export default function App() {
                 fontWeight: 700,
                 cursor: 'pointer'
               }}
-              onClick={() => openWhatsApp(`👋 Welcome to VukaFia! My name is Tumi and I'll be your bot assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}
+              onClick={() => openWhatsApp(`👋 Welcome to Vukafia! I'm Trima, your AI assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}
             >
               💬 Open WhatsApp AI
             </button>

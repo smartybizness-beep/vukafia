@@ -1,30 +1,124 @@
 import { useState } from 'react';
 
-const FAQ = {
-  'how to list a business': 'Click the "+ List Business" button in the top navigation. Fill in your business details, verify your WhatsApp, and your listing goes live immediately!',
-  'how to claim a business': 'Click "✓ Claim Business" button. Search for your business, verify your phone number, and claim ownership for a small fee.',
-  'is it free to search': 'Yes! Searching and browsing all 10,000+ verified businesses is completely free.',
-  'how many countries': 'Vukafia is available in 54+ African countries, covering all major regions.',
-  'what businesses can list': 'Any legitimate business can list: suppliers, exporters, manufacturers, service providers, retailers, and more.',
-  'how do i contact a business': 'Click on any business card and use the WhatsApp button to message them directly — no email needed!',
-  'what is vukafia': 'Vukafia is Africa\'s #1 verified business directory. We connect entrepreneurs across 54+ nations with real, Google-verified businesses.',
-  'how is data verified': 'All data comes directly from Google Maps and is verified by business owners through WhatsApp.',
-  'what is the claim fee': 'Claiming a business costs $15 USD (or equivalent) and includes a verified badge and listing management.',
-  'how long does claiming take': 'Usually 5-10 minutes! Pay, verify your phone, and your verified badge appears immediately.'
+const KNOWLEDGE_BASE = {
+  // Platform Overview
+  'what is vukafia': 'Vukafia is Africa\'s #1 verified business directory connecting entrepreneurs across 54+ African nations. We make cross-border trade easy by providing real, Google-verified businesses with direct WhatsApp contact.',
+  'what does vukafia do': 'Vukafia helps African businesses find suppliers, exporters, manufacturers, and service providers across the continent. Every listing is verified through Google Maps and WhatsApp.',
+  'vukafia mission': 'Our mission is to revolutionize cross-border trade by creating a transparent marketplace where African entrepreneurs can discover, connect, and trade with verified partners.',
+  'how many countries does vukafia cover': 'Vukafia is available in 54+ African countries, covering West Africa, East Africa, North Africa, Central Africa, and Southern Africa.',
+  'how many businesses on vukafia': 'We have 10,000+ verified businesses listed, all sourced from Google Maps and verified by business owners.',
+
+  // Searching and Browsing
+  'how to search for businesses': 'Use the search bar at the top to search by keyword (e.g., "cocoa exporter", "fintech startup"). You can also filter by business type (Products, Services, Restaurants, Tourism, Medical), country, and category.',
+  'is searching free': 'Yes! Searching and browsing all 10,000+ verified businesses is completely free. No hidden fees.',
+  'how to filter by type': 'Click on the business type buttons: 🛍️ Products, 🔧 Services, 🍽️ Restaurants, 🏨 Tourism, or 🏥 Medical. Click "Scroll Down" to load more businesses.',
+  'how to filter by country': 'Use the "🌍 All Countries" dropdown to select a specific African country. Listings will update to show only businesses in that country.',
+  'what business types are available': 'We have 5 main types: Products (agricultural, minerals, manufacturing), Services (tech, fintech, logistics), Restaurants (dining & food), Tourism (hotels, agencies), and Medical (hospitals, pharmacies).',
+
+  // Contacting Businesses
+  'how to contact a business': 'Click on any business card to view details, then use the WhatsApp button to message them directly. No email needed! Direct messaging is instant.',
+  'can i call businesses': 'You can message businesses via WhatsApp to ask for their phone number or call details. Most businesses respond quickly on WhatsApp.',
+  'what if a business doesnt respond': 'Most verified businesses respond within hours. If no response, try another supplier. You can also contact our support team if you have concerns.',
+
+  // Listing Your Business
+  'how to list my business': 'Click the "+ List Business" button in the navbar. Fill in your business details (name, phone, location, type, category). Verify your WhatsApp number, and your listing goes live immediately!',
+  'is it free to list a business': 'Yes! Listing your business on Vukafia is completely free. No monthly fees, no hidden charges.',
+  'how long does it take to list': 'Your business listing goes live immediately after you verify your WhatsApp number. Usually takes less than 5 minutes!',
+  'what info do i need to list': 'You\'ll need: business name, WhatsApp phone number, location (country/city), business type, category, and a brief description. A photo is optional but recommended.',
+  'can i edit my listing later': 'Yes! Once listed, you can update your business information anytime. Click on your listing and use the edit option.',
+  'what happens after i list': 'Your listing appears in searches immediately. Customers can find you by searching, filtering by type/country, or browsing categories. You\'ll receive WhatsApp messages directly.',
+
+  // Claiming Your Business
+  'how to claim my business': 'Click "✓ Claim Business" button. Search for your business in the directory. If found, verify your phone number and complete payment ($15 USD). If not found, you can list it as new.',
+  'what is business claiming': 'Claiming verifies that you own the business. You get a verified badge, listing management tools, and priority in search results.',
+  'how much does claiming cost': 'Claiming a business is a one-time fee of $15 USD (or equivalent in local currency). This gives you permanent verified status.',
+  'how do i pay to claim': 'We accept WhatsApp payment through our team. After you verify your phone, we\'ll send payment instructions via WhatsApp. Takes about 5 minutes.',
+  'how long to get verified': 'Usually 5-10 minutes from payment! Your verified badge appears immediately after payment confirmation.',
+  'can i claim a business i dont own': 'No. You can only claim businesses you actually own or represent. False claims result in account suspension.',
+  'what if my business isnt listed': 'Click "+ List Business" to add it yourself. Or if you see a duplicate/incorrect listing, contact our support team.',
+
+  // Verification and Trust
+  'how is data verified': 'All business data comes directly from Google Maps, which verifies information through business owners and customer reviews.',
+  'why should i trust vukafia': 'Vukafia only lists real businesses from Google Maps. No fake listings, no scams. Direct WhatsApp contact ensures authenticity.',
+  'are all businesses verified': 'Yes. Every business is sourced from Google Maps, which has strict verification processes. Direct WhatsApp ensures real contact.',
+  'can i report a fake business': 'Yes! Contact our support team with the business name. We investigate and remove fake listings immediately.',
+
+  // Payment and Fees
+  'what are the fees': 'Listing: FREE. Claiming: $15 USD. Everything else is free.',
+  'do you take commission': 'No! Vukafia doesn\'t take commission on sales between buyers and sellers. You keep 100% of your revenue.',
+  'what payment methods do you accept': 'We accept WhatsApp payment, mobile money, and bank transfers. Details provided during checkout.',
+  'is the $15 refundable': 'The $15 claiming fee is non-refundable but gives you permanent verified status with all management tools.',
+
+  // Business Types
+  'what is a product business': 'Product businesses sell physical goods: agricultural commodities (cocoa, coffee, minerals), manufactured items, etc. Focused on B2B suppliers.',
+  'what is a service business': 'Service businesses provide professional services: tech, fintech, logistics, telecoms, banking, consulting, etc.',
+  'what is a restaurant': 'Restaurants and food service establishments: cafes, dining, catering, food manufacturing.',
+  'what is tourism business': 'Tourism businesses: hotels, resorts, tour operators, travel agencies, safari companies.',
+  'what is medical business': 'Medical businesses: hospitals, clinics, pharmacies, healthcare providers, medical equipment suppliers.',
+
+  // Regional Information
+  'what regions does vukafia serve': 'We serve all 5 African regions: West Africa, East Africa, North Africa, Central Africa, and Southern Africa.',
+  'which west african countries': 'Nigeria, Ghana, Ivory Coast, Senegal, Mali, Burkina Faso, Guinea, Sierra Leone, Liberia, and more.',
+  'which east african countries': 'Kenya, Uganda, Tanzania, Ethiopia, Rwanda, Burundi, Zambia, Zimbabwe, Mozambique, and more.',
+  'which north african countries': 'Egypt, Morocco, Algeria, Tunisia, Libya, Sudan, and more.',
+
+  // Technical
+  'is vukafia mobile friendly': 'Yes! Vukafia works perfectly on mobile phones, tablets, and desktop browsers. Optimized for all screen sizes.',
+  'do i need an account to search': 'No! You can search for free without creating an account. Account required only to list or claim a business.',
+  'how do i reset my password': 'Contact our support team via WhatsApp or email. They\'ll help you reset your password quickly.',
+  'does vukafia have an app': 'Vukafia is a web platform optimized for mobile. No app download needed — just visit vukafia.com in your browser.',
+
+  // Support and Help
+  'how do i contact support': 'Click "💬 Send Inquiry" in the chat, or use the contact section in the footer (WhatsApp or email). Our team responds within 24 hours.',
+  'what are your support hours': 'We respond to inquiries Monday-Friday, 9am-6pm African Time. Weekend inquiries are answered by Monday.',
+  'do you have a phone number': 'You can reach us via WhatsApp (+234 810 147 7935) or email (hello@vukafia.com).',
+  'how fast is customer support': 'Most inquiries get a response within 2-4 hours during business hours. Complex issues may take up to 24 hours.',
+
+  // Common Issues
+  'why cant i find my business': 'If your business isn\'t listed, it may not be in Google Maps yet. Click "+ List Business" to add it to Vukafia.',
+  'why is my listing showing wrong info': 'Information comes from Google Maps. Update your Google Business Profile, and it will sync to Vukafia within 24 hours.',
+  'what if someone claimed my business': 'Contact support immediately. We investigate false claims and remove them. Provide proof of ownership.',
 };
 
 function findAnswer(question) {
-  const lower = question.toLowerCase();
-  for (const [key, answer] of Object.entries(FAQ)) {
-    if (lower.includes(key)) return answer;
+  const lower = question.toLowerCase().trim();
+
+  // Direct key matching (highest priority)
+  if (KNOWLEDGE_BASE[lower]) {
+    return KNOWLEDGE_BASE[lower];
   }
-  return null;
+
+  // Partial keyword matching
+  const words = lower.split(' ').filter(w => w.length > 2);
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const [key, answer] of Object.entries(KNOWLEDGE_BASE)) {
+    const keyWords = key.split(' ');
+    let matchScore = 0;
+
+    for (const word of words) {
+      for (const keyWord of keyWords) {
+        if (keyWord.includes(word) || word.includes(keyWord)) {
+          matchScore += 1;
+        }
+      }
+    }
+
+    if (matchScore > bestScore) {
+      bestScore = matchScore;
+      bestMatch = answer;
+    }
+  }
+
+  // Return match only if confidence is high (at least 2 word matches)
+  return bestScore >= 2 ? bestMatch : null;
 }
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Hi! 👋 I\'m Vukafia\'s AI assistant. I can answer basic questions about listings, claims, and how the platform works.\n\nFor complex inquiries, I\'ll help you contact our team.' }
+    { type: 'bot', text: 'Hi! 👋 I\'m Trima, Vukafia\'s AI assistant. I can answer questions about the platform, listings, claims, business types, payment, and more.\n\nFor complex inquiries outside my knowledge, I\'ll connect you with our team.' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -52,7 +146,7 @@ export default function Chatbot() {
       setTimeout(() => {
         setMessages(prev => [...prev, {
           type: 'bot',
-          text: 'That\'s a great question! I don\'t have the answer in my knowledge base.\n\nWould you like me to connect you with our team? Click the button below to submit an inquiry, and someone will respond within 24 hours.',
+          text: 'I don\'t have information about that in my knowledge base. 🤔\n\nI recommend clicking the button below to submit an inquiry. Our team will respond within 24 hours with detailed help on your specific question.',
           showInquiry: true
         }]);
         setLoading(false);
@@ -119,8 +213,8 @@ export default function Chatbot() {
             alignItems: 'center'
           }}>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1rem' }}>Vukafia Assistant</h3>
-              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', opacity: 0.8 }}>Always here to help!</p>
+              <h3 style={{ margin: 0, fontSize: '1rem' }}>Trima</h3>
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', opacity: 0.8 }}>Vukafia AI Assistant</p>
             </div>
             <button
               onClick={() => setOpen(false)}
