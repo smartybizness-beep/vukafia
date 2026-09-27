@@ -221,6 +221,20 @@ export default function App() {
       filtered = filtered.filter(l => l.category === category)
     }
 
+    // Sort: Featured/Claimed businesses first, then by rating
+    filtered.sort((a, b) => {
+      if (a.featured !== b.featured) {
+        return a.featured ? -1 : 1
+      }
+      if (a.verified_source === 'owner_claimed' && b.verified_source !== 'owner_claimed') {
+        return -1
+      }
+      if (a.verified_source !== 'owner_claimed' && b.verified_source === 'owner_claimed') {
+        return 1
+      }
+      return (b.rating || 0) - (a.rating || 0)
+    })
+
     setFilteredListings(filtered)
   }
 
@@ -642,6 +656,12 @@ export default function App() {
                         alt={listing.name}
                         className="card-img"
                       />
+                      {listing.featured && (
+                        <div className="verified-badge" style={{ background: '#FFD700', color: '#000', fontWeight: 'bold' }}>⭐ Featured</div>
+                      )}
+                      {listing.verified_source === 'owner_claimed' && (
+                        <div className="verified-badge" style={{ background: '#4CAF50', color: '#fff', fontWeight: 'bold' }}>✓ Claimed</div>
+                      )}
                       {listing.verified_source === 'WhatsApp AI' && (
                         <div className="verified-badge whatsapp-verified">💬 WhatsApp AI Verified</div>
                       )}
