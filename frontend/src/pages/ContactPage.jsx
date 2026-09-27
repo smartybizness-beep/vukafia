@@ -69,6 +69,11 @@ export default function ContactPage() {
 
       <div style={{ background: '#f5ede0', minHeight: '100vh', padding: '3rem 2rem' }}>
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+          {/* Logo Section */}
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <img src="/assets/vukafia-logo.png" alt="Vukafia" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
+          </div>
+
           <h1 style={{
             fontSize: '2.5rem',
             fontFamily: "'Fraunces', serif",

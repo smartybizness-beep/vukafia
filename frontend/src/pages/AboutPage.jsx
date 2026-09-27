@@ -27,6 +27,11 @@ export default function AboutPage() {
 
       <div style={{ background: '#f5ede0', minHeight: '100vh', padding: '3rem 2rem' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          {/* Logo Section */}
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <img src="/assets/vukafia-logo.png" alt="Vukafia" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
+          </div>
+
           {/* Hero Section */}
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <h1 style={{
