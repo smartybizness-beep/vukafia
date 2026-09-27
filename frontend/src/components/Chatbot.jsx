@@ -65,7 +65,9 @@ const KNOWLEDGE_BASE = {
   'how many businesses on vukafia': 'We have 10,000+ verified businesses listed, all sourced from Google Maps and verified by business owners.',
 
   // Searching and Browsing
+  'how do i find a business': 'Three ways to find businesses: 1️⃣ SEARCH - Use the search bar and type what you need (e.g., "cocoa exporter"). 2️⃣ FILTER BY TYPE - Click Products, Services, Restaurants, Tourism, or Medical. 3️⃣ FILTER BY COUNTRY - Use the dropdown to select a specific country. All searches are 100% FREE!',
   'how to search for businesses': 'Use the search bar at the top to search by keyword (e.g., "cocoa exporter", "fintech startup"). You can also filter by business type (Products, Services, Restaurants, Tourism, Medical), country, and category.',
+  'how to find businesses': 'Three ways: 1️⃣ SEARCH by keyword (cocoa, fintech, etc.). 2️⃣ FILTER BY TYPE (Products, Services, Restaurants, Tourism, Medical). 3️⃣ FILTER BY REGION/COUNTRY. All searches are FREE!',
   'is searching free': 'Yes! Searching and browsing all 10,000+ verified businesses is completely free. No hidden fees.',
   'how to filter by type': 'Click on the business type buttons: 🛍️ Products, 🔧 Services, 🍽️ Restaurants, 🏨 Tourism, or 🏥 Medical. Click "Scroll Down" to load more businesses.',
   'how to filter by country': 'Use the "🌍 All Countries" dropdown to select a specific African country. Listings will update to show only businesses in that country.',
