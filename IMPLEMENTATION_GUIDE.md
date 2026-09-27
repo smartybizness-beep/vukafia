@@ -391,6 +391,50 @@ git push origin main
 - When backend adds new data types, ensure frontend requests them explicitly
 - Test filters after adding new business types
 
+### Issue: Restaurant Type Filter Shows 0 Results
+**Cause**: Database constraint validation error - 'restaurant' type not allowed by CHECK constraint  
+**Root Problem**:
+- `db.js` created listings table with `enu('type', ['product', 'service', 'tourism', 'medical'])` 
+- This creates a PostgreSQL CHECK constraint: `CHECK (type IN ('product', 'service', 'tourism', 'medical'))`
+- When migration tried to insert/update restaurants with `type='restaurant'`, constraint rejected it
+- Error: `new row for relation "listings" violates check constraint "listings_type_check"`
+
+**Solution**:
+1. **Create migration to alter constraint** (before any restaurant reclassification):
+```javascript
+// migrations/20260927_0_add_restaurant_type.js
+exports.up = async function(knex) {
+  // Drop existing CHECK constraint
+  await knex.raw(`ALTER TABLE listings DROP CONSTRAINT listings_type_check`);
+  
+  // Add new constraint with 'restaurant' included
+  return knex.raw(`
+    ALTER TABLE listings 
+    ADD CONSTRAINT listings_type_check 
+    CHECK (type IN ('product', 'service', 'restaurant', 'tourism', 'medical'))
+  `);
+};
+
+exports.down = async function(knex) {
+  await knex.raw(`ALTER TABLE listings DROP CONSTRAINT listings_type_check`);
+  return knex.raw(`
+    ALTER TABLE listings 
+    ADD CONSTRAINT listings_type_check 
+    CHECK (type IN ('product', 'service', 'tourism', 'medical'))
+  `);
+};
+```
+
+2. **Run reclassification migration AFTER** constraint migration has completed
+
+3. **Deploy and verify** in Railway logs that both migrations succeed
+
+**Prevention**:
+- When adding new business types, update db.js schema FIRST with the new type in enu()
+- For existing databases, create a constraint-altering migration BEFORE data migrations
+- Always check logs for "CHECK constraint" errors when type additions fail
+- Migration filenames determine execution order (alphabetical) - use timestamps wisely
+
 ---
 
 ## Google Maps Crawler
