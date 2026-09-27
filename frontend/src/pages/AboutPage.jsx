@@ -1,31 +1,9 @@
-import { Link } from 'react-router-dom';
+import Layout from '../components/Layout';
 
 export default function AboutPage() {
   return (
-    <>
-      <nav style={{
-        background: '#2d1f0e',
-        height: '64px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 2rem',
-        position: 'sticky',
-        top: 0,
-        zIndex: 400,
-        boxShadow: '0 2px 20px rgba(0, 0, 0, 0.3)'
-      }}>
-        <Link to="/" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', fontSize: '1.2rem' }}>
-          🌍 Vukafia
-        </Link>
-        <div style={{ display: 'flex', gap: '1.5rem' }}>
-          <Link to="/" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Home</Link>
-          <Link to="/about" style={{ color: '#fff', textDecoration: 'none' }}>About</Link>
-          <Link to="/contact" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Contact</Link>
-        </div>
-      </nav>
-
-      <div style={{ background: '#f5ede0', minHeight: '100vh', padding: '3rem 2rem' }}>
+    <Layout>
+      <div style={{ background: '#f5ede0', minHeight: '100vh', padding: '2rem 1rem' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           {/* Logo Section */}
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
@@ -35,7 +13,7 @@ export default function AboutPage() {
           {/* Hero Section */}
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <h1 style={{
-              fontSize: '3rem',
+              fontSize: 'clamp(1.8rem, 5vw, 3rem)',
               fontFamily: "'Fraunces', serif",
               fontWeight: 900,
               color: '#2d1f0e',
@@ -187,15 +165,6 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
-
-      <footer style={{
-        background: '#2d1f0e',
-        color: '#fff',
-        padding: '2rem',
-        textAlign: 'center'
-      }}>
-        <p>© 2026 Vukafia. Rising Markets. Connecting Africa.</p>
-      </footer>
-    </>
+    </Layout>
   );
 }
