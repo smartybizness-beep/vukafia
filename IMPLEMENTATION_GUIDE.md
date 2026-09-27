@@ -336,6 +336,61 @@ app.use((req, res, next) => {
 3. Wait 2 minutes for auto-deploy
 4. Check Deployments → Deploy Logs for latest status
 
+### Issue: Business Type Filter Shows 0 Results (Medical, Restaurant, etc.)
+**Cause**: Frontend was not passing `type` parameter to API when fetching listings  
+**Root Problem**: 
+- `fetchListings()` called `/api/listings?page=X&limit=50` without type
+- Frontend fetched first 50 listings (products/services only)
+- When user clicked Medical filter, frontend tried to client-side filter data that was never fetched
+- Result: 0 medical listings shown even though database had them
+
+**Solution**:
+1. **Update API call** in `frontend/src/App.jsx` (line ~96):
+```javascript
+// BEFORE (broken):
+const res = await fetch(`${API_BASE}/api/listings?page=${page}&limit=50`)
+
+// AFTER (fixed):
+const typeParam = type ? `&type=${type}` : ''
+const res = await fetch(`${API_BASE}/api/listings?page=${page}&limit=50${typeParam}`)
+```
+
+2. **Refetch when type changes** (add new useEffect):
+```javascript
+// Refetch when type changes
+useEffect(() => {
+  if (type) {
+    setCurrentPage(1)
+    fetchListings(1)  // Fetch fresh data for selected type
+  } else {
+    applyFilters()
+  }
+}, [type])
+```
+
+3. **Remove type from other filters' useEffect**:
+```javascript
+// Filter listings when OTHER filters change (NOT type)
+useEffect(() => {
+  applyFilters()
+}, [listings, search, region, country, category])  // Remove 'type' from here
+```
+
+4. **Rebuild and deploy**:
+```bash
+npm run build
+git add -A
+git commit -m "fix: fetch type-filtered listings from API"
+git push origin main
+```
+
+5. **Clear browser cache** and refresh
+
+**Prevention**: 
+- Always pass filter parameters to API calls, not client-side filtering
+- When backend adds new data types, ensure frontend requests them explicitly
+- Test filters after adding new business types
+
 ---
 
 ## Google Maps Crawler
