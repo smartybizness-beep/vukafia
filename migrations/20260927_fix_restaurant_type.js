@@ -4,20 +4,16 @@
  */
 
 exports.up = async function(knex) {
-  // Update all restaurants regardless of current category
-  return knex.raw(`
-    UPDATE listings
-    SET type = 'restaurant', category = 'Restaurant'
-    WHERE LOWER(name) LIKE '%restaurant%'
-       OR LOWER(name) LIKE '%cafe%'
-       OR LOWER(name) LIKE '%food%'
-  `);
+  // Update all restaurants by name using Knex query builder
+  return knex('listings')
+    .whereRaw("LOWER(name) ILIKE ?", ['%restaurant%'])
+    .orWhereRaw("LOWER(name) ILIKE ?", ['%cafe%'])
+    .orWhereRaw("LOWER(name) ILIKE ?", ['%food%'])
+    .update({ type: 'restaurant', category: 'Restaurant' });
 };
 
 exports.down = async function(knex) {
-  return knex.raw(`
-    UPDATE listings
-    SET type = 'service'
-    WHERE category = 'Restaurant'
-  `);
+  return knex('listings')
+    .where('category', 'Restaurant')
+    .update({ type: 'service' });
 };
