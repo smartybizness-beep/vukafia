@@ -382,7 +382,6 @@ export default function App() {
           <button
             className="btn-lst"
             onClick={() => { resetClaim(); setShowClaimModal(true) }}
-            style={{ background: '#10B981', marginRight: '0.5rem' }}
           >
             ✓ Claim Business
           </button>

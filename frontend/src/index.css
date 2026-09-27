@@ -151,13 +151,16 @@ nav {
 .btn-wa-n,
 .btn-lst {
   border: none;
-  padding: 0.42rem 0.9rem;
+  padding: 0.5rem 1.1rem;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  min-width: 140px;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .btn-wa-n {
@@ -173,7 +176,6 @@ nav {
 .btn-lst {
   background: var(--t);
   color: #fff;
-  font-family: 'Fraunces', serif;
 }
 
 .btn-lst:hover {
@@ -728,6 +730,7 @@ nav {
   .btn-lst {
     padding: 0.35rem 0.7rem;
     font-size: 0.7rem;
+    min-width: 120px;
   }
 
   .main {
@@ -871,6 +874,7 @@ nav {
   .btn-lst {
     padding: 0.3rem 0.5rem;
     font-size: 0.65rem;
+    min-width: 100px;
   }
 
   .main {
