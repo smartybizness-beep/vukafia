@@ -391,20 +391,36 @@ git push origin main
 - When backend adds new data types, ensure frontend requests them explicitly
 - Test filters after adding new business types
 
-### Issue: Restaurant Type Filter Shows 0 Results
-**Cause**: Database constraint validation error - 'restaurant' type not allowed by CHECK constraint  
-**Root Problem**:
-- `db.js` created listings table with `enu('type', ['product', 'service', 'tourism', 'medical'])` 
-- This creates a PostgreSQL CHECK constraint: `CHECK (type IN ('product', 'service', 'tourism', 'medical'))`
-- When migration tried to insert/update restaurants with `type='restaurant'`, constraint rejected it
-- Error: `new row for relation "listings" violates check constraint "listings_type_check"`
+### Issue: Restaurant Type Filter Shows 0 Results (Database Constraint Error)
 
-**Solution**:
-1. **Create migration to alter constraint** (before any restaurant reclassification):
+**Symptom**: Restaurant filter button appears but shows 0 listings, while other type filters (medical, products) work fine
+
+**Root Cause**: Database constraint validation - 'restaurant' type not allowed by CHECK constraint
+- `db.js` schema created with `enu('type', ['product', 'service', 'tourism', 'medical'])`
+- This generates PostgreSQL CHECK constraint: `CHECK (type IN ('product', 'service', 'tourism', 'medical'))`
+- When data migration tried `UPDATE listings SET type='restaurant'`, constraint rejected it
+- **Error in logs**: `new row for relation "listings" violates check constraint "listings_type_check"`
+
+**Step-by-Step Fix**:
+
+**Step 1: Identify the constraint error in Railway logs**
+```
+migration file "20260927_fix_restaurant_type.js" failed
+migration failed with error: update "listings" set "type" = $1, "category" = $2 
+  where LOWER(name) ILIKE $3... 
+  violates check constraint "listings_type_check"
+```
+
+**Step 2: Create constraint-altering migration BEFORE data migration**
+```bash
+# File: migrations/20260927_0_add_restaurant_type.js
+# (Prefix 0_ ensures it runs BEFORE fix_restaurant_type.js alphabetically)
+```
+
+File content:
 ```javascript
-// migrations/20260927_0_add_restaurant_type.js
 exports.up = async function(knex) {
-  // Drop existing CHECK constraint
+  // Drop the old CHECK constraint that doesn't include 'restaurant'
   await knex.raw(`ALTER TABLE listings DROP CONSTRAINT listings_type_check`);
   
   // Add new constraint with 'restaurant' included
@@ -425,15 +441,45 @@ exports.down = async function(knex) {
 };
 ```
 
-2. **Run reclassification migration AFTER** constraint migration has completed
+**Step 3: Ensure data migration runs AFTER constraint migration**
+```javascript
+// File: migrations/20260927_fix_restaurant_type.js
+exports.up = async function(knex) {
+  return knex('listings')
+    .whereRaw("LOWER(name) ILIKE ?", ['%restaurant%'])
+    .orWhereRaw("LOWER(name) ILIKE ?", ['%cafe%'])
+    .orWhereRaw("LOWER(name) ILIKE ?", ['%food%'])
+    .update({ type: 'restaurant', category: 'Restaurant' });
+};
+```
 
-3. **Deploy and verify** in Railway logs that both migrations succeed
+**Step 4: Commit and push to trigger Railway deployment**
+```bash
+git add migrations/20260927_0_add_restaurant_type.js
+git add migrations/20260927_fix_restaurant_type.js
+git commit -m "fix: add restaurant type constraint and reclassify listings"
+git push origin main
+```
 
-**Prevention**:
-- When adding new business types, update db.js schema FIRST with the new type in enu()
-- For existing databases, create a constraint-altering migration BEFORE data migrations
-- Always check logs for "CHECK constraint" errors when type additions fail
-- Migration filenames determine execution order (alphabetical) - use timestamps wisely
+**Step 5: Monitor Railway deployment logs**
+- Go to Railway Dashboard → Deployments → Deploy Logs
+- Look for:
+  - ✅ `migration file "20260927_0_add_restaurant_type.js" succeeded`
+  - ✅ `migration file "20260927_fix_restaurant_type.js" succeeded`
+- If either migration fails, go back to Step 1 and check error message
+
+**Step 6: Test in browser**
+- Hard refresh (Ctrl+Shift+R)
+- Click "Restaurants" filter button
+- Should now show listings (same count as Medical filter or similar)
+
+**Prevention for Future Type Additions**:
+1. **Update db.js schema FIRST** - add new type to `enu()` before any migrations
+2. **Create constraint-altering migration** - runs before any data updates
+3. **Use alphabetical naming** - `20260927_0_add_type.js` before `20260927_1_update_data.js`
+4. **Test locally with SQLite first** - ensures logic is correct before PostgreSQL
+5. **Check Railway logs after each deploy** - catch constraint errors immediately
+6. **Never rely on frontend filtering alone** - always validate type in database schema
 
 ---
 
