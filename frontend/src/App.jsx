@@ -22,7 +22,7 @@ export default function App() {
   const [listings, setListings] = useState([])
   const [filteredListings, setFilteredListings] = useState([])
   const [loading, setLoading] = useState(true)
-  const [type, setType] = useState('product')
+  const [type, setType] = useState('') // Default: ALL businesses
   const [search, setSearch] = useState('')
   const [region, setRegion] = useState('')
   const [country, setCountry] = useState('')
