@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
+import { LANGUAGE_NAMES } from '../languages';
 
-// Language translations for key bot messages
-const LANGUAGE_NAMES = {
-  en: '🇬🇧 English',
-  pidgin: '🇳🇬 Pidgin English',
-  fr: '🇫🇷 Français',
-  sw: '🇹🇿 Kiswahili',
-  es: '🇪🇸 Español'
-};
+// UI messages translations (bot-specific)
 
 // UI messages translations
 const UI_MESSAGES = {

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { LANGUAGE_NAMES, TRANSLATIONS } from './languages'
 import './App.css'
 
 // v2.1 - fixed CORS and relative URLs
 export default function App() {
   const navigate = useNavigate()
+  const [language, setLanguage] = useState('en')
+  const [showLangMenu, setShowLangMenu] = useState(false)
   const [listings, setListings] = useState([])
   const [filteredListings, setFilteredListings] = useState([])
   const [loading, setLoading] = useState(true)
@@ -20,6 +23,20 @@ export default function App() {
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [showFooterAbout, setShowFooterAbout] = useState(false)
+
+  const t = TRANSLATIONS[language] || TRANSLATIONS.en
+
+  // Load language preference from localStorage
+  useEffect(() => {
+    const savedLang = localStorage.getItem('vukafiaLanguage') || 'en'
+    setLanguage(savedLang)
+  }, [])
+
+  const changeLanguage = (lang) => {
+    setLanguage(lang)
+    localStorage.setItem('vukafiaLanguage', lang)
+    setShowLangMenu(false)
+  }
 
   // Claim flow state
   const [showClaimModal, setShowClaimModal] = useState(false)
@@ -374,11 +391,66 @@ export default function App() {
         </div>
         <div className="nav-right">
           <div className="nav-stat">
-            <strong>{totalListings}</strong>Listings
+            <strong>{totalListings}</strong>{t.listings}
           </div>
           <div className="nav-stat">
-            <strong>54+</strong>Nations
+            <strong>54+</strong>{t.nations}
           </div>
+
+          {/* Language Selector */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowLangMenu(!showLangMenu)}
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                color: '#fff',
+                padding: '0.5rem 0.8rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                minWidth: '100px'
+              }}
+            >
+              🌐 {language.toUpperCase()}
+            </button>
+            {showLangMenu && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                background: '#fff',
+                border: '1px solid #ddd',
+                borderRadius: '6px',
+                minWidth: '150px',
+                zIndex: 500,
+                marginTop: '0.5rem',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              }}>
+                {Object.entries(LANGUAGE_NAMES).map(([code, name]) => (
+                  <button
+                    key={code}
+                    onClick={() => changeLanguage(code)}
+                    style={{
+                      width: '100%',
+                      padding: '0.6rem 1rem',
+                      background: language === code ? '#0284c7' : '#fff',
+                      color: language === code ? '#fff' : '#2d1f0e',
+                      border: 'none',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      borderBottom: '1px solid #f0f0f0'
+                    }}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <button className="btn-wa-n" onClick={() => openWhatsApp(`👋 Welcome to Vukafia! I'm Trima, your AI assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}>
             💬 WhatsApp AI
           </button>
