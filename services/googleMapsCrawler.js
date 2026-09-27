@@ -8,6 +8,7 @@
 'use strict';
 
 const axios = require('axios');
+const db = require('../db');
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -358,7 +359,90 @@ async function crawlGoogleMaps() {
   }
 
   console.log(`\n✅ Crawl complete! Found: ${total} businesses, Skipped: ${skipped}`);
+
+  // Save businesses to database
+  await saveBusinessesToDatabase(businesses);
+
   return businesses;
+}
+
+/**
+ * Save crawled businesses to database
+ */
+async function saveBusinessesToDatabase(businesses) {
+  try {
+    const k = db.query();
+    let inserted = 0;
+    let updated = 0;
+    let failed = 0;
+
+    for (const biz of businesses) {
+      try {
+        // Check if business already exists (by name + country + city)
+        const existing = await k('listings')
+          .where({
+            name: biz.name,
+            country: biz.country,
+            city: biz.city
+          })
+          .first();
+
+        if (existing) {
+          // Update existing
+          await k('listings')
+            .where({ id: existing.id })
+            .update({
+              category: biz.category,
+              type: biz.type,
+              phone: biz.phone,
+              website: biz.website,
+              instagram: biz.instagram,
+              rating: biz.rating,
+              review_count: biz.review_count,
+              latitude: biz.latitude,
+              longitude: biz.longitude,
+              cover_photo: biz.cover_photo,
+              verified: true,
+              verified_source: biz.verified_source,
+              updated_at: new Date().toISOString()
+            });
+          updated++;
+        } else {
+          // Insert new
+          await k('listings').insert({
+            name: biz.name,
+            type: biz.type,
+            region: biz.region,
+            country: biz.country,
+            city: biz.city,
+            category: biz.category,
+            phone: biz.phone,
+            website: biz.website,
+            instagram: biz.instagram,
+            rating: biz.rating,
+            review_count: biz.review_count,
+            latitude: biz.latitude,
+            longitude: biz.longitude,
+            cover_photo: biz.cover_photo,
+            verified: true,
+            verified_source: biz.verified_source,
+            active: true,
+            is_new: true,
+            products_services: biz.category,
+            description: biz.category
+          });
+          inserted++;
+        }
+      } catch (err) {
+        console.error(`Error saving ${biz.name}:`, err.message);
+        failed++;
+      }
+    }
+
+    console.log(`\n💾 Database save: ${inserted} inserted, ${updated} updated, ${failed} failed`);
+  } catch (err) {
+    console.error('Error saving businesses to database:', err.message);
+  }
 }
 
 /**
