@@ -15,52 +15,52 @@ const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 // Target specific B2B products for cross-border trade under AfCFTA
 const PRODUCTS_AND_SERVICES = {
   'Nigeria': {
-    'Lagos': ['cocoa exporter', 'cashew supplier', 'shea butter producer', 'textile manufacturer', 'cement producer', 'fintech startup', 'fashion designer', 'beauty cosmetics', 'pharmaceutical company', 'oil and gas'],
-    'Abuja': ['agriculture cooperative', 'food processor', 'spice producer', 'tech company', 'logistics company', 'payment processor']
+    'Lagos': ['cocoa exporter', 'cashew supplier', 'shea butter producer', 'textile manufacturer', 'cement producer', 'fintech startup', 'fashion designer', 'beauty cosmetics', 'pharmaceutical company', 'oil and gas', 'hospital', 'clinic', 'medical center', 'pharmacy', 'dental clinic'],
+    'Abuja': ['agriculture cooperative', 'food processor', 'spice producer', 'tech company', 'logistics company', 'payment processor', 'hospital', 'clinic', 'medical center']
   },
   'Ghana': {
-    'Accra': ['cocoa exporter', 'gold mining', 'shea butter processor', 'textile manufacturer', 'food processor', 'tourism', 'tech startup', 'fintech'],
-    'Kumasi': ['cocoa buying station', 'artisan crafts', 'agriculture cooperative', 'food processing']
+    'Accra': ['cocoa exporter', 'gold mining', 'shea butter processor', 'textile manufacturer', 'food processor', 'tourism', 'tech startup', 'fintech', 'hospital', 'clinic', 'pharmacy'],
+    'Kumasi': ['cocoa buying station', 'artisan crafts', 'agriculture cooperative', 'food processing', 'hospital', 'clinic']
   },
   'Côte d\'Ivoire': {
-    'Abidjan': ['cocoa exporter', 'cashew processor', 'agricultural cooperative', 'food processor', 'textile company', 'shipping and logistics']
+    'Abidjan': ['cocoa exporter', 'cashew processor', 'agricultural cooperative', 'food processor', 'textile company', 'shipping and logistics', 'hospital', 'clinic', 'medical center']
   },
   'Kenya': {
-    'Nairobi': ['coffee exporter', 'cut flower supplier', 'tech startup', 'fintech', 'logistics company', 'fashion designer', 'tourism agency', 'agri-tech', 'telecom', 'pharmaceutical'],
-    'Mombasa': ['coffee exporter', 'spice trader', 'shipping port', 'tourism']
+    'Nairobi': ['coffee exporter', 'cut flower supplier', 'tech startup', 'fintech', 'logistics company', 'fashion designer', 'tourism agency', 'agri-tech', 'telecom', 'pharmaceutical', 'hospital', 'clinic', 'pharmacy', 'dental clinic'],
+    'Mombasa': ['coffee exporter', 'spice trader', 'shipping port', 'tourism', 'hospital', 'clinic']
   },
   'Ethiopia': {
-    'Addis Ababa': ['coffee exporter', 'cut flower supplier', 'textile manufacturer', 'pharmaceutical company', 'leather goods', 'tech startup']
+    'Addis Ababa': ['coffee exporter', 'cut flower supplier', 'textile manufacturer', 'pharmaceutical company', 'leather goods', 'tech startup', 'hospital', 'clinic', 'medical center']
   },
   'Uganda': {
-    'Kampala': ['coffee exporter', 'agricultural cooperative', 'tech startup', 'fintech', 'textile company', 'food processor']
+    'Kampala': ['coffee exporter', 'agricultural cooperative', 'tech startup', 'fintech', 'textile company', 'food processor', 'hospital', 'clinic', 'pharmacy']
   },
   'Tanzania': {
-    'Dar es Salaam': ['coffee exporter', 'tea producer', 'cashew processor', 'mining company', 'logistics', 'tourism agency', 'fintech']
+    'Dar es Salaam': ['coffee exporter', 'tea producer', 'cashew processor', 'mining company', 'logistics', 'tourism agency', 'fintech', 'hospital', 'clinic', 'medical center']
   },
   'Rwanda': {
-    'Kigali': ['coffee exporter', 'tea producer', 'tech startup', 'fintech', 'pharmaceutical', 'tourism']
+    'Kigali': ['coffee exporter', 'tea producer', 'tech startup', 'fintech', 'pharmaceutical', 'tourism', 'hospital', 'clinic']
   },
   'Egypt': {
-    'Cairo': ['cotton exporter', 'date exporter', 'citrus exporter', 'pharmaceutical company', 'textile manufacturer', 'cement producer', 'fintech', 'tourism']
+    'Cairo': ['cotton exporter', 'date exporter', 'citrus exporter', 'pharmaceutical company', 'textile manufacturer', 'cement producer', 'fintech', 'tourism', 'hospital', 'clinic', 'medical center', 'pharmacy']
   },
   'Morocco': {
-    'Casablanca': ['phosphate exporter', 'leather goods', 'argan oil producer', 'textile manufacturer', 'car assembly', 'fintech', 'tourism']
+    'Casablanca': ['phosphate exporter', 'leather goods', 'argan oil producer', 'textile manufacturer', 'car assembly', 'fintech', 'tourism', 'hospital', 'clinic']
   },
   'South Africa': {
-    'Johannesburg': ['gold mining', 'diamond mining', 'platinum mining', 'car assembly', 'pharmaceutical company', 'textile manufacturer', 'fintech', 'logistics']
+    'Johannesburg': ['gold mining', 'diamond mining', 'platinum mining', 'car assembly', 'pharmaceutical company', 'textile manufacturer', 'fintech', 'logistics', 'hospital', 'clinic', 'medical center', 'pharmacy']
   },
   'Botswana': {
-    'Gaborone': ['diamond mining', 'beef exporter', 'tourism agency']
+    'Gaborone': ['diamond mining', 'beef exporter', 'tourism agency', 'hospital', 'clinic']
   },
   'DRC': {
-    'Kinshasa': ['copper mining', 'cobalt mining', 'timber exporter', 'agricultural cooperative']
+    'Kinshasa': ['copper mining', 'cobalt mining', 'timber exporter', 'agricultural cooperative', 'hospital', 'clinic']
   },
   'Zambia': {
-    'Lusaka': ['copper mining', 'cobalt mining', 'agriculture', 'food processor']
+    'Lusaka': ['copper mining', 'cobalt mining', 'agriculture', 'food processor', 'hospital', 'clinic']
   },
   'Madagascar': {
-    'Antananarivo': ['vanilla exporter', 'spice trader', 'textile company', 'mining']
+    'Antananarivo': ['vanilla exporter', 'spice trader', 'textile company', 'mining', 'hospital', 'clinic']
   }
 };
 
@@ -121,6 +121,16 @@ const CATEGORY_MAP = {
   'tourism': 'Services',
   'restaurant': 'Restaurant',
   'cafe': 'Restaurant',
+
+  // Medical
+  'hospital': 'Medical',
+  'clinic': 'Medical',
+  'medical center': 'Medical',
+  'pharmacy': 'Medical',
+  'dental clinic': 'Medical',
+  'doctor': 'Medical',
+  'health center': 'Medical',
+  'medical clinic': 'Medical',
 
   // Fallbacks
   'shop': 'General Retail',
@@ -204,15 +214,26 @@ function extractCity(address) {
 }
 
 /**
- * Determine business type (product, service, restaurant, etc.)
+ * Determine business type (product, service, restaurant, medical, etc.)
  */
 function determineType(query, category) {
+  // If category is Medical, type is medical
+  if (category === 'Medical') {
+    return 'medical';
+  }
+
   // If category is Restaurant, type is restaurant
   if (category === 'Restaurant') {
     return 'restaurant';
   }
 
   const q = query.toLowerCase();
+
+  // Medical
+  const medicalKeywords = ['hospital', 'clinic', 'pharmacy', 'dental', 'health', 'doctor', 'medical'];
+  if (medicalKeywords.some(kw => q.includes(kw))) {
+    return 'medical';
+  }
 
   // Services
   const serviceKeywords = ['exporter', 'tech', 'fintech', 'logistics', 'startup', 'processor', 'producer', 'company', 'supplier', 'agency', 'cooperative', 'mining', 'processor', 'manufacturing'];
