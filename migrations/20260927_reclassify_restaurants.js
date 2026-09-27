@@ -1,20 +1,29 @@
 /**
- * Migration: Reclassify restaurants from service type to restaurant type
- * Background: Some listings have category='Restaurant' but type='service'
- * Fix: Update them to type='restaurant' for proper filtering
+ * Migration: Reclassify restaurants to restaurant type
+ * Background: Restaurants are stored as:
+ * - category='Restaurant' with type='service'
+ * - category='Food & Groceries' with "Restaurant" in name
+ * Fix: Update all to type='restaurant'
  */
 
 exports.up = async function(knex) {
-  return knex('listings')
+  // Reclassify restaurants from Restaurant category
+  await knex('listings')
     .where('category', 'Restaurant')
-    .where('type', 'service')
-    .update({ type: 'restaurant' });
+    .update({ type: 'restaurant', category: 'Restaurant' });
+
+  // Reclassify restaurants from Food & Groceries (by name match)
+  await knex('listings')
+    .whereRaw(`LOWER(name) LIKE '%restaurant%'`)
+    .orWhereRaw(`LOWER(name) LIKE '%cafe%'`)
+    .update({ type: 'restaurant', category: 'Restaurant' });
+
+  return Promise.resolve();
 };
 
 exports.down = async function(knex) {
   // Revert if needed
   return knex('listings')
-    .where('category', 'Restaurant')
     .where('type', 'restaurant')
     .update({ type: 'service' });
 };
