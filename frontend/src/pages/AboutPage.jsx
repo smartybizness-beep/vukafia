@@ -115,7 +115,7 @@ export default function AboutPage() {
               </li>
               <li style={{ marginBottom: '1rem', paddingLeft: '2rem', position: 'relative' }}>
                 <span style={{ position: 'absolute', left: 0 }}>✅</span>
-                <strong>Pan-African Reach:</strong> 54+ countries, 10,000+ listings, growing every day
+                <strong>Trans-African Reach:</strong> 54+ countries, 10,000+ listings, growing every day
               </li>
               <li style={{ marginBottom: '1rem', paddingLeft: '2rem', position: 'relative' }}>
                 <span style={{ position: 'absolute', left: 0 }}>✅</span>
