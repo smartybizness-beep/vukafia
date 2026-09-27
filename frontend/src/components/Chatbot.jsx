@@ -1,4 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+// Language translations for key bot messages
+const LANGUAGE_NAMES = {
+  en: '🇬🇧 English',
+  pidgin: '🇳🇬 Pidgin English',
+  fr: '🇫🇷 Français',
+  sw: '🇹🇿 Kiswahili',
+  es: '🇪🇸 Español'
+};
+
+// UI messages translations
+const UI_MESSAGES = {
+  en: {
+    greeting: 'Hi! 👋 I\'m Trima, Vukafia\'s AI assistant. I can answer questions about the platform, listings, claims, business types, payment, and more.\n\nFor complex inquiries outside my knowledge, I\'ll connect you with our team.',
+    notFound: 'I don\'t have information about that in my knowledge base. 🤔\n\nI recommend clicking the button below to submit an inquiry. Our team will respond within 24 hours with detailed help on your specific question.',
+    placeholder: 'Ask me anything...',
+    submitBtn: '📧 Submit Inquiry',
+    thinking: '⏳ Thinking...',
+    send: 'Send'
+  },
+  pidgin: {
+    greeting: 'Heyy! 👋 Na Trima be, Vukafia AI helper. I fit answer questions about platform, listing business, claim business, payment, and all that.\n\nFor serious matter wey pass my knowledge, e go connect you with our team.',
+    notFound: 'Abeg, I no get that answer for my head. 🤔\n\nMake you submit inquiry using button down there. Our team go reply you within 24 hours with proper answer.',
+    placeholder: 'Ask me wetin you wan know...',
+    submitBtn: '📧 Send Inquiry',
+    thinking: '⏳ Lemme think...',
+    send: 'Send'
+  },
+  fr: {
+    greeting: 'Salut! 👋 Je suis Trima, l\'assistant IA de Vukafia. Je peux répondre à vos questions sur la plateforme, les annonces, les réclamations, les types d\'entreprises, les paiements, et plus.\n\nPour les demandes complexes, je vais vous connecter à notre équipe.',
+    notFound: 'Je n\'ai pas cette information dans ma base de connaissances. 🤔\n\nVous recommande de soumettre une demande. Notre équipe vous répondra dans 24 heures.',
+    placeholder: 'Posez-moi une question...',
+    submitBtn: '📧 Soumettre une demande',
+    thinking: '⏳ Je réfléchis...',
+    send: 'Envoyer'
+  },
+  sw: {
+    greeting: 'Habari! 👋 Mimi ni Trima, msaidizi wa AI wa Vukafia. Naweza kujibu maswali kuhusu platform, kuorodhesha biashara, kufikiri biashara, aina za biashara, malipo, na zaidi.\n\nKwa maswali magumu, nitakuunganisha na timu yetu.',
+    notFound: 'Sina habari hiyo katika ujuzi wangu. 🤔\n\nNakushauri kuwasilisha ombi kwa kutumia kitufe hapa chini. Timu yetu itakajibu ndani ya saa 24.',
+    placeholder: 'Niulizeni kitu yoyote...',
+    submitBtn: '📧 Wasilisha Ombi',
+    thinking: '⏳ Ninakifikiri...',
+    send: 'Tuma'
+  },
+  es: {
+    greeting: '¡Hola! 👋 Soy Trima, asistente de IA de Vukafia. Puedo responder preguntas sobre la plataforma, listados, reclamaciones, tipos de negocios, pagos y más.\n\nPara consultas complejas, te conectaré con nuestro equipo.',
+    notFound: 'No tengo esa información en mi base de conocimientos. 🤔\n\nTe recomiendo que envíes una consulta. Nuestro equipo responderá en 24 horas.',
+    placeholder: 'Pregúntame algo...',
+    submitBtn: '📧 Enviar Consulta',
+    thinking: '⏳ Pensando...',
+    send: 'Enviar'
+  }
+};
 
 const KNOWLEDGE_BASE = {
   // Platform Overview
@@ -35,14 +88,14 @@ const KNOWLEDGE_BASE = {
   'how much does claiming cost': 'Claiming is a one-time fee of $15 USD (or equivalent in local currency). This gives you permanent verified status and management access.',
   'how do i pay to claim': 'After phone verification, we send payment instructions via WhatsApp. You can pay through WhatsApp, mobile money, or bank transfer. Takes 5 minutes.',
   'how long to get verified': 'Usually 5-10 minutes from payment! After payment confirmation, your verified badge appears immediately.',
-  'can i claim a business i dont own': 'No. You can only claim businesses you own or represent. We verify your phone number matches the business. False claims result in account suspension.',
+  'can i claim a business i dont own': 'Only if you own or represent the business! 😊 We verify your phone matches their records. This protects both you and real business owners.',
   'what if my business isnt listed': 'Click "+ List Business" to add your business for FREE! It goes live after WhatsApp verification (no payment needed for new listings, only for claiming existing ones).',
 
   // Verification and Trust
   'how is data verified': 'All business data comes directly from Google Maps, which verifies information through business owners and customer reviews.',
   'why should i trust vukafia': 'Vukafia only lists real businesses from Google Maps. No fake listings, no scams. Direct WhatsApp contact ensures authenticity.',
   'are all businesses verified': 'Yes. Every business is sourced from Google Maps, which has strict verification processes. Direct WhatsApp ensures real contact.',
-  'can i report a fake business': 'Yes! Contact our support team with the business name. We investigate and remove fake listings immediately.',
+  'can i report a fake business': 'Absolutely! We take this seriously. 🛡️ Contact our support team with details, and we\'ll investigate right away. Thank you for helping keep Vukafia trustworthy!',
 
   // Payment and Fees
   'what are the fees': 'Listing: FREE. Claiming: $15 USD. Everything else is free.',
@@ -89,40 +142,70 @@ function findAnswer(question) {
     return KNOWLEDGE_BASE[lower];
   }
 
-  // Partial keyword matching
-  const words = lower.split(' ').filter(w => w.length > 2);
+  // Check for substring matches of keys in question
+  for (const [key, answer] of Object.entries(KNOWLEDGE_BASE)) {
+    if (lower.includes(key)) {
+      return answer;
+    }
+  }
+
+  // Smart phrase matching with word order
+  const questionWords = lower.split(/\s+/).filter(w => w.length > 2);
   let bestMatch = null;
   let bestScore = 0;
 
   for (const [key, answer] of Object.entries(KNOWLEDGE_BASE)) {
-    const keyWords = key.split(' ');
+    const keyWords = key.split(/\s+/);
     let matchScore = 0;
+    let matchedWords = 0;
 
-    for (const word of words) {
-      for (const keyWord of keyWords) {
-        if (keyWord.includes(word) || word.includes(keyWord)) {
-          matchScore += 1;
+    for (const keyWord of keyWords) {
+      for (const questionWord of questionWords) {
+        if (questionWord === keyWord || questionWord.includes(keyWord)) {
+          matchScore += 2;
+          matchedWords++;
+          break;
         }
       }
     }
 
-    if (matchScore > bestScore) {
+    // Require at least 60% of key words to match
+    if (matchedWords >= keyWords.length * 0.6 && matchScore > bestScore) {
       bestScore = matchScore;
       bestMatch = answer;
     }
   }
 
-  // Return match only if confidence is high (at least 2 word matches)
-  return bestScore >= 2 ? bestMatch : null;
+  // Only return if high confidence (all major words matched)
+  return bestScore >= 4 ? bestMatch : null;
 }
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
+  const [language, setLanguage] = useState('en');
+  const [showLangMenu, setShowLangMenu] = useState(false);
   const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Hi! 👋 I\'m Trima, Vukafia\'s AI assistant. I can answer questions about the platform, listings, claims, business types, payment, and more.\n\nFor complex inquiries outside my knowledge, I\'ll connect you with our team.' }
+    { type: 'bot', text: UI_MESSAGES.en.greeting }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Load language preference from localStorage
+  useEffect(() => {
+    const savedLang = localStorage.getItem('vukafiaLanguage') || 'en';
+    setLanguage(savedLang);
+  }, []);
+
+  // Update bot greeting when language changes
+  useEffect(() => {
+    setMessages([{ type: 'bot', text: UI_MESSAGES[language]?.greeting || UI_MESSAGES.en.greeting }]);
+  }, [language]);
+
+  const changeLanguage = (lang) => {
+    setLanguage(lang);
+    localStorage.setItem('vukafiaLanguage', lang);
+    setShowLangMenu(false);
+  };
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -147,7 +230,7 @@ export default function Chatbot() {
       setTimeout(() => {
         setMessages(prev => [...prev, {
           type: 'bot',
-          text: 'I don\'t have information about that in my knowledge base. 🤔\n\nI recommend clicking the button below to submit an inquiry. Our team will respond within 24 hours with detailed help on your specific question.',
+          text: UI_MESSAGES[language]?.notFound || UI_MESSAGES.en.notFound,
           showInquiry: true
         }]);
         setLoading(false);
@@ -211,25 +294,80 @@ export default function Chatbot() {
             borderRadius: '12px 12px 0 0',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            position: 'relative'
           }}>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1rem' }}>Trima</h3>
+              <h3 style={{ margin: 0, fontSize: '1rem' }}>Trima 🌍</h3>
               <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', opacity: 0.8 }}>Vukafia AI Assistant</p>
             </div>
-            <button
-              onClick={() => setOpen(false)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#fff',
-                fontSize: '1.5rem',
-                cursor: 'pointer',
-                padding: 0
-              }}
-            >
-              ✕
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              {/* Language Selector */}
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setShowLangMenu(!showLangMenu)}
+                  style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    border: 'none',
+                    color: '#fff',
+                    padding: '0.3rem 0.6rem',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  🌐 {language.toUpperCase()}
+                </button>
+                {showLangMenu && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    background: '#fff',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    minWidth: '150px',
+                    zIndex: 1001,
+                    marginTop: '0.5rem',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                  }}>
+                    {Object.entries(LANGUAGE_NAMES).map(([code, name]) => (
+                      <button
+                        key={code}
+                        onClick={() => changeLanguage(code)}
+                        style={{
+                          width: '100%',
+                          padding: '0.6rem 1rem',
+                          background: language === code ? '#0284c7' : '#fff',
+                          color: language === code ? '#fff' : '#2d1f0e',
+                          border: 'none',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          fontSize: '0.85rem',
+                          borderBottom: '1px solid #f0f0f0'
+                        }}
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => setOpen(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#fff',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  padding: 0
+                }}
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
@@ -271,7 +409,7 @@ export default function Chatbot() {
                       fontWeight: 'bold'
                     }}
                   >
-                    📧 Submit Inquiry
+                    {UI_MESSAGES[language]?.submitBtn || '📧 Submit Inquiry'}
                   </button>
                 )}
               </div>
@@ -284,7 +422,7 @@ export default function Chatbot() {
                 fontSize: '0.9rem',
                 color: '#666'
               }}>
-                ⏳ Thinking...
+                {UI_MESSAGES[language]?.thinking || '⏳ Thinking...'}
               </div>
             )}
           </div>
@@ -301,7 +439,7 @@ export default function Chatbot() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask me anything..."
+              placeholder={UI_MESSAGES[language]?.placeholder || 'Ask me anything...'}
               style={{
                 flex: 1,
                 padding: '0.5rem 0.75rem',
@@ -325,7 +463,7 @@ export default function Chatbot() {
                 fontSize: '0.9rem'
               }}
             >
-              Send
+              {UI_MESSAGES[language]?.send || 'Send'}
             </button>
           </div>
         </div>
