@@ -48,6 +48,13 @@ const UI_MESSAGES = {
 };
 
 const KNOWLEDGE_BASE = {
+  // Greetings & Welcome
+  'hello': 'Hi! 👋 I\'m Trima. Ask me anything about listings, claiming, business types, payment, or how Vukafia works. What can I help you with?',
+  'hi': 'Hi there! 👋 What can I help you with? Ask me about listings, claiming, payments, or how to find businesses.',
+  'hey': 'Hey! 👋 I\'m here to help. What would you like to know about Vukafia?',
+  'hello trima': 'Hi! 👋 I\'m Trima. How can I help you today? Ask me anything about listings, claiming, or finding businesses.',
+  'hi trima': 'Hey! 👋 What can I help you with? Ask about listings, claiming, payments, or anything else about Vukafia.',
+
   // Platform Overview
   'what is vukafia': 'Vukafia is Africa\'s #1 verified business DIRECTORY - not a marketplace. We CONNECT buyers with sellers across 54+ African nations. You find businesses here, then contact them directly via WhatsApp to negotiate and trade.',
   'what does vukafia do': 'Vukafia is a business CONNECTOR. We help buyers discover suppliers, exporters, manufacturers, and service providers. You browse our directory, find what you need, then contact businesses directly via WhatsApp. Vukafia doesn\'t handle buying/selling - we just connect.',
