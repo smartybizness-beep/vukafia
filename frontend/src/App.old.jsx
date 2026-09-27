@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import './App.css'
 
 // v2.1 - fixed CORS and relative URLs
@@ -335,9 +334,9 @@ export default function App() {
   return (
     <>
       <nav>
-        <Link to="/" className="logo" style={{ textDecoration: 'none' }}>
+        <div className="logo" onClick={() => window.location.reload()}>
           <img src="/assets/vukafia-logo.png" alt="Vukafia" className="logo-image" />
-        </Link>
+        </div>
         <div className="ntabs">
           <button
             className={`ntab ${type === 'product' ? 'active' : ''}`}
@@ -377,8 +376,6 @@ export default function App() {
           <div className="nav-stat">
             <strong>54+</strong>Nations
           </div>
-          <Link to="/about" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}>About</Link>
-          <Link to="/contact" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}>Contact</Link>
           <button className="btn-wa-n" onClick={() => openWhatsApp(`👋 Welcome to VukaFia! My name is Tumi and I'll be your bot assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}>
             💬 WhatsApp AI
           </button>

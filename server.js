@@ -30,6 +30,7 @@ const crawlerRouter  = require('./routes/admin-crawler');
 const webhookRouter  = require('./routes/webhook');
 const searchRouter   = require('./routes/search');
 const claimsRouter   = require('./routes/claims');
+const inquiriesRouter = require('./routes/inquiries');
 
 const app  = express();
 app.set('trust proxy', 1);
@@ -112,14 +113,15 @@ app.get('/', (req, res) => {
 });
 
 // ─── ROUTES ────────────────────────────────────────────────────────────────
-app.use('/api/listings',  listingsRouter);
-app.use('/api/search',    searchRouter);
-app.use('/api/claims',    claimsRouter);
-app.use('/api/business',  businessRouter);
-app.use('/api/auth',      authRouter);
-app.use('/api/admin',     crawlerRouter);  // Crawler management (must come first - uses admin token)
-app.use('/api/admin',     adminRouter);    // Admin dashboard (uses JWT auth)
-app.use('/api/webhook',   webhookRouter);  // WhatsApp webhook
+app.use('/api/listings',   listingsRouter);
+app.use('/api/search',     searchRouter);
+app.use('/api/claims',     claimsRouter);
+app.use('/api/business',   businessRouter);
+app.use('/api/auth',       authRouter);
+app.use('/api/inquiries',  inquiriesRouter);  // Contact form & inquiry submissions
+app.use('/api/admin',      crawlerRouter);  // Crawler management (must come first - uses admin token)
+app.use('/api/admin',      adminRouter);    // Admin dashboard (uses JWT auth)
+app.use('/api/webhook',    webhookRouter);  // WhatsApp webhook
 
 // ─── SPA FALLBACK (client-side routing) ────────────────────────────────────
 // Serve index.html for all non-API routes (React Router handles them)
