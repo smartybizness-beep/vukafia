@@ -41,10 +41,20 @@ export default function App() {
     fetchMeta()
   }, [])
 
-  // Filter listings when filters change
+  // Refetch when type changes, otherwise just filter
+  useEffect(() => {
+    if (type) {
+      setCurrentPage(1)
+      fetchListings(1)
+    } else {
+      applyFilters()
+    }
+  }, [type])
+
+  // Filter listings when other filters change
   useEffect(() => {
     applyFilters()
-  }, [listings, type, search, region, country, category])
+  }, [listings, search, region, country, category])
 
   // Handle Paystack payment callback
   useEffect(() => {
@@ -93,7 +103,8 @@ export default function App() {
       if (!append) setLoading(true)
       else setLoadingMore(true)
 
-      const res = await fetch(`${API_BASE}/api/listings?page=${page}&limit=50`)
+      const typeParam = type ? `&type=${type}` : ''
+      const res = await fetch(`${API_BASE}/api/listings?page=${page}&limit=50${typeParam}`)
       const data = await res.json()
       if (data.success) {
         const newListings = data.data || []
