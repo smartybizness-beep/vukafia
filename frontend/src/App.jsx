@@ -632,16 +632,19 @@ export default function App() {
                 onClick={loadMore}
                 disabled={loadingMore}
                 style={{
-                  padding: '0.75rem 2.5rem',
+                  padding: '0.5rem 1.1rem',
                   background: loadingMore ? '#ccc' : 'var(--t)',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '8px',
                   fontWeight: 700,
                   cursor: loadingMore ? 'not-allowed' : 'pointer',
-                  fontSize: '1.1rem',
+                  fontSize: '0.8rem',
                   transition: 'all 0.2s',
-                  opacity: loadingMore ? 0.7 : 1
+                  opacity: loadingMore ? 0.7 : 1,
+                  minWidth: '140px',
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap'
                 }}
                 onMouseOver={e => !loadingMore && (e.target.style.background = 'var(--tl)')}
                 onMouseOut={e => !loadingMore && (e.target.style.background = 'var(--t)')}
