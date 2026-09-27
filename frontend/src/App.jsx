@@ -611,25 +611,23 @@ export default function App() {
           {!loading && filteredListings.length > 0 && hasMore && (
             <div style={{ textAlign: 'center', marginTop: '2rem', marginBottom: '2rem' }}>
               <button
-                onClick={loadMore}
-                disabled={loadingMore}
+                onClick={() => window.scrollBy({ top: 400, behavior: 'smooth' })}
                 style={{
-                  padding: '0.75rem 2rem',
-                  background: 'var(--pr)',
+                  padding: '0.75rem 2.5rem',
+                  background: 'var(--t)',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '8px',
-                  fontWeight: 600,
-                  cursor: loadingMore ? 'not-allowed' : 'pointer',
-                  opacity: loadingMore ? 0.7 : 1,
-                  fontSize: '1rem'
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontSize: '1.1rem',
+                  transition: 'all 0.2s'
                 }}
+                onMouseOver={e => e.target.style.background = 'var(--tl)'}
+                onMouseOut={e => e.target.style.background = 'var(--t)'}
               >
-                {loadingMore ? '⏳ Loading...' : '📥 Load More Listings'}
+                ↓ Scroll Down
               </button>
-              <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--mu)' }}>
-                Showing {listings.length} of {totalListings}
-              </p>
             </div>
           )}
         </main>
