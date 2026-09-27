@@ -630,6 +630,9 @@ export default function App() {
               >
                 {loadingMore ? '⏳ Loading...' : '↓ Scroll Down'}
               </button>
+              <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--mu)', fontWeight: 600 }}>
+                Page {currentPage} • Showing {listings.length} of {totalListings}
+              </p>
             </div>
           )}
         </main>
