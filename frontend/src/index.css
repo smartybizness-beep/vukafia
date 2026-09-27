@@ -110,15 +110,17 @@ nav {
 
 .ntabs {
   display: flex;
-  gap: 2px;
+  gap: clamp(1px, 1vw, 2px);
   background: rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  padding: 3px;
+  padding: clamp(2px, 0.5vw, 3px);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .ntab {
-  padding: 0.35rem 1rem;
-  font-size: 0.82rem;
+  padding: clamp(0.2rem, 1.5vw, 0.35rem) clamp(0.5rem, 2vw, 1rem);
+  font-size: clamp(0.65rem, 2vw, 0.82rem);
   font-weight: 700;
   cursor: pointer;
   border-radius: 6px;
@@ -127,6 +129,20 @@ nav {
   background: none;
   font-family: 'Plus Jakarta Sans', sans-serif;
   transition: all 0.18s;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .ntabs {
+    gap: 1px;
+    padding: 2px;
+  }
+
+  .ntab {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.6rem;
+    min-width: auto;
+  }
 }
 
 .ntab.active {
@@ -282,22 +298,42 @@ nav {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
-  padding: 4px;
+  padding: clamp(2px, 1vw, 4px);
   margin-bottom: 1.4rem;
-  gap: 4px;
+  gap: clamp(2px, 1vw, 4px);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .tbtn {
-  padding: 0.55rem 1.8rem;
+  padding: clamp(0.35rem, 2vw, 0.55rem) clamp(0.8rem, 3vw, 1.8rem);
   border-radius: 9px;
   border: none;
   font-family: 'Fraunces', serif;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: clamp(0.7rem, 2.5vw, 0.9rem);
   cursor: pointer;
   transition: all 0.22s;
   color: rgba(255, 255, 255, 0.5);
   background: transparent;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .type-tog {
+    display: flex;
+    width: 100%;
+    padding: 2px;
+    gap: 2px;
+    margin-bottom: 1rem;
+  }
+
+  .tbtn {
+    flex: 1;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.65rem;
+    min-width: auto;
+  }
 }
 
 .tbtn.active {
