@@ -51,6 +51,10 @@ export const TRANSLATIONS = {
     // Search
     searchPlaceholder: 'Search businesses, products, services…',
 
+    // Pagination
+    scrollDown: '↓ Scroll Down',
+    loading: '⏳ Loading...',
+
     // Footer
     copyright: '© 2026 Vukafia. Rising Markets. Connecting Africa.',
     privacy: 'Privacy Policy',
@@ -99,6 +103,10 @@ export const TRANSLATIONS = {
 
     // Search
     searchPlaceholder: 'Search for business, products, or services…',
+
+    // Pagination
+    scrollDown: '↓ Scroll Down',
+    loading: '⏳ Loading...',
 
     // Footer
     copyright: '© 2026 Vukafia. Wetin Don Dey Rise. Connecting Africa.',
@@ -149,6 +157,10 @@ export const TRANSLATIONS = {
     // Search
     searchPlaceholder: 'Rechercher entreprises, produits, services…',
 
+    // Pagination
+    scrollDown: '↓ Défiler',
+    loading: '⏳ Chargement...',
+
     // Footer
     copyright: '© 2026 Vukafia. Marchés Émergents. Connecter l\'Afrique.',
     privacy: 'Politique de Confidentialité',
@@ -198,6 +210,10 @@ export const TRANSLATIONS = {
     // Search
     searchPlaceholder: 'Tafuta biashara, bidhaa, huduma…',
 
+    // Pagination
+    scrollDown: '↓ Scroll Chini',
+    loading: '⏳ Kupakia...',
+
     // Footer
     copyright: '© 2026 Vukafia. Soko Zinazokua. Kuunganisha Afrika.',
     privacy: 'Sera ya Faragha',
@@ -246,6 +262,10 @@ export const TRANSLATIONS = {
 
     // Search
     searchPlaceholder: 'Buscar empresas, productos, servicios…',
+
+    // Pagination
+    scrollDown: '↓ Desplazarse',
+    loading: '⏳ Cargando...',
 
     // Footer
     copyright: '© 2026 Vukafia. Mercados Emergentes. Conectando África.',

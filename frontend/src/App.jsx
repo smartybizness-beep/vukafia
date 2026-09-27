@@ -362,31 +362,31 @@ export default function App() {
             className={`ntab ${type === 'product' ? 'active' : ''}`}
             onClick={() => setType('product')}
           >
-            🛍️ Products
+            {t.products}
           </button>
           <button
             className={`ntab ${type === 'service' ? 'active' : ''}`}
             onClick={() => setType('service')}
           >
-            🔧 Services
+            {t.services}
           </button>
           <button
             className={`ntab ${type === 'restaurant' ? 'active' : ''}`}
             onClick={() => setType('restaurant')}
           >
-            🍽️ Restaurants
+            {t.restaurants}
           </button>
           <button
             className={`ntab ${type === 'tourism' ? 'active' : ''}`}
             onClick={() => setType('tourism')}
           >
-            🏨 Tourism
+            {t.tourism}
           </button>
           <button
             className={`ntab ${type === 'medical' ? 'active' : ''}`}
             onClick={() => setType('medical')}
           >
-            🏥 Medical
+            {t.medical}
           </button>
         </div>
         <div className="nav-right">
@@ -452,16 +452,16 @@ export default function App() {
           </div>
 
           <button className="btn-wa-n" onClick={() => openWhatsApp(`👋 Welcome to Vukafia! I'm Trima, your AI assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}>
-            💬 WhatsApp AI
+            {t.whatsappAi}
           </button>
           <button
             className="btn-lst"
             onClick={() => { resetClaim(); setShowClaimModal(true) }}
           >
-            ✓ Claim Business
+            {t.claimBusiness}
           </button>
           <button className="btn-lst" onClick={listBusiness}>
-            + List Business
+            {t.listBusiness}
           </button>
         </div>
       </nav>
@@ -469,39 +469,39 @@ export default function App() {
       <div className="hero">
         <div className="hero-pat"></div>
         <div className="hero-in">
-          <div className="h-pill">🌍 Rising Markets. Connecting Africa.</div>
+          <div className="h-pill">🌍 {t.heroTagline}</div>
           <h1>Trans-African #1<br /><em>Business Directory</em></h1>
-          <p>Discover verified products and services from businesses across all 54 African nations. Search, connect, trade — powered by WhatsApp AI.</p>
+          <p>{t.heroDesc}</p>
           <div className="type-tog">
             <button
               className={`tbtn p ${type === 'product' ? 'active' : ''}`}
               onClick={() => setType('product')}
             >
-              🛍️ Products
+              {t.products}
             </button>
             <button
               className={`tbtn s ${type === 'service' ? 'active' : ''}`}
               onClick={() => setType('service')}
             >
-              🔧 Services
+              {t.services}
             </button>
             <button
               className={`tbtn r ${type === 'restaurant' ? 'active' : ''}`}
               onClick={() => setType('restaurant')}
             >
-              🍽️ Restaurants
+              {t.restaurants}
             </button>
             <button
               className={`tbtn t ${type === 'tourism' ? 'active' : ''}`}
               onClick={() => setType('tourism')}
             >
-              🏨 Tourism
+              {t.tourism}
             </button>
             <button
               className={`tbtn m ${type === 'medical' ? 'active' : ''}`}
               onClick={() => setType('medical')}
             >
-              🏥 Medical
+              {t.medical}
             </button>
           </div>
           <div className="sw">
@@ -509,20 +509,20 @@ export default function App() {
               <div className="si">
                 <input
                   type="text"
-                  placeholder="Search businesses, products, services…"
+                  placeholder={t.searchPlaceholder}
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                 />
               </div>
-              <button className="bs" onClick={applyFilters}>Search</button>
+              <button className="bs" onClick={applyFilters}>{t.search}</button>
             </div>
             <div className="lr">
               <select className="lsel" value={country} onChange={e => setCountry(e.target.value)}>
-                <option value="">🌍 All Countries</option>
+                <option value="">{t.allCountries}</option>
                 {countries.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
               <select className="lsel" value={category} onChange={e => setCategory(e.target.value)}>
-                <option value="">All Categories</option>
+                <option value="">{t.allCategories}</option>
                 {categories.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
@@ -540,12 +540,12 @@ export default function App() {
             setRegion(e.target.value)
           }}
         >
-          <option value="">🌍 All Africa</option>
-          <option value="West Africa">🟤 West Africa</option>
-          <option value="East Africa">🟢 East Africa</option>
-          <option value="North Africa">🟡 North Africa</option>
-          <option value="Central Africa">🟠 Central Africa</option>
-          <option value="Southern Africa">🔵 Southern Africa</option>
+          <option value="">{t.allAfrica}</option>
+          <option value="West Africa">{t.westAfrica}</option>
+          <option value="East Africa">{t.eastAfrica}</option>
+          <option value="North Africa">{t.northAfrica}</option>
+          <option value="Central Africa">{t.centralAfrica}</option>
+          <option value="Southern Africa">{t.southernAfrica}</option>
         </select>
       </div>
 
@@ -721,7 +721,7 @@ export default function App() {
                 onMouseOver={e => !loadingMore && (e.target.style.background = 'var(--tl)')}
                 onMouseOut={e => !loadingMore && (e.target.style.background = 'var(--t)')}
               >
-                {loadingMore ? '⏳ Loading...' : '↓ Scroll Down'}
+                {loadingMore ? t.loading : t.scrollDown}
               </button>
               <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--mu)', fontWeight: 600 }}>
                 Page {currentPage} • {filteredListings.length} {type === 'product' ? 'Products' : type === 'service' ? 'Services' : type === 'restaurant' ? 'Restaurants' : type === 'tourism' ? 'Tourism' : 'Medical'} shown
