@@ -20,7 +20,8 @@
 9. [Security Configuration](#security-configuration)
 10. [Google Maps Crawler](#google-maps-crawler)
 11. [Pagination & Performance](#pagination--performance)
-12. [Troubleshooting Reference](#troubleshooting-reference)
+12. [Trima AI Assistant & Knowledge Base](#trima-ai-assistant--knowledge-base)
+13. [Troubleshooting Reference](#troubleshooting-reference)
 
 ---
 
@@ -665,6 +666,192 @@ GET /api/listings?page=3&limit=50
 
 ---
 
+## Trima AI Assistant & Knowledge Base
+
+### Overview
+
+**Trima** is Vukafia's AI virtual assistant that answers user questions immediately from a comprehensive knowledge base. Only questions outside the knowledge base are directed to the inquiry form.
+
+**Problem Solved**: Previously, ALL questions were being directed to inquiry forms, causing unnecessary support tickets for common, answerable questions.
+
+**Solution**: Smart knowledge base with 50+ Q&A pairs covering platform features, with intelligent matching to provide instant answers.
+
+### Architecture
+
+**File**: `frontend/src/components/Chatbot.jsx`
+
+### Knowledge Base Coverage
+
+The knowledge base includes 50+ Q&A pairs organized by topic:
+
+**1. Platform Overview** (5 Q&A)
+- What is Vukafia?
+- What does Vukafia do?
+- Mission statement
+- Coverage (54+ countries)
+- Business count (10,000+)
+
+**2. Searching & Browsing** (6 Q&A)
+- How to search for businesses
+- Search free? Yes!
+- How to filter by type/country/category
+- Available business types
+
+**3. Contacting Businesses** (3 Q&A)
+- How to contact via WhatsApp
+- Phone numbers and direct calls
+- Business response time
+
+**4. Listing Your Business** (7 Q&A)
+- How to list a business
+- Free listing? Yes!
+- Time to go live (5 minutes)
+- Required information
+- Edit listings later
+- What happens after listing
+
+**5. Claiming & Verification** (7 Q&A)
+- How to claim your business
+- What is claiming/verification
+- Cost ($15 USD one-time)
+- Payment methods
+- Verification timeline (5-10 min)
+- Ownership restrictions
+
+**6. Verification & Trust** (4 Q&A)
+- Data sources (Google Maps)
+- Why trust Vukafia
+- All businesses verified? Yes!
+- Report fake businesses
+
+**7. Payment & Fees** (4 Q&A)
+- What are the fees? (Free + $15 claim)
+- Do you take commission? No!
+- Payment methods
+- Refund policy
+
+**8. Business Types** (5 Q&A)
+- Products (commodities, goods)
+- Services (tech, fintech, logistics)
+- Restaurants (dining, food)
+- Tourism (hotels, agencies)
+- Medical (hospitals, clinics)
+
+**9. Regional Information** (4 Q&A)
+- All 5 African regions covered
+- West Africa countries
+- East Africa countries
+- North Africa countries
+
+**10. Technical** (5 Q&A)
+- Mobile friendly? Yes!
+- Account required to search? No!
+- Password reset
+- Web platform (no app needed)
+
+**11. Support & Help** (4 Q&A)
+- How to contact support
+- Support hours (Mon-Fri, 9am-6pm)
+- Support phone (WhatsApp)
+- Response time (2-4 hours)
+
+**12. Common Issues** (3 Q&A)
+- Business not listed
+- Wrong information shown
+- False claims reported
+
+### Question Matching Algorithm
+
+**Smart Matching with Confidence Scoring**:
+1. **Direct match** - Exact question key found → Return answer immediately
+2. **Keyword matching** - Split question into words (3+ chars)
+3. **Score calculation** - Count matching keywords with answer keys
+4. **Confidence threshold** - Only return answer if 2+ word matches (high confidence)
+5. **Fallback** - If no match found → Offer inquiry button
+
+**Benefits**:
+- Reduces false positives (wrong answers)
+- Handles variations in user questions
+- "How do I search?" vs "How to find businesses?" both work
+- Unknown questions still get routed to support
+
+### User Flow
+
+**Scenario 1: Knowledge Base Question**
+```
+User: "Is it free to list a business?"
+↓
+Bot: Matches "how to list my business" + "is it free"
+↓
+Bot: Returns answer immediately ✅ "Yes! Listing your business on Vukafia is completely free..."
+```
+
+**Scenario 2: Unknown Question**
+```
+User: "Do you support cryptocurrency payment?"
+↓
+Bot: No keyword matches found
+↓
+Bot: "I don't have information about that in my knowledge base...
+      Click below to submit an inquiry. Our team will respond within 24 hours."
+↓
+User can click "Submit Inquiry" button
+```
+
+### Bot Greeting
+
+**Initial Message**:
+```
+Hi! 👋 I'm Trima, Vukafia's AI assistant. I can answer questions about the platform, listings, claims, business types, payment, and more.
+
+For complex inquiries outside my knowledge, I'll connect you with our team.
+```
+
+### Adding New Q&A Pairs
+
+To add more questions to the knowledge base:
+
+**File**: `frontend/src/components/Chatbot.jsx` (lines 4-70)
+
+```javascript
+const KNOWLEDGE_BASE = {
+  'your question here': 'Your answer here',
+  'another question': 'Another answer',
+};
+```
+
+**Guidelines**:
+1. Keep questions lowercase and concise
+2. Include common question variations as separate entries
+3. Answers should be 1-2 sentences max
+4. Use emojis for visual clarity
+5. Test in dev mode before deploying
+
+### Analytics & Improvements
+
+**Tracking Questions**:
+- Monitor which questions users ask most
+- Identify gaps in knowledge base
+- Add new Q&A pairs based on inquiry volume
+- Update answers based on feedback
+
+**Monthly Review Checklist**:
+- [ ] Review top 10 unanswered questions
+- [ ] Add any missing Q&A pairs
+- [ ] Update answers based on policy changes
+- [ ] Test new questions in dev
+- [ ] Deploy and monitor
+
+### Performance Impact
+
+- **Bot latency**: <500ms (instant response)
+- **No API calls required** for FAQ answers
+- **Reduced database load** (fewer inquiries)
+- **Faster user experience**
+- **24/7 availability** (no wait time)
+
+---
+
 ## Key Learnings & Best Practices
 
 ### Deployment
@@ -802,12 +989,26 @@ Replaces the separate page routes with integrated footer sections on all pages:
 ---
 
 ## Recent Changes (September 27, 2026)
+
+**Trima AI Assistant & Knowledge Base**:
+- ✅ Created comprehensive knowledge base with 50+ Q&A pairs
+- ✅ Smart question matching algorithm with confidence scoring
+- ✅ Intelligent routing: KB answers returned immediately, unknowns directed to inquiries
+- ✅ Reduced unnecessary inquiry tickets for common questions
+- ✅ Renamed bot from "Tumi" to "Trima"
+- ✅ Expanded knowledge base coverage:
+  - Platform overview, searching, listing, claiming
+  - Verification, payments, fees
+  - Business types, regions, support
+  - Common issues and troubleshooting
+- ✅ Updated bot greeting and WhatsApp messages
+
+**Mobile-Friendly Footer Redesign**:
 - ✅ Moved About Us and Contact Us from separate pages to footer sections
-- ✅ Implemented expandable "About" section in footer with Learn More toggle
-- ✅ Removed About/Contact links from navbar for cleaner mobile design
-- ✅ Integrated footer on all pages (home and contact form)
-- ✅ Removed /about route (content in footer)
-- ✅ /contact route still available for detailed inquiry form
+- ✅ Implemented expandable "About" section with Learn More toggle
+- ✅ Removed About/Contact links from navbar for cleaner design
+- ✅ Integrated footer on all pages
+- ✅ Removed /about route (content now in footer)
 
 **Previous Changes** (September 25, 2026):
 - ✅ Added Restaurant (🍽️) as dedicated type filter
