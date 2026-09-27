@@ -80,6 +80,7 @@ const KNOWLEDGE_BASE = {
 
   // Claiming Your Business (EXISTING BUSINESS ALREADY ON WEBSITE)
   'how to claim my business': 'Your business is already on Vukafia? Click "✓ Claim Business", search for it, verify your phone number, pay $15 USD (one-time), get verified badge instantly! (5-10 minutes total)',
+  'how do i claim a business': 'Your business is already on Vukafia? Click "✓ Claim Business", search for it, verify your phone number, pay $15 USD (one-time), get verified badge instantly! (5-10 minutes total)',
   'what is business claiming': 'Claiming proves you own the business. Benefits: verified badge 🏅, listing management tools, priority in search results.',
   'how much does claiming cost': 'Claiming is a one-time fee of $15 USD (or equivalent in local currency). This gives you permanent verified status and management access.',
   'how do i pay to claim': 'After phone verification, we send payment instructions via WhatsApp. You can pay through WhatsApp, mobile money, or bank transfer. Takes 5 minutes.',
@@ -138,10 +139,16 @@ function findAnswer(question) {
     return KNOWLEDGE_BASE[lower];
   }
 
-  // Check for substring matches of keys in question
+  // Check for substring matches of keys in question (prioritize HOW/WHAT)
+  const isHowQuestion = lower.startsWith('how');
+  const isWhatQuestion = lower.startsWith('what');
+
   for (const [key, answer] of Object.entries(KNOWLEDGE_BASE)) {
-    if (lower.includes(key)) {
-      return answer;
+    if (lower.includes(key) && key.length > 3) {
+      // Prioritize HOW/WHAT questions
+      if ((isHowQuestion && key.startsWith('how')) || (isWhatQuestion && key.startsWith('what'))) {
+        return answer;
+      }
     }
   }
 
@@ -167,6 +174,10 @@ function findAnswer(question) {
 
     // Require at least 60% of key words to match
     if (matchedWords >= keyWords.length * 0.6 && matchScore > bestScore) {
+      // Bonus for matching question type (HOW/WHAT)
+      if ((isHowQuestion && key.startsWith('how')) || (isWhatQuestion && key.startsWith('what'))) {
+        matchScore += 5;
+      }
       bestScore = matchScore;
       bestMatch = answer;
     }
