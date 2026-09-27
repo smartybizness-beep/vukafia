@@ -631,7 +631,7 @@ export default function App() {
                 {loadingMore ? '⏳ Loading...' : '↓ Scroll Down'}
               </button>
               <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--mu)', fontWeight: 600 }}>
-                Page {currentPage} • Showing {listings.length} of {totalListings}
+                Page {currentPage} • {filteredListings.length} {type === 'product' ? 'Products' : type === 'service' ? 'Services' : type === 'restaurant' ? 'Restaurants' : type === 'tourism' ? 'Tourism' : 'Medical'} shown
               </p>
             </div>
           )}
