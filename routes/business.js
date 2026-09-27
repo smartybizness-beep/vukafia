@@ -32,9 +32,9 @@ router.post('/register', requireAuth, async (req, res, next) => {
       return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
     }
 
-    const validTypes = ['product', 'service'];
+    const validTypes = ['product', 'service', 'restaurant', 'tourism', 'medical'];
     if (!validTypes.includes(type)) {
-      return res.status(400).json({ error: 'type must be product or service' });
+      return res.status(400).json({ error: 'type must be one of: product, service, restaurant, tourism, medical' });
     }
 
     const validRegions = ['West Africa','East Africa','North Africa','Central Africa','Southern Africa'];

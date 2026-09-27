@@ -12,7 +12,7 @@ const { optionalAuth } = require('../middleware/auth');
 
 // ─── GET /api/listings ────────────────────────────────────────────────────────
 // Query params:
-//   type       product | service
+//   type       product | service | restaurant | tourism | medical
 //   region     West Africa | East Africa | North Africa | Central Africa | Southern Africa
 //   country    Nigeria | Kenya | Egypt ...
 //   category   Electronics | Agriculture | Fashion & Textiles | Healthcare ...
