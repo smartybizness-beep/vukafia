@@ -361,9 +361,9 @@ async function crawlGoogleMaps() {
   console.log(`\n✅ Crawl complete! Found: ${total} businesses, Skipped: ${skipped}`);
 
   // Save businesses to database
-  await saveBusinessesToDatabase(businesses);
+  const saveResult = await saveBusinessesToDatabase(businesses);
 
-  return businesses;
+  return { businesses, saveResult, total, skipped };
 }
 
 /**
@@ -440,8 +440,10 @@ async function saveBusinessesToDatabase(businesses) {
     }
 
     console.log(`\n💾 Database save: ${inserted} inserted, ${updated} updated, ${failed} failed`);
+    return { inserted, updated, failed, total: inserted + updated };
   } catch (err) {
     console.error('Error saving businesses to database:', err.message);
+    return { error: err.message, inserted: 0, updated: 0, failed: 0 };
   }
 }
 
