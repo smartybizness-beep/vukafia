@@ -20,22 +20,23 @@ const KNOWLEDGE_BASE = {
   'can i call businesses': 'You can message businesses via WhatsApp to ask for their phone number or call details. Most businesses respond quickly on WhatsApp.',
   'what if a business doesnt respond': 'Most verified businesses respond within hours. If no response, try another supplier. You can also contact our support team if you have concerns.',
 
-  // Listing Your Business
-  'how to list my business': 'Click the "+ List Business" button in the navbar. Fill in your business details (name, phone, location, type, category). Verify your WhatsApp number, and your listing goes live immediately!',
-  'is it free to list a business': 'Yes! Listing your business on Vukafia is completely free. No monthly fees, no hidden charges.',
-  'how long does it take to list': 'Your business listing goes live immediately after you verify your WhatsApp number. Usually takes less than 5 minutes!',
-  'what info do i need to list': 'You\'ll need: business name, WhatsApp phone number, location (country/city), business type, category, and a brief description. A photo is optional but recommended.',
-  'can i edit my listing later': 'Yes! Once listed, you can update your business information anytime. Click on your listing and use the edit option.',
-  'what happens after i list': 'Your listing appears in searches immediately. Customers can find you by searching, filtering by type/country, or browsing categories. You\'ll receive WhatsApp messages directly.',
+  // Listing Your Business (NEW BUSINESS - NOT YET ON WEBSITE)
+  'how to list my business': 'Two scenarios:\n\n📌 Your business is NOT on Vukafia yet? Click "+ List Business", fill in details, verify WhatsApp (free!), go live in 5 minutes.\n\n📌 Your business IS already on Vukafia? Click "✓ Claim Business" to verify ownership ($15 USD, get verified badge).',
+  'i want to list a business': 'Two options:\n\n1️⃣ NEW business (not on Vukafia)? Click "+ List Business" (FREE). Verify WhatsApp, go live instantly!\n\n2️⃣ EXISTING business (already on Vukafia)? Click "✓ Claim Business" ($15 USD). Verify ownership, get verified badge.',
+  'is it free to list a business': 'ADDING a new business listing is 100% FREE! No monthly fees, no hidden charges.\n\nOnly $15 if you want to CLAIM an existing business that\'s already on Vukafia.',
+  'how long does it take to list': 'Adding a new business: 5 minutes! After you verify your WhatsApp, your business appears immediately in search results.',
+  'what info do i need to list': 'Business name, WhatsApp phone number, location (country/city), business type, category, and a brief description. Photo optional but recommended.',
+  'can i edit my listing later': 'Yes! Update your business information anytime after listing. Click on your listing and use the edit option.',
+  'what happens after i list': 'Your business appears in search results immediately. Customers find you by searching, filtering by type/country/category. You get WhatsApp messages directly from interested buyers.',
 
-  // Claiming Your Business
-  'how to claim my business': 'Click "✓ Claim Business" button. Search for your business in the directory. If found, verify your phone number and complete payment ($15 USD). If not found, you can list it as new.',
-  'what is business claiming': 'Claiming verifies that you own the business. You get a verified badge, listing management tools, and priority in search results.',
-  'how much does claiming cost': 'Claiming a business is a one-time fee of $15 USD (or equivalent in local currency). This gives you permanent verified status.',
-  'how do i pay to claim': 'We accept WhatsApp payment through our team. After you verify your phone, we\'ll send payment instructions via WhatsApp. Takes about 5 minutes.',
-  'how long to get verified': 'Usually 5-10 minutes from payment! Your verified badge appears immediately after payment confirmation.',
-  'can i claim a business i dont own': 'No. You can only claim businesses you actually own or represent. False claims result in account suspension.',
-  'what if my business isnt listed': 'Click "+ List Business" to add it yourself. Or if you see a duplicate/incorrect listing, contact our support team.',
+  // Claiming Your Business (EXISTING BUSINESS ALREADY ON WEBSITE)
+  'how to claim my business': 'Your business is already on Vukafia? Click "✓ Claim Business", search for it, verify your phone number, pay $15 USD (one-time), get verified badge instantly! (5-10 minutes total)',
+  'what is business claiming': 'Claiming proves you own the business. Benefits: verified badge 🏅, listing management tools, priority in search results.',
+  'how much does claiming cost': 'Claiming is a one-time fee of $15 USD (or equivalent in local currency). This gives you permanent verified status and management access.',
+  'how do i pay to claim': 'After phone verification, we send payment instructions via WhatsApp. You can pay through WhatsApp, mobile money, or bank transfer. Takes 5 minutes.',
+  'how long to get verified': 'Usually 5-10 minutes from payment! After payment confirmation, your verified badge appears immediately.',
+  'can i claim a business i dont own': 'No. You can only claim businesses you own or represent. We verify your phone number matches the business. False claims result in account suspension.',
+  'what if my business isnt listed': 'Click "+ List Business" to add your business for FREE! It goes live after WhatsApp verification (no payment needed for new listings, only for claiming existing ones).',
 
   // Verification and Trust
   'how is data verified': 'All business data comes directly from Google Maps, which verifies information through business owners and customer reviews.',
