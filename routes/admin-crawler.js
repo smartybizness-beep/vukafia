@@ -7,7 +7,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { crawlBusinessesJob } = require('../services/googleMapsCrawler');
+const { crawlGoogleMaps } = require('../services/googleMapsCrawler');
 const { triggerJob, getSchedulerStatus } = require('../jobs/scheduler');
 
 // Middleware to verify admin (optional - add proper auth in production)
@@ -45,7 +45,7 @@ router.get('/crawler/status', requireAdmin, (req, res) => {
 router.post('/crawler/trigger', requireAdmin, async (req, res) => {
   try {
     console.log('[ADMIN API] Triggering crawler job...');
-    const result = await crawlBusinessesJob();
+    const result = await crawlGoogleMaps();
 
     res.json({
       success: true,
