@@ -49,9 +49,11 @@ const UI_MESSAGES = {
 
 const KNOWLEDGE_BASE = {
   // Platform Overview
-  'what is vukafia': 'Vukafia is Africa\'s #1 verified business directory connecting entrepreneurs across 54+ African nations. We make cross-border trade easy by providing real, Google-verified businesses with direct WhatsApp contact.',
-  'what does vukafia do': 'Vukafia helps African businesses find suppliers, exporters, manufacturers, and service providers across the continent. Every listing is verified through Google Maps and WhatsApp.',
-  'vukafia mission': 'Our mission is to revolutionize cross-border trade by creating a transparent marketplace where African entrepreneurs can discover, connect, and trade with verified partners.',
+  'what is vukafia': 'Vukafia is Africa\'s #1 verified business DIRECTORY - not a marketplace. We CONNECT buyers with sellers across 54+ African nations. You find businesses here, then contact them directly via WhatsApp to negotiate and trade.',
+  'what does vukafia do': 'Vukafia is a business CONNECTOR. We help buyers discover suppliers, exporters, manufacturers, and service providers. You browse our directory, find what you need, then contact businesses directly via WhatsApp. Vukafia doesn\'t handle buying/selling - we just connect.',
+  'vukafia mission': 'Our mission is to CONNECT African entrepreneurs by creating a verified business directory where buyers can discover and directly contact verified suppliers across 54+ nations via WhatsApp.',
+  'can i buy and sell on vukafia': 'No. Vukafia is NOT a marketplace. We\'re a BUSINESS DIRECTORY CONNECTOR. You find suppliers/businesses here, contact them via WhatsApp, and negotiate directly. All buying/selling happens OFF-platform between you and the business.',
+  'how does vukafia work': 'Vukafia is a business CONNECTOR, not a marketplace. Step 1: Browse/search for businesses. Step 2: Find what you need. Step 3: Click WhatsApp to contact them directly. Step 4: Negotiate and trade directly with the business (not through Vukafia).',
   'how many countries does vukafia cover': 'Vukafia is available in 54+ African countries, covering West Africa, East Africa, North Africa, Central Africa, and Southern Africa.',
   'how many businesses on vukafia': 'We have 10,000+ verified businesses listed, all sourced from Google Maps and verified by business owners.',
 
@@ -63,18 +65,18 @@ const KNOWLEDGE_BASE = {
   'what business types are available': 'We have 5 main types: Products (agricultural, minerals, manufacturing), Services (tech, fintech, logistics), Restaurants (dining & food), Tourism (hotels, agencies), and Medical (hospitals, pharmacies).',
 
   // Contacting Businesses
-  'how to contact a business': 'Click on any business card to view details, then use the WhatsApp button to message them directly. No email needed! Direct messaging is instant.',
-  'can i call businesses': 'You can message businesses via WhatsApp to ask for their phone number or call details. Most businesses respond quickly on WhatsApp.',
-  'what if a business doesnt respond': 'Most verified businesses respond within hours. If no response, try another supplier. You can also contact our support team if you have concerns.',
+  'how to contact a business': 'Click on any business card, then use the WhatsApp button to message them directly. You negotiate pricing, shipping, and payment details directly with them via WhatsApp - NOT through Vukafia.',
+  'can i call businesses': 'Yes! Message them on WhatsApp to ask for their phone number or call details. Transactions and negotiations happen directly between you and the business - we\'re just the connector.',
+  'what if a business doesnt respond': 'Try another supplier from our directory. Vukafia doesn\'t handle transactions - we connect you with businesses. The actual buying/selling is between you and them.',
 
   // Listing Your Business (NEW BUSINESS - NOT YET ON WEBSITE)
-  'how to list my business': 'Two scenarios:\n\n📌 Your business is NOT on Vukafia yet? Click "+ List Business", fill in details, verify WhatsApp (free!), go live in 5 minutes.\n\n📌 Your business IS already on Vukafia? Click "✓ Claim Business" to verify ownership ($15 USD, get verified badge).',
-  'i want to list a business': 'Two options:\n\n1️⃣ NEW business (not on Vukafia)? Click "+ List Business" (FREE). Verify WhatsApp, go live instantly!\n\n2️⃣ EXISTING business (already on Vukafia)? Click "✓ Claim Business" ($15 USD). Verify ownership, get verified badge.',
-  'is it free to list a business': 'ADDING a new business listing is 100% FREE! No monthly fees, no hidden charges.\n\nOnly $15 if you want to CLAIM an existing business that\'s already on Vukafia.',
-  'how long does it take to list': 'Adding a new business: 5 minutes! After you verify your WhatsApp, your business appears immediately in search results.',
-  'what info do i need to list': 'Business name, WhatsApp phone number, location (country/city), business type, category, and a brief description. Photo optional but recommended.',
-  'can i edit my listing later': 'Yes! Update your business information anytime after listing. Click on your listing and use the edit option.',
-  'what happens after i list': 'Your business appears in search results immediately. Customers find you by searching, filtering by type/country/category. You get WhatsApp messages directly from interested buyers.',
+  'how to list my business': 'Click "+ List Business", fill in your business details (name, WhatsApp, location, type, category), verify your phone. Your business appears in our DIRECTORY immediately - FREE! Customers find you and message directly via WhatsApp. No transaction fees.',
+  'i want to list a business': 'Click "+ List Business" (FREE). Your business gets listed in our directory. Customers find you, contact you via WhatsApp, and negotiate directly. Vukafia doesn\'t handle any transactions - we\'re just the connector.',
+  'is it free to list a business': 'YES! Listing your business in our directory is 100% FREE. No monthly fees, no commission on sales, no hidden charges. Only $15 if you want to CLAIM an existing listing.',
+  'how long does it take to list': 'Just 5 minutes! Verify your WhatsApp, and your business appears in our directory immediately. Customers can find and contact you right away.',
+  'what info do i need to list': 'Business name, WhatsApp number, location (country/city), business type, category, and description. Photo optional but helps attract more buyers.',
+  'can i edit my listing later': 'Yes! Update your business information anytime. Click on your listing and use the edit option to keep details current.',
+  'what happens after i list': 'Your business appears in our directory immediately. Customers search and find you, then message you directly via WhatsApp. All negotiations and sales happen between you and them - Vukafia is just the connector.',
 
   // Claiming Your Business (EXISTING BUSINESS ALREADY ON WEBSITE)
   'how to claim my business': 'Your business is already on Vukafia? Click "✓ Claim Business", search for it, verify your phone number, pay $15 USD (one-time), get verified badge instantly! (5-10 minutes total)',
@@ -93,7 +95,7 @@ const KNOWLEDGE_BASE = {
 
   // Payment and Fees
   'what are the fees': 'Listing: FREE. Claiming: $15 USD. Everything else is free.',
-  'do you take commission': 'No! Vukafia doesn\'t take commission on sales between buyers and sellers. You keep 100% of your revenue.',
+  'do you take commission': 'No! Vukafia is a DIRECTORY CONNECTOR, not a marketplace. We don\'t handle any transactions or take commissions. You keep 100% of what you earn. All business happens between you and your customers.',
   'what payment methods do you accept': 'We accept WhatsApp payment, mobile money, and bank transfers. Details provided during checkout.',
   'is the $15 refundable': 'The $15 claiming fee is non-refundable but gives you permanent verified status with all management tools.',
 
