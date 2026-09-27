@@ -51,7 +51,7 @@ export default function App() {
 
   // Claim flow state
   const [showClaimModal, setShowClaimModal] = useState(false)
-  const [claimStep, setClaimStep] = useState('search') // search, verify, payment
+  const [claimStep, setClaimStep] = useState('search') // search, verify, edit, payment
   const [claimSearch, setClaimSearch] = useState('')
   const [claimCountry, setClaimCountry] = useState('')
   const [claimResults, setClaimResults] = useState([])
@@ -62,6 +62,12 @@ export default function App() {
   const [claimFee, setClaimFee] = useState(15)
   const [currency, setCurrency] = useState('NGN')
   const [paystackLoading, setPaystackLoading] = useState(false)
+  // Edit business info state
+  const [claimBusinessPhoto, setClaimBusinessPhoto] = useState('')
+  const [claimBusinessPhone, setClaimBusinessPhone] = useState('')
+  const [claimBusinessEmail, setClaimBusinessEmail] = useState('')
+  const [claimBusinessWebsite, setClaimBusinessWebsite] = useState('')
+  const [claimContactName, setClaimContactName] = useState('')
 
   const WA_PHONE = '2348101477935'
   const API_BASE = ''
@@ -310,8 +316,14 @@ export default function App() {
       })
       const data = await res.json()
       if (data.success) {
-        setClaimStep('payment')
-        setClaimMessage('✅ Phone verified! Proceed to payment')
+        // Initialize edit fields with current business data
+        setClaimBusinessPhone(selectedClaim.phone || '')
+        setClaimBusinessEmail(selectedClaim.email || '')
+        setClaimBusinessWebsite(selectedClaim.website || '')
+        setClaimBusinessPhoto(selectedClaim.cover_photo || '')
+        setClaimContactName('')
+        setClaimStep('edit')
+        setClaimMessage('✅ Phone verified! Update your business information')
       } else {
         setClaimMessage('❌ ' + (data.error || 'Phone does not match this business'))
       }
@@ -793,6 +805,7 @@ export default function App() {
               <h2 style={{ margin: 0, color: 'var(--earth)' }}>
                 {claimStep === 'search' && '🔍 Find Your Business'}
                 {claimStep === 'verify' && '📱 Verify Ownership'}
+                {claimStep === 'edit' && '✏️ Update Business Info'}
                 {claimStep === 'payment' && '💳 Complete Payment'}
               </h2>
               <button onClick={() => setShowClaimModal(false)} style={{
@@ -1016,7 +1029,170 @@ export default function App() {
               </div>
             )}
 
-            {/* STEP 3: PAYMENT */}
+            {/* STEP 3: EDIT BUSINESS INFO */}
+            {claimStep === 'edit' && selectedClaim && (
+              <div>
+                <p style={{ color: '#666', marginBottom: '1.5rem' }}>
+                  Update your business information. All fields are optional except phone.
+                </p>
+
+                {/* Contact Name */}
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#333' }}>
+                  Business Contact Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Your name or department name"
+                  value={claimContactName}
+                  onChange={e => setClaimContactName(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    marginBottom: '1.25rem',
+                    boxSizing: 'border-box',
+                    fontSize: '1rem'
+                  }}
+                />
+
+                {/* Phone */}
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#333' }}>
+                  Business Phone
+                </label>
+                <input
+                  type="tel"
+                  placeholder="+234..."
+                  value={claimBusinessPhone}
+                  onChange={e => setClaimBusinessPhone(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    marginBottom: '1.25rem',
+                    boxSizing: 'border-box',
+                    fontSize: '1rem'
+                  }}
+                />
+
+                {/* Email */}
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#333' }}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  placeholder="business@example.com"
+                  value={claimBusinessEmail}
+                  onChange={e => setClaimBusinessEmail(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    marginBottom: '1.25rem',
+                    boxSizing: 'border-box',
+                    fontSize: '1rem'
+                  }}
+                />
+
+                {/* Website */}
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#333' }}>
+                  Website
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://example.com"
+                  value={claimBusinessWebsite}
+                  onChange={e => setClaimBusinessWebsite(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    marginBottom: '1.25rem',
+                    boxSizing: 'border-box',
+                    fontSize: '1rem'
+                  }}
+                />
+
+                {/* Photo Upload */}
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#333' }}>
+                  Business Photo
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    const file = e.target.files[0]
+                    if (file) {
+                      const reader = new FileReader()
+                      reader.onload = (evt) => setClaimBusinessPhoto(evt.target.result)
+                      reader.readAsDataURL(file)
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    marginBottom: '1rem',
+                    boxSizing: 'border-box',
+                    fontSize: '1rem'
+                  }}
+                />
+
+                {claimBusinessPhoto && (
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <img
+                      src={claimBusinessPhoto}
+                      alt="Preview"
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '200px',
+                        borderRadius: '8px',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  </div>
+                )}
+
+                <button
+                  onClick={() => setClaimStep('payment')}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: '#0284c7',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    marginBottom: '0.75rem'
+                  }}
+                >
+                  Continue to Payment
+                </button>
+                <button
+                  onClick={() => setClaimStep('verify')}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: '#E5E7EB',
+                    color: '#333',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Back
+                </button>
+              </div>
+            )}
+
+            {/* STEP 4: PAYMENT */}
             {claimStep === 'payment' && selectedClaim && (
               <div>
                 <div style={{
