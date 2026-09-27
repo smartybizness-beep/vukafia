@@ -59,7 +59,7 @@ export default function App() {
   const [claimPhone, setClaimPhone] = useState('')
   const [claimLoading, setClaimLoading] = useState(false)
   const [claimMessage, setClaimMessage] = useState('')
-  const [claimFee, setClaimFee] = useState(15)
+  const [claimFee, setClaimFee] = useState(14.99)
   const [currency, setCurrency] = useState('NGN')
   const [paystackLoading, setPaystackLoading] = useState(false)
   // OTP verification state
@@ -1443,7 +1443,7 @@ export default function App() {
                     {selectedClaim.city}, {selectedClaim.country}
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#D97706', marginBottom: '0.5rem' }}>
-                    {currency === 'NGN' ? '₦' : '$'}{currency === 'NGN' ? '6,000' : '15'}
+                    {currency === 'NGN' ? '₦' : '$'}{currency === 'NGN' ? '6,000' : '14.99'}
                   </div>
                   <div style={{ color: '#666', fontSize: '0.9rem' }}>
                     One-time claim & verification fee
@@ -1557,7 +1557,7 @@ export default function App() {
                   fontSize: '0.85rem',
                   color: '#92400E'
                 }}>
-                  💬 Click "Pay $15 via WhatsApp" to complete payment through our team.
+                  💬 Click "Pay $14.99 via WhatsApp" to complete payment through our team.
                 </div>
               </div>
             )}
