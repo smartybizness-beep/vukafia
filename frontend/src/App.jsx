@@ -1163,6 +1163,25 @@ export default function App() {
         marginTop: '3rem',
         borderTop: '1px solid rgba(255,255,255,0.1)'
       }}>
+        {/* Footer Logo */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '2rem',
+          paddingBottom: '1.5rem',
+          borderBottom: '1px solid rgba(255,255,255,0.1)'
+        }}>
+          <img
+            src="/assets/vukafia-logo.png"
+            alt="Vukafia"
+            className="footer-logo"
+            style={{
+              height: 'clamp(50px, 10vw, 80px)',
+              width: 'auto',
+              objectFit: 'contain'
+            }}
+          />
+        </div>
+
         {/* Main Footer Content */}
         <div style={{
           display: 'grid',
