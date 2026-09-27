@@ -511,7 +511,12 @@ export default function App() {
         <main className="main">
           <div style={{ marginBottom: '1rem' }}>
             <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-              {type === 'product' ? '🛍️ Products' : '🔧 Services'}
+              {type === 'product' ? '🛍️ Products'
+                : type === 'service' ? '🔧 Services'
+                : type === 'restaurant' ? '🍽️ Restaurants'
+                : type === 'tourism' ? '🏨 Tourism'
+                : type === 'medical' ? '🏥 Medical'
+                : type}
               <span style={{ marginLeft: '0.5rem', color: 'var(--mu)' }}>
                 ({filteredListings.length})
               </span>
