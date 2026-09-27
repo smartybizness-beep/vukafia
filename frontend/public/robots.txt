@@ -1,0 +1,30 @@
+# Vukafia Robots.txt
+# Allow all crawlers to index the site
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*.json$
+Disallow: /node_modules/
+Disallow: /src/
+Disallow: /dist/
+
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Sitemap
+Sitemap: https://vukafia.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
