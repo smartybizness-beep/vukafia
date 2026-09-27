@@ -6,40 +6,40 @@ import { LANGUAGE_NAMES } from '../languages';
 // UI messages translations
 const UI_MESSAGES = {
   en: {
-    greeting: 'Hi! 👋 I\'m Trima, Vukafia\'s AI assistant. I can answer questions about the platform, listings, claims, business types, payment, and more.\n\nFor complex inquiries outside my knowledge, I\'ll connect you with our team.',
-    notFound: 'I don\'t have information about that in my knowledge base. 🤔\n\nI recommend clicking the button below to submit an inquiry. Our team will respond within 24 hours with detailed help on your specific question.',
+    greeting: 'Hi! 👋 I\'m Trima, Vukafia\'s AI assistant. Ask me anything about listings, claims, business types, payment, or how the platform works!',
+    notFound: 'I\'ll route this to our support team. They\'ll get back to you within 24 hours.',
     placeholder: 'Ask me anything...',
     submitBtn: '📧 Submit Inquiry',
     thinking: '⏳ Thinking...',
     send: 'Send'
   },
   pidgin: {
-    greeting: 'Heyy! 👋 Na Trima be, Vukafia AI helper. I fit answer questions about platform, listing business, claim business, payment, and all that.\n\nFor serious matter wey pass my knowledge, e go connect you with our team.',
-    notFound: 'Abeg, I no get that answer for my head. 🤔\n\nMake you submit inquiry using button down there. Our team go reply you within 24 hours with proper answer.',
+    greeting: 'Heyy! 👋 Na Trima be, Vukafia AI helper. Ask me about listing, claiming, payment, business types, or how this platform work!',
+    notFound: 'I go send this to our support team. Dem go reply you within 24 hours.',
     placeholder: 'Ask me wetin you wan know...',
     submitBtn: '📧 Send Inquiry',
     thinking: '⏳ Lemme think...',
     send: 'Send'
   },
   fr: {
-    greeting: 'Salut! 👋 Je suis Trima, l\'assistant IA de Vukafia. Je peux répondre à vos questions sur la plateforme, les annonces, les réclamations, les types d\'entreprises, les paiements, et plus.\n\nPour les demandes complexes, je vais vous connecter à notre équipe.',
-    notFound: 'Je n\'ai pas cette information dans ma base de connaissances. 🤔\n\nVous recommande de soumettre une demande. Notre équipe vous répondra dans 24 heures.',
+    greeting: 'Salut! 👋 Je suis Trima, assistant IA Vukafia. Posez-moi vos questions sur les annonces, réclamations, paiements, types d\'entreprises, ou la plateforme!',
+    notFound: 'Je vais transférer cela à notre équipe d\'assistance. Ils répondront dans 24 heures.',
     placeholder: 'Posez-moi une question...',
     submitBtn: '📧 Soumettre une demande',
     thinking: '⏳ Je réfléchis...',
     send: 'Envoyer'
   },
   sw: {
-    greeting: 'Habari! 👋 Mimi ni Trima, msaidizi wa AI wa Vukafia. Naweza kujibu maswali kuhusu platform, kuorodhesha biashara, kufikiri biashara, aina za biashara, malipo, na zaidi.\n\nKwa maswali magumu, nitakuunganisha na timu yetu.',
-    notFound: 'Sina habari hiyo katika ujuzi wangu. 🤔\n\nNakushauri kuwasilisha ombi kwa kutumia kitufe hapa chini. Timu yetu itakajibu ndani ya saa 24.',
+    greeting: 'Habari! 👋 Mimi ni Trima, AI assistant wa Vukafia. Niulizeni kuhusu orodha, udai, malipo, aina za biashara, au jinsi platform inavyofanya kazi!',
+    notFound: 'Nitapeleka hii kwa timu yetu ya msaada. Watakujibu ndani ya saa 24.',
     placeholder: 'Niulizeni kitu yoyote...',
     submitBtn: '📧 Wasilisha Ombi',
     thinking: '⏳ Ninakifikiri...',
     send: 'Tuma'
   },
   es: {
-    greeting: '¡Hola! 👋 Soy Trima, asistente de IA de Vukafia. Puedo responder preguntas sobre la plataforma, listados, reclamaciones, tipos de negocios, pagos y más.\n\nPara consultas complejas, te conectaré con nuestro equipo.',
-    notFound: 'No tengo esa información en mi base de conocimientos. 🤔\n\nTe recomiendo que envíes una consulta. Nuestro equipo responderá en 24 horas.',
+    greeting: '¡Hola! 👋 Soy Trima, asistente IA de Vukafia. Pregúntame sobre listados, reclamaciones, pagos, tipos de negocios, ¡o cómo funciona la plataforma!',
+    notFound: 'Enviaré esto a nuestro equipo de soporte. Te responderán en 24 horas.',
     placeholder: 'Pregúntame algo...',
     submitBtn: '📧 Enviar Consulta',
     thinking: '⏳ Pensando...',
