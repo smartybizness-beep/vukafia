@@ -5,7 +5,8 @@
       "Bash(node -e ' *)",
       "Bash(git push *)",
       "Bash(timeout 10 curl -s \"https://vukafia-production.up.railway.app/api/listings?limit=5\")",
-      "Bash(git commit -m 'debug: add simple test endpoint in server.js *)"
+      "Bash(git commit -m 'debug: add simple test endpoint in server.js *)",
+      "Bash(git commit -m 'fix: move Google Verified badge to bottom of image as smaller bar *)"
     ]
   }
 }

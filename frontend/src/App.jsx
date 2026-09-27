@@ -324,8 +324,7 @@ export default function App() {
     <>
       <nav>
         <div className="logo" onClick={() => window.location.reload()}>
-          <div className="logo-mark">V</div>
-          <div className="logo-text">Vuk<span>A</span>fia</div>
+          <img src="/assets/vukafia-logo.png" alt="Vukafia" className="logo-image" />
         </div>
         <div className="ntabs">
           <button
@@ -1035,10 +1034,8 @@ export default function App() {
         textAlign: 'center'
       }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          <div style={{ fontFamily: "'Fraunces', serif", fontSize: '1.25rem', fontWeight: 900, color: '#fff', marginBottom: '0.5rem' }}>
-            Vuk<span style={{ color: 'var(--gl)' }}>A</span>fia
-          </div>
-          <div style={{ fontSize: '0.75rem', marginTop: '0.3rem' }}>
+          <img src="/assets/vukafia-logo.png" alt="Vukafia" className="footer-logo" />
+          <div style={{ fontSize: '0.75rem', marginTop: '1rem' }}>
             Rising Markets. Connecting Africa. · vukafia.com
           </div>
         </div>

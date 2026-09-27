@@ -78,32 +78,24 @@ nav {
   gap: 8px;
   text-decoration: none;
   cursor: pointer;
+  transition: transform 0.2s;
 }
 
-.logo-mark {
-  background: var(--gb);
-  border-radius: 10px;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-family: 'Fraunces', serif;
-  font-weight: 900;
-  font-size: 18px;
+.logo:hover {
+  transform: scale(1.05);
 }
 
-.logo-text {
-  font-family: 'Fraunces', serif;
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.5px;
+.logo-image {
+  height: 55px;
+  width: auto;
+  object-fit: contain;
 }
 
-.logo-text span {
-  color: var(--gl);
+.footer-logo {
+  height: 90px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 1rem;
 }
 
 .ntabs {
