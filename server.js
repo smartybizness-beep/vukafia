@@ -117,8 +117,8 @@ app.use('/api/search',    searchRouter);
 app.use('/api/claims',    claimsRouter);
 app.use('/api/business',  businessRouter);
 app.use('/api/auth',      authRouter);
-app.use('/api/admin',     adminRouter);
-app.use('/api/admin',     crawlerRouter);  // Crawler management
+app.use('/api/admin',     crawlerRouter);  // Crawler management (must come first - uses admin token)
+app.use('/api/admin',     adminRouter);    // Admin dashboard (uses JWT auth)
 app.use('/api/webhook',   webhookRouter);  // WhatsApp webhook
 
 // ─── SPA FALLBACK (client-side routing) ────────────────────────────────────
