@@ -61,15 +61,25 @@ body {
 /* NAV */
 nav {
   background: var(--earth);
-  height: 64px;
+  height: auto;
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2rem;
+  padding: 0 clamp(0.75rem, 3vw, 2rem);
   position: sticky;
   top: 0;
   z-index: 400;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  flex-wrap: wrap;
+  gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+@media (max-width: 600px) {
+  nav {
+    height: auto;
+    padding: 0.5rem clamp(0.5rem, 2vw, 1rem);
+  }
 }
 
 .logo {
@@ -131,7 +141,16 @@ nav {
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: clamp(0.4rem, 2vw, 0.8rem);
+  flex-wrap: nowrap;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+@media (max-width: 600px) {
+  .nav-right {
+    gap: clamp(0.3rem, 1.5vw, 0.5rem);
+  }
 }
 
 .nav-stat {
@@ -151,16 +170,25 @@ nav {
 .btn-wa-n,
 .btn-lst {
   border: none;
-  padding: 0.5rem 1.1rem;
+  padding: clamp(0.35rem, 2vw, 0.5rem) clamp(0.6rem, 3vw, 1.1rem);
   border-radius: 8px;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: clamp(0.65rem, 2vw, 0.8rem);
   cursor: pointer;
   transition: all 0.2s;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  min-width: 140px;
+  min-width: clamp(80px, 18vw, 140px);
   text-align: center;
   white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .btn-wa-n,
+  .btn-lst {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+    min-width: 75px;
+  }
 }
 
 .btn-wa-n {
