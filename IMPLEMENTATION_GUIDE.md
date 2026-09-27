@@ -483,6 +483,93 @@ git push origin main
 
 ---
 
+## Mobile-Friendly Responsive Design
+
+### Overview
+The website is fully responsive with 4 breakpoints optimized for mobile, tablet, and desktop viewing.
+
+### Breakpoints
+
+**1. Desktop (1400px+)**
+- 2-column layout with sidebar (250px) + main content
+- Full navigation with stats display
+- 240px minimum card width
+- Type filter buttons inline
+
+**2. Tablet (900px and below)**
+- Single-column layout (sidebar hidden)
+- Condensed navigation
+- 180px minimum card width
+- Reduced padding (1.5rem main)
+
+**3. Mobile (768px and below)**
+- Stacked navigation (logo + controls)
+- Horizontal scrollable sidebar filters
+- 160px minimum card width
+- 1rem padding on main content
+- Full-width search inputs
+
+**4. Small Mobile (480px and below)**
+- Minimal padding (0.8rem)
+- 140px minimum card width
+- Horizontally scrollable type filters
+- Optimized button sizes for touch (40px+ target)
+- Stack all controls vertically
+
+### Key Mobile Optimizations
+
+**Navigation**
+- Responsive height (64px → auto on mobile)
+- Wraps controls on smaller screens
+- Logo scales from 55px → 40px
+- Stat display hidden below 900px
+
+**Search & Filters**
+- Stack vertically on mobile (was horizontal)
+- Full-width input fields
+- Touch-friendly button sizes (40-44px height)
+- Horizontal scroll on sidebar filters
+
+**Card Grid**
+- Fluid column count: `repeat(auto-fill, minmax(Xpx, 1fr))`
+- 240px → 180px → 160px → 140px as screen shrinks
+- Reduced gap between cards (1.5rem → 0.6rem)
+- Card image height: 160px → 140px → 120px
+
+**Typography**
+- Use `clamp()` for fluid scaling: `clamp(min, preferred, max)`
+- Hero title: `clamp(1.1rem, 2.5vw, 3.5rem)`
+- Responsive font sizes that scale with viewport
+
+**Spacing**
+- Main content padding: 2rem → 1rem → 0.8rem
+- Card body padding: 1rem → 0.8rem → 0.6rem
+- Hero padding: 3.5rem → 1.5rem → 1.2rem
+
+### Touch-Friendly Design
+- Minimum touch target: 40-44px (all buttons comply)
+- Adequate spacing between interactive elements (0.5rem+ gap)
+- Larger tap areas for mobile users
+- No hover-only interactions (hover works, but not required)
+
+### Testing Checklist
+- [ ] Mobile (375px iPhone SE)
+- [ ] Tablet (768px iPad)
+- [ ] Landscape (667px wide)
+- [ ] Large mobile (480px)
+- [ ] Responsive font scaling
+- [ ] Touch target sizes
+- [ ] Image loading performance
+- [ ] Navigation usability
+
+### Performance on Mobile
+- Card images: 120-160px (small file sizes)
+- Lazy loading recommended for images
+- Minimal layout shifts (use clamp() for fonts)
+- Sidebar filters scroll horizontally (not reflow)
+
+---
+
 ## Google Maps Crawler
 
 ### Purpose
