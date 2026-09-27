@@ -489,6 +489,13 @@ export default function App() {
         </Link>
         <div className="ntabs">
           <button
+            className={`ntab ${type === '' ? 'active' : ''}`}
+            onClick={() => setType('')}
+            title="Show all business types"
+          >
+            🌍 All
+          </button>
+          <button
             className={`ntab ${type === 'product' ? 'active' : ''}`}
             onClick={() => setType('product')}
           >
@@ -604,6 +611,13 @@ export default function App() {
           <h1>Trans-African #1<br /><em>Business Directory</em></h1>
           <p>{t.heroDesc}</p>
           <div className="type-tog">
+            <button
+              className={`tbtn a ${type === '' ? 'active' : ''}`}
+              onClick={() => setType('')}
+              title="Show all business types"
+            >
+              🌍 All
+            </button>
             <button
               className={`tbtn p ${type === 'product' ? 'active' : ''}`}
               onClick={() => setType('product')}
@@ -727,7 +741,8 @@ export default function App() {
         <main className="main">
           <div style={{ marginBottom: '1rem' }}>
             <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-              {type === 'product' ? '🛍️ Products'
+              {type === '' ? '🌍 All Businesses'
+                : type === 'product' ? '🛍️ Products'
                 : type === 'service' ? '🔧 Services'
                 : type === 'restaurant' ? '🍽️ Restaurants'
                 : type === 'tourism' ? '🏨 Tourism'

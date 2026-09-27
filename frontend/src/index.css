@@ -305,12 +305,20 @@ nav {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 }
 
+.tbtn.a.active {
+  background: linear-gradient(135deg, #054030 0%, #0284c7 100%);
+}
+
 .tbtn.p.active {
   background: var(--t);
 }
 
 .tbtn.s.active {
   background: var(--sv);
+}
+
+.tbtn.r.active {
+  background: #D97706;
 }
 
 .tbtn.t.active {
