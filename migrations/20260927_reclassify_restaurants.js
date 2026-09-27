@@ -10,12 +10,14 @@ exports.up = async function(knex) {
   // Reclassify restaurants from Restaurant category
   await knex('listings')
     .where('category', 'Restaurant')
-    .update({ type: 'restaurant', category: 'Restaurant' });
+    .update({ type: 'restaurant' });
 
-  // Reclassify restaurants from Food & Groceries (by name match)
+  // Reclassify restaurants by name (restaurant or cafe)
   await knex('listings')
-    .whereRaw(`LOWER(name) LIKE '%restaurant%'`)
-    .orWhereRaw(`LOWER(name) LIKE '%cafe%'`)
+    .where(function() {
+      this.whereRaw(`LOWER(name) LIKE '%restaurant%'`)
+          .orWhereRaw(`LOWER(name) LIKE '%cafe%'`);
+    })
     .update({ type: 'restaurant', category: 'Restaurant' });
 
   return Promise.resolve();
