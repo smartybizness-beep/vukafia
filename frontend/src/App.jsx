@@ -26,10 +26,10 @@ export default function App() {
 
   const t = TRANSLATIONS[language] || TRANSLATIONS.en
 
-  // Load language preference from localStorage
+  // Load language preference from localStorage (default: English)
   useEffect(() => {
-    const savedLang = localStorage.getItem('vukafiaLanguage') || 'en'
-    setLanguage(savedLang)
+    const savedLang = localStorage.getItem('vukafiaLanguage')
+    setLanguage(savedLang && Object.keys(TRANSLATIONS).includes(savedLang) ? savedLang : 'en')
   }, [])
 
   const changeLanguage = (lang) => {

@@ -184,10 +184,10 @@ export default function Chatbot() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Load language preference from localStorage
+  // Load language preference from localStorage (default: English)
   useEffect(() => {
-    const savedLang = localStorage.getItem('vukafiaLanguage') || 'en';
-    setLanguage(savedLang);
+    const savedLang = localStorage.getItem('vukafiaLanguage');
+    setLanguage(savedLang && Object.keys(UI_MESSAGES).includes(savedLang) ? savedLang : 'en');
   }, []);
 
   // Update bot greeting when language changes
