@@ -21,7 +21,8 @@
 10. [Google Maps Crawler](#google-maps-crawler)
 11. [Pagination & Performance](#pagination--performance)
 12. [Trima AI Assistant & Knowledge Base](#trima-ai-assistant--knowledge-base)
-13. [Troubleshooting Reference](#troubleshooting-reference)
+13. [Crawler Email Notifications](#crawler-email-notifications-september-28-2026)
+14. [Troubleshooting Reference](#troubleshooting-reference)
 
 ---
 
@@ -1245,6 +1246,154 @@ This session focused on **AI Assistant Enhancement**, **Multi-Language Support**
 5. **Admin panel** - Manage knowledge base from backend
 
 
+
+## Crawler Email Notifications (September 28, 2026)
+
+### Feature Overview
+Automated email notifications for the Google Crawler job that runs daily at 2 AM UTC. Admins receive detailed reports on successful crawls and immediate alerts on failures.
+
+### Setup Instructions
+
+#### 1. Install Nodemailer
+```bash
+npm install nodemailer
+```
+
+#### 2. Configure Email Service
+Add to `.env`:
+```
+# Email Notifications
+EMAIL_SERVICE=gmail              # 'gmail' or 'custom'
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password
+ADMIN_EMAIL=smartybizness@gmail.com
+
+# Optional: For custom SMTP
+# EMAIL_HOST=smtp.example.com
+# EMAIL_PORT=587
+```
+
+#### 3. Gmail Setup (Recommended)
+1. Go to https://myaccount.google.com/security
+2. Enable 2-Factor Authentication (if not already)
+3. Create App Password:
+   - Go to Security → App Passwords
+   - Select "Mail" and "Windows Computer"
+   - Copy 16-character password
+   - Paste into `EMAIL_PASSWORD` in .env
+
+#### 4. Test Email Configuration
+```bash
+# Test endpoint (requires ADMIN_TOKEN header)
+curl -X POST http://localhost:5000/api/admin/crawler/test-email \
+  -H "x-admin-token: your_admin_token"
+```
+
+### Email Features
+
+#### ✅ Success Email Contains:
+- 📊 Data Summary Table
+  - New businesses inserted
+  - Existing businesses updated
+  - Total businesses in database
+  - Progress toward 1000 target
+  - Job duration in seconds
+- 📍 Data Picked Up section
+- ⏱️ Timestamp and next scheduled run
+- Professional HTML formatting
+
+#### ❌ Failure Email Contains:
+- Error message and full stack trace
+- Troubleshooting steps:
+  - Check Google Maps API quota
+  - Verify API key and permissions
+  - Confirm database connectivity
+  - Review server logs
+- Job duration and metadata
+- Immediate action recommendations
+
+### Files Created/Modified
+
+**New Files**:
+- `services/mailer.js` - Email service with success/failure handlers
+- `IMPLEMENTATION_GUIDE.md` - This documentation
+
+**Modified Files**:
+- `jobs/scheduler.js` - Added email notifications on job completion
+- `routes/admin-crawler.js` - Added test-email endpoint, manual job trigger sends emails
+- `.env` - Added EMAIL_* configuration variables
+
+### Job Details
+
+**Daily Crawler Schedule**: 2:00 AM UTC  
+**Email Recipients**: Configured in `ADMIN_EMAIL`  
+**Retry Policy**: Automatic at next scheduled time if fails  
+**Email Service**: Gmail (default) or custom SMTP  
+
+### Email API Endpoints
+
+#### 1. Manually Trigger Crawler + Send Email
+```bash
+curl -X POST http://localhost:5000/api/admin/crawler/trigger \
+  -H "x-admin-token: your_admin_token"
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "result": {
+    "status": "success",
+    "inserted": 42,
+    "updated": 8,
+    "total": 487,
+    "progress": 48
+  },
+  "duration": 127,
+  "message": "Crawler completed. Status: success. Email sent to admin."
+}
+```
+
+#### 2. Test Email Configuration
+```bash
+curl -X POST http://localhost:5000/api/admin/crawler/test-email \
+  -H "x-admin-token: your_admin_token"
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Email configuration verified! Test email sent to admin."
+}
+```
+
+#### 3. Check Crawler Status
+```bash
+curl http://localhost:5000/api/admin/crawler/status \
+  -H "x-admin-token: your_admin_token"
+```
+
+### Troubleshooting
+
+**Email not sending?**
+1. Check `EMAIL_USER` and `EMAIL_PASSWORD` are correct
+2. Verify Gmail has 2FA enabled and using App Password
+3. Check firewall/VPN doesn't block SMTP port 587
+4. Test with `/api/admin/crawler/test-email` endpoint
+5. Check server logs: `npm run dev`
+
+**Email configuration disabled?**
+- Missing `EMAIL_USER` or `EMAIL_PASSWORD` in .env
+- Check console: "[MAILER] Email credentials not configured"
+- Add credentials to .env and restart server
+
+**Gmail App Password issues?**
+- Must enable 2-Factor Authentication first
+- App Password is 16 characters (without spaces)
+- Cannot use regular Gmail password with this setup
+
+---
 
 **Previous Changes** (September 25, 2026):
 - ✅ Added Restaurant (🍽️) as dedicated type filter

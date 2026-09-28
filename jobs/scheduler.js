@@ -10,6 +10,7 @@
 
 const { CronJob } = require('cron');
 const { crawlBusinessesJob } = require('./crawlBusinessesJob');
+const { sendSuccessEmail, sendFailureEmail } = require('../services/mailer');
 
 let scheduledJobs = [];
 
@@ -24,11 +25,24 @@ function initializeScheduler() {
     '0 2 * * *', // Every day at 2:00 AM UTC
     async () => {
       console.log('[SCHEDULER] Triggering crawler job...');
+      const startTime = Date.now();
       try {
         const result = await crawlBusinessesJob();
         console.log('[SCHEDULER] Crawler job result:', result);
+
+        // Send success email with job result data
+        const duration = Math.round((Date.now() - startTime) / 1000);
+        await sendSuccessEmail({
+          ...result,
+          duration,
+          timestamp: new Date()
+        });
       } catch (err) {
         console.error('[SCHEDULER] Crawler job failed:', err.message);
+
+        // Send failure email
+        const duration = Math.round((Date.now() - startTime) / 1000);
+        await sendFailureEmail(err, duration);
       }
     },
     null, // onComplete
