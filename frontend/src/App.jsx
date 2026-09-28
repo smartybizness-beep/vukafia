@@ -62,6 +62,7 @@ export default function App() {
   const [claimFee, setClaimFee] = useState(14.99)
   const [currency, setCurrency] = useState('NGN')
   const [paystackLoading, setPaystackLoading] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState('paystack') // paystack or whatsapp
   // OTP verification state
   const [claimOtpSent, setClaimOtpSent] = useState(false)
   const [claimOtpInput, setClaimOtpInput] = useState('')
@@ -1450,6 +1451,49 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* Payment Method Selection */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h3 style={{ fontSize: '0.95rem', marginBottom: '0.75rem', color: '#333' }}>
+                    Choose Payment Method
+                  </h3>
+                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => setPaymentMethod('paystack')}
+                      style={{
+                        flex: 1,
+                        minWidth: '150px',
+                        padding: '1rem',
+                        background: paymentMethod === 'paystack' ? '#10B981' : '#E5E7EB',
+                        color: paymentMethod === 'paystack' ? 'white' : '#333',
+                        border: `2px solid ${paymentMethod === 'paystack' ? '#10B981' : '#D1D5DB'}`,
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      💳 Paystack (Automated)
+                    </button>
+                    <button
+                      onClick={() => setPaymentMethod('whatsapp')}
+                      style={{
+                        flex: 1,
+                        minWidth: '150px',
+                        padding: '1rem',
+                        background: paymentMethod === 'whatsapp' ? '#25D366' : '#E5E7EB',
+                        color: paymentMethod === 'whatsapp' ? 'white' : '#333',
+                        border: `2px solid ${paymentMethod === 'whatsapp' ? '#25D366' : '#D1D5DB'}`,
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      💬 WhatsApp (Manual)
+                    </button>
+                  </div>
+                </div>
+
                 <div style={{
                   marginBottom: '1.5rem',
                   display: 'flex',
@@ -1515,24 +1559,74 @@ export default function App() {
                   </div>
                 )}
 
-                <button
-                  onClick={proceedToPayment}
-                  disabled={paystackLoading}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    background: paystackLoading ? '#D1D5DB' : 'var(--accent)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                    cursor: paystackLoading ? 'not-allowed' : 'pointer',
-                    marginBottom: '0.75rem'
-                  }}
-                >
-                  {paystackLoading ? '⏳ Processing...' : '💳 Pay with Paystack'}
-                </button>
+                {paymentMethod === 'paystack' ? (
+                  <>
+                    <button
+                      onClick={proceedToPayment}
+                      disabled={paystackLoading}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        background: paystackLoading ? '#D1D5DB' : '#10B981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        fontWeight: 'bold',
+                        cursor: paystackLoading ? 'not-allowed' : 'pointer',
+                        marginBottom: '0.75rem'
+                      }}
+                    >
+                      {paystackLoading ? '⏳ Processing...' : '💳 Pay with Paystack'}
+                    </button>
+                    <div style={{
+                      marginTop: '1rem',
+                      padding: '1rem',
+                      background: '#DCFCE7',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      color: '#166534'
+                    }}>
+                      ✅ Instant automated payment. You'll receive your verified badge immediately after successful payment.
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => openWhatsApp(`Hi Vukafia! I want to claim my business and am ready to pay $${currency === 'NGN' ? '6,000' : '14.99'} ${currency}. Please send me payment instructions.`)}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        background: '#25D366',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        marginBottom: '0.75rem'
+                      }}
+                    >
+                      💬 Pay via WhatsApp
+                    </button>
+                    <div style={{
+                      marginTop: '1rem',
+                      padding: '1rem',
+                      background: '#E0F2FE',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      color: '#0369A1',
+                      lineHeight: '1.6'
+                    }}>
+                      📱 <strong>Manual Payment:</strong><br/>
+                      1. Click the button to open WhatsApp<br/>
+                      2. We'll send you payment instructions<br/>
+                      3. Send your payment via bank transfer or mobile money<br/>
+                      4. We'll verify and activate your claim within 2 hours
+                    </div>
+                  </>
+                )}
+
                 <button
                   onClick={() => setShowClaimModal(false)}
                   style={{
@@ -1543,22 +1637,12 @@ export default function App() {
                     border: 'none',
                     borderRadius: '8px',
                     fontSize: '1rem',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    marginTop: '0.75rem'
                   }}
                 >
                   Close
                 </button>
-
-                <div style={{
-                  marginTop: '1rem',
-                  padding: '1rem',
-                  background: '#FEF3C7',
-                  borderRadius: '8px',
-                  fontSize: '0.85rem',
-                  color: '#92400E'
-                }}>
-                  💬 Click "Pay $14.99 via WhatsApp" to complete payment through our team.
-                </div>
               </div>
             )}
           </div>
