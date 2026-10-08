@@ -643,6 +643,7 @@ export default function App() {
   async function handleGoogleSignup(credentialResponse) {
     try {
       setAuthLoading(true)
+      console.log('Sending Google token to backend...')
       const res = await fetch(`${API_BASE}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -651,7 +652,10 @@ export default function App() {
         })
       })
 
+      console.log('Backend response status:', res.status)
       const data = await res.json()
+      console.log('Backend response data:', data)
+
       if (!data.success) {
         setAuthMessage(`❌ ${data.error || 'Google sign up failed'}`)
         return
@@ -665,6 +669,7 @@ export default function App() {
       setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
       setAuthMode('login')
     } catch (err) {
+      console.error('Google signup error:', err)
       setAuthMessage(`❌ Error: ${err.message}`)
     } finally {
       setAuthLoading(false)
