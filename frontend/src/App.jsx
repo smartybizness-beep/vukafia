@@ -97,6 +97,17 @@ export default function App() {
     }
   }, [])
 
+  // Handle Google OAuth callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.hash.substring(1))
+    const idToken = params.get('id_token')
+
+    if (idToken) {
+      handleGoogleSignup({ credential: idToken })
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [])
+
   // Fetch listings once on mount
   useEffect(() => {
     fetchListings()
