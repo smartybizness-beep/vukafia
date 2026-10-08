@@ -10,6 +10,7 @@ const router = express.Router();
 const db = require('../db');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { initializePayment, verifyPayment, getClaimFee, PAYSTACK_PUBLIC } = require('../services/paystack');
+const { createCheckoutSession, verifyPayment: verifyBachsPayment, processWebhookEvent } = require('../services/bachsPayment');
 
 // ─── GET /api/claims/search ────────────────────────────────────────────────
 // Search for a listing to claim (by name + country)
@@ -243,6 +244,135 @@ router.get('/my-claims', requireAuth, async (req, res, next) => {
     res.json({ success: true, data: claims });
   } catch (err) {
     next(err);
+  }
+});
+
+// ─── POST /api/claims/initialize-bachs-payment ──────────────────────────────
+// Initialize Bachs checkout session for claiming
+router.post('/initialize-bachs-payment', requireAuth, async (req, res, next) => {
+  try {
+    const { listing_id, currency = 'USD' } = req.body;
+    if (!listing_id) {
+      return res.status(400).json({ error: 'listing_id is required' });
+    }
+
+    const k = db.query();
+    const listing = await k('listings').where('id', listing_id).first();
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+
+    if (listing.user_id && listing.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'Listing already claimed by another user' });
+    }
+
+    // Create Bachs checkout session
+    const checkoutResult = await createCheckoutSession(listing_id, req.user.email, currency);
+
+    if (checkoutResult.success) {
+      res.json({
+        success: true,
+        checkoutUrl: checkoutResult.checkoutUrl,
+        sessionId: checkoutResult.sessionId,
+        amount: checkoutResult.amount,
+        currency: checkoutResult.currency,
+        provider: 'bachs'
+      });
+    } else {
+      res.status(400).json({ success: false, error: checkoutResult.error });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── POST /api/claims/verify-bachs-payment ──────────────────────────────────
+// Verify Bachs payment and complete claim
+router.post('/verify-bachs-payment', requireAuth, async (req, res, next) => {
+  try {
+    const { session_id, listing_id, phone } = req.body;
+    if (!session_id || !listing_id) {
+      return res.status(400).json({ error: 'session_id and listing_id are required' });
+    }
+
+    // Verify payment with Bachs
+    const paymentResult = await verifyBachsPayment(session_id);
+    if (!paymentResult.success) {
+      return res.status(400).json({ success: false, error: 'Payment verification failed' });
+    }
+
+    const k = db.query();
+    const listing = await k('listings').where('id', listing_id).first();
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+
+    // Optional: verify phone if provided
+    if (phone) {
+      const normalizePhone = (p) => p.replace(/\D/g, '');
+      if (normalizePhone(listing.phone) !== normalizePhone(phone)) {
+        return res.status(403).json({ error: 'Phone does not match this business' });
+      }
+    }
+
+    // Mark listing as claimed
+    await k('listings').where('id', listing_id).update({
+      user_id: req.user.id,
+      verified: true,
+      verified_source: 'Bachs Payment'
+    });
+
+    // Log the claim with payment info
+    await k('listing_claims').insert({
+      listing_id,
+      user_id: req.user.id,
+      payment_ref: paymentResult.paymentId,
+      payment_amount: paymentResult.amount,
+      payment_status: 'completed',
+      payment_provider: 'bachs',
+      status: 'completed',
+      claimed_at: new Date()
+    }).catch(() => {}); // Table may not exist yet
+
+    res.json({
+      success: true,
+      message: 'Business claimed successfully!',
+      listing_id
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── POST /api/claims/bachs-webhook ──────────────────────────────────────────
+// Handle Bachs webhook events (payment confirmations)
+router.post('/bachs-webhook', async (req, res, next) => {
+  try {
+    const event = req.body;
+    console.log('[BACHS WEBHOOK] Received event:', event.type);
+
+    // Verify webhook signature (optional - add Bachs webhook secret verification here)
+
+    const result = processWebhookEvent(event);
+
+    // If payment succeeded, mark claim as verified
+    if (result.success && result.action === 'payment_completed' && result.claimId) {
+      const k = db.query();
+      await k('listings')
+        .where('id', result.claimId)
+        .update({
+          verified: true,
+          verified_source: 'Bachs Webhook'
+        })
+        .catch(() => {});
+    }
+
+    // Always respond with 200 OK to Bachs
+    res.json({ success: true, received: true });
+  } catch (err) {
+    console.error('[BACHS WEBHOOK] Error processing webhook:', err.message);
+    // Still return 200 to Bachs to avoid retries
+    res.json({ success: true, received: true, error: err.message });
   }
 });
 
