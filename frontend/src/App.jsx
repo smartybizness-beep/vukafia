@@ -1187,6 +1187,27 @@ export default function App() {
                 >
                   {authLoading ? '⏳ Logging in...' : '👤 Login'}
                 </button>
+
+                <div style={{ margin: '1.5rem 0', position: 'relative' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
+                    <span style={{ color: '#999', fontSize: '0.85rem' }}>or</span>
+                    <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <GoogleLogin
+                    onSuccess={handleGoogleSignup}
+                    onError={() => setAuthMessage('❌ Google login failed')}
+                    locale="en"
+                    theme="outline"
+                    size="large"
+                    width="100%"
+                    text="signin_with"
+                  />
+                </div>
+
                 <p style={{ textAlign: 'center', color: '#666', marginBottom: '1rem' }}>
                   Don't have an account?{' '}
                   <button
