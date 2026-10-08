@@ -97,26 +97,35 @@ export default function App() {
     }
   }, [])
 
-  // Handle Google OAuth callback
+  // Handle Google OAuth callback (authorization code flow)
   useEffect(() => {
-    // Check URL hash (Google returns: #id_token=...&...)
-    const hashParams = new URLSearchParams(window.location.hash.substring(1))
-    let idToken = hashParams.get('id_token')
+    const queryParams = new URLSearchParams(window.location.search)
+    const code = queryParams.get('code')
 
-    // Also check query string just in case
-    if (!idToken) {
-      const queryParams = new URLSearchParams(window.location.search)
-      idToken = queryParams.get('id_token')
-    }
+    console.log('URL search params:', window.location.search)
+    console.log('Authorization code found:', !!code)
 
-    console.log('URL hash:', window.location.hash)
-    console.log('ID Token found:', !!idToken)
-    console.log('Full hash params:', Object.fromEntries(hashParams))
-
-    if (idToken) {
-      console.log('Calling handleGoogleSignup with token...')
-      handleGoogleSignup({ credential: idToken })
-      window.history.replaceState({}, document.title, window.location.pathname)
+    if (code) {
+      console.log('Sending auth code to backend...')
+      // Send code to backend to exchange for tokens
+      fetch(`${API_BASE}/api/auth/google-callback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, redirectUri: window.location.origin })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            localStorage.setItem('auth_token', data.token)
+            localStorage.setItem('auth_user', JSON.stringify(data.user))
+            setUser(data.user)
+            setShowAuthModal(false)
+            window.history.replaceState({}, document.title, window.location.pathname)
+          } else {
+            console.error('OAuth callback failed:', data.error)
+          }
+        })
+        .catch(err => console.error('OAuth callback error:', err))
     }
   }, [])
 
@@ -1228,7 +1237,7 @@ export default function App() {
                       const clientId = '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
                       const redirectUri = window.location.origin
                       const scope = 'openid email profile'
-                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=id_token&scope=${scope}&nonce=random123`
+                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline`
                       window.location.href = googleAuthUrl
                     }}
                     style={{
@@ -1380,7 +1389,7 @@ export default function App() {
                       const clientId = '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
                       const redirectUri = window.location.origin
                       const scope = 'openid email profile'
-                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=id_token&scope=${scope}&nonce=random123`
+                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline`
                       window.location.href = googleAuthUrl
                     }}
                     style={{

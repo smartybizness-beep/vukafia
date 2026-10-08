@@ -140,8 +140,87 @@ router.post('/change-password', requireAuth, async (req, res, next) => {
   }
 });
 
+// ─── POST /api/auth/google-callback ───────────────────────────────────────
+// Handle Google OAuth authorization code exchange
+router.post('/google-callback', async (req, res, next) => {
+  try {
+    const { code, redirectUri } = req.body
+    if (!code) {
+      return res.status(400).json({ error: 'Authorization code required' })
+    }
+
+    const k = db.query()
+    const GOOGLE_CLIENT_ID = process.env.VITE_GOOGLE_CLIENT_ID || '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
+    const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
+
+    // Exchange code for tokens
+    const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
+      code,
+      client_id: GOOGLE_CLIENT_ID,
+      client_secret: GOOGLE_CLIENT_SECRET,
+      redirect_uri: redirectUri,
+      grant_type: 'authorization_code'
+    })
+
+    const { id_token } = tokenResponse.data
+
+    // Verify ID token
+    const verifyResponse = await axios.get('https://oauth2.googleapis.com/tokeninfo', {
+      params: { id_token }
+    })
+
+    const { email, name, picture } = verifyResponse.data
+
+    if (!email) {
+      return res.status(400).json({ error: 'Could not get email from Google' })
+    }
+
+    // Check if user exists
+    let user = await k('users').where('email', email).first()
+
+    if (user) {
+      const token = signToken(user)
+      return res.json({
+        success: true,
+        message: 'Welcome back!',
+        token,
+        user: { id: user.id, name: user.name, email: user.email, role: user.role, plan: user.plan },
+        isNewUser: false
+      })
+    }
+
+    // Create new user
+    const [userId] = await k('users').insert({
+      name: name || email.split('@')[0],
+      email,
+      phone: '',
+      password_hash: '',
+      wa_number: '',
+      role: 'seller',
+      plan: 'free',
+      active: true,
+      auth_provider: 'google',
+      avatar_url: picture
+    })
+
+    user = await k('users').where('id', userId).first()
+    const token = signToken(user)
+
+    res.status(201).json({
+      success: true,
+      message: 'Account created! Welcome to Vukafia.',
+      token,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, plan: user.plan },
+      isNewUser: true
+    })
+  } catch (err) {
+    console.error('Google callback error:', err.response?.data || err.message)
+    res.status(401).json({ error: 'Google OAuth failed: ' + (err.response?.data?.error_description || err.message) })
+  }
+})
+
 // ─── POST /api/auth/google ────────────────────────────────────────────────
-// Google OAuth authentication
+// Google OAuth authentication (legacy - id_token flow)
 router.post('/google', async (req, res, next) => {
   try {
     const { credential } = req.body; // Google JWT token
