@@ -63,7 +63,7 @@ export default function App() {
   const [currency, setCurrency] = useState('NGN')
   const [paystackLoading, setPaystackLoading] = useState(false)
   const [bachsLoading, setBachsLoading] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState('paystack') // paystack, bachs, or whatsapp
+  const [paymentMethod, setPaymentMethod] = useState('bachs') // bachs or whatsapp (paystack hidden for now)
   // OTP verification state
   const [claimOtpSent, setClaimOtpSent] = useState(false)
   const [claimOtpInput, setClaimOtpInput] = useState('')
@@ -1927,23 +1927,6 @@ export default function App() {
                   </h3>
                   <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <button
-                      onClick={() => setPaymentMethod('paystack')}
-                      style={{
-                        flex: 1,
-                        minWidth: '140px',
-                        padding: '1rem',
-                        background: paymentMethod === 'paystack' ? '#10B981' : '#E5E7EB',
-                        color: paymentMethod === 'paystack' ? 'white' : '#333',
-                        border: `2px solid ${paymentMethod === 'paystack' ? '#10B981' : '#D1D5DB'}`,
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontWeight: 'bold',
-                        fontSize: '0.85rem'
-                      }}
-                    >
-                      💳 Paystack
-                    </button>
-                    <button
                       onClick={() => setPaymentMethod('bachs')}
                       style={{
                         flex: 1,
@@ -2045,38 +2028,7 @@ export default function App() {
                   </div>
                 )}
 
-                {paymentMethod === 'paystack' ? (
-                  <>
-                    <button
-                      onClick={proceedToPayment}
-                      disabled={paystackLoading}
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem',
-                        background: paystackLoading ? '#D1D5DB' : '#10B981',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontSize: '1rem',
-                        fontWeight: 'bold',
-                        cursor: paystackLoading ? 'not-allowed' : 'pointer',
-                        marginBottom: '0.75rem'
-                      }}
-                    >
-                      {paystackLoading ? '⏳ Processing...' : '💳 Pay with Paystack'}
-                    </button>
-                    <div style={{
-                      marginTop: '1rem',
-                      padding: '1rem',
-                      background: '#DCFCE7',
-                      borderRadius: '8px',
-                      fontSize: '0.85rem',
-                      color: '#166534'
-                    }}>
-                      ✅ Instant automated payment. You'll receive your verified badge immediately after successful payment.
-                    </div>
-                  </>
-                ) : paymentMethod === 'bachs' ? (
+                {paymentMethod === 'bachs' ? (
                   <>
                     <button
                       onClick={proceedWithBachsPayment}
