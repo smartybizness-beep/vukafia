@@ -669,7 +669,7 @@ export default function App() {
   }
 
   return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+    <GoogleOAuthProvider clientId="372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com">
       <>
         <nav>
         <Link to="/" className="logo" style={{ textDecoration: 'none' }}>
