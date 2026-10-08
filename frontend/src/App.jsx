@@ -99,10 +99,22 @@ export default function App() {
 
   // Handle Google OAuth callback
   useEffect(() => {
-    const params = new URLSearchParams(window.location.hash.substring(1))
-    const idToken = params.get('id_token')
+    // Check URL hash (Google returns: #id_token=...&...)
+    const hashParams = new URLSearchParams(window.location.hash.substring(1))
+    let idToken = hashParams.get('id_token')
+
+    // Also check query string just in case
+    if (!idToken) {
+      const queryParams = new URLSearchParams(window.location.search)
+      idToken = queryParams.get('id_token')
+    }
+
+    console.log('URL hash:', window.location.hash)
+    console.log('ID Token found:', !!idToken)
+    console.log('Full hash params:', Object.fromEntries(hashParams))
 
     if (idToken) {
+      console.log('Calling handleGoogleSignup with token...')
       handleGoogleSignup({ credential: idToken })
       window.history.replaceState({}, document.title, window.location.pathname)
     }
