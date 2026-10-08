@@ -9,6 +9,7 @@ const express = require('express');
 const router  = express.Router();
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
+const axios   = require('axios');
 const db      = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
@@ -134,6 +135,77 @@ router.post('/change-password', requireAuth, async (req, res, next) => {
     const password_hash = await bcrypt.hash(new_password, 12);
     await k('users').where('id', req.user.id).update({ password_hash });
     res.json({ success: true, message: 'Password updated.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── POST /api/auth/google ────────────────────────────────────────────────
+// Google OAuth authentication
+router.post('/google', async (req, res, next) => {
+  try {
+    const { credential } = req.body; // Google JWT token
+    if (!credential) {
+      return res.status(400).json({ error: 'credential is required' });
+    }
+
+    const k = db.query();
+
+    // Verify Google token with Google's API
+    try {
+      const response = await axios.get('https://oauth2.googleapis.com/tokeninfo', {
+        params: { id_token: credential }
+      });
+
+      const { email, name, picture } = response.data;
+
+      if (!email) {
+        return res.status(400).json({ error: 'Could not get email from Google' });
+      }
+
+      // Check if user exists
+      let user = await k('users').where('email', email).first();
+
+      if (user) {
+        // User exists, log them in
+        const token = signToken(user);
+        return res.json({
+          success: true,
+          message: 'Welcome back!',
+          token,
+          user: { id: user.id, name: user.name, email: user.email, role: user.role, plan: user.plan },
+          isNewUser: false
+        });
+      }
+
+      // Create new user with Google info
+      const [userId] = await k('users').insert({
+        name: name || email.split('@')[0],
+        email,
+        phone: '', // Not required for Google users
+        password_hash: '', // No password for OAuth users
+        wa_number: '',
+        role: 'seller',
+        plan: 'free',
+        active: true,
+        auth_provider: 'google',
+        avatar_url: picture
+      });
+
+      user = await k('users').where('id', userId).first();
+      const token = signToken(user);
+
+      res.status(201).json({
+        success: true,
+        message: 'Account created! Welcome to Vukafia.',
+        token,
+        user: { id: user.id, name: user.name, email: user.email, role: user.role, plan: user.plan },
+        isNewUser: true
+      });
+    } catch (googleError) {
+      console.error('Google token verification error:', googleError.message);
+      return res.status(401).json({ error: 'Invalid Google token' });
+    }
   } catch (err) {
     next(err);
   }

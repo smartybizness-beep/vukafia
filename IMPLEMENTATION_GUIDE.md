@@ -18,11 +18,12 @@
 7. [Image Handling](#image-handling)
 8. [Domain & DNS Setup](#domain--dns-setup)
 9. [Security Configuration](#security-configuration)
-10. [Google Maps Crawler](#google-maps-crawler)
-11. [Pagination & Performance](#pagination--performance)
-12. [Trima AI Assistant & Knowledge Base](#trima-ai-assistant--knowledge-base)
-13. [Crawler Email Notifications](#crawler-email-notifications-september-28-2026)
-14. [Troubleshooting Reference](#troubleshooting-reference)
+10. [Authentication System](#authentication-system-october-8-2026)
+11. [Google Maps Crawler](#google-maps-crawler)
+12. [Pagination & Performance](#pagination--performance)
+13. [Trima AI Assistant & Knowledge Base](#trima-ai-assistant--knowledge-base)
+14. [Crawler Email Notifications](#crawler-email-notifications-september-28-2026)
+15. [Troubleshooting Reference](#troubleshooting-reference)
 
 ---
 
@@ -299,6 +300,155 @@ app.use((req, res, next) => {
 - `DATABASE_URL` - PostgreSQL connection string
 - `NODE_ENV` - Set to 'production'
 - `GOOGLE_MAPS_API_KEY` - For business crawler
+
+---
+
+## Authentication System (October 8, 2026)
+
+### Overview
+Vukafia supports two authentication methods for business owners:
+1. **Email/Password Registration** - Traditional account creation
+2. **Google OAuth** - Single sign-on with Google account
+
+### Email/Password Authentication
+
+**Backend Endpoints** (`routes/auth.js`):
+- `POST /api/auth/register` - Create new account
+- `POST /api/auth/login` - Login with email/phone
+- `GET /api/auth/me` - Get current user (requires token)
+- `POST /api/auth/change-password` - Change password
+
+**Frontend** (`frontend/src/App.jsx`):
+- Auth modal with signup/login tabs
+- handleSignup() - Register new user
+- handleLogin() - Authenticate user
+- User data stored in localStorage with JWT token
+
+**Database** (`users` table):
+```
+id, name, email, phone, password_hash, role, plan, active, auth_provider, avatar_url
+```
+
+**Validation Rules**:
+- Password minimum 8 characters
+- Email must be unique
+- Phone must be unique (for phone-based login)
+
+### Google OAuth Setup
+
+**Step 1: Create Google OAuth Application**
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create new project or select existing
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials (Web application)
+5. Add authorized JavaScript origins:
+   - `http://localhost:3000` (development)
+   - `https://vukafia.com` (production)
+6. Add authorized redirect URIs:
+   - `http://localhost:3000` (development)
+   - `https://vukafia.com` (production)
+7. Copy Client ID
+
+**Step 2: Configure Frontend**
+1. Update `.env` file:
+   ```env
+   VITE_GOOGLE_CLIENT_ID=your_client_id_here.apps.googleusercontent.com
+   ```
+2. Frontend automatically wraps app with GoogleOAuthProvider
+3. Signup modal shows "Sign up with Google" button
+
+**Step 3: Backend Endpoint**
+- `POST /api/auth/google` - Handles Google token verification
+- Verifies token with Google's tokeninfo API
+- Creates or logs in user automatically
+- Returns JWT token and user data
+
+**Token Verification Flow**:
+```
+Frontend GoogleLogin → credential JWT
+    ↓ (sent to backend)
+Backend /api/auth/google endpoint
+    ↓ (verify with Google)
+Google tokeninfo API (/tokeninfo)
+    ↓ (returns email, name, picture)
+Create user if new → Sign token → Return JWT
+```
+
+**Environment Variables**:
+```env
+VITE_GOOGLE_CLIENT_ID=...apps.googleusercontent.com  # Frontend only
+```
+
+**Frontend Implementation**:
+- Uses `@react-oauth/google` library
+- GoogleLogin component in signup modal
+- Automatically handles credential response
+- Calls handleGoogleSignup() function
+
+**User Creation from Google**:
+- Name: Google name or email prefix
+- Email: Google email address
+- Phone: Empty (optional for OAuth)
+- Password: Empty (OAuth only)
+- Auth Provider: 'google'
+- Avatar: Google profile picture
+
+### Session Management
+
+**Token Storage**:
+```javascript
+localStorage.setItem('auth_token', data.token)
+localStorage.setItem('auth_user', JSON.stringify(data.user))
+```
+
+**Token Expiration**:
+- Default: 7 days (JWT_EXPIRES env var)
+- Automatic refresh on page load
+- Logout clears localStorage
+
+**Protected Routes**:
+- `requireAuth` middleware checks JWT
+- Returns 401 if token missing/invalid
+- Used by /api/claims endpoints
+
+### Security Considerations
+
+- Passwords hashed with bcryptjs (12 rounds)
+- JWT tokens signed with JWT_SECRET
+- No password stored for OAuth users
+- HTTPS required in production
+- CORS configured to allow frontend origin
+- Rate limiting on auth endpoints
+
+### Testing Authentication
+
+**Email/Password**:
+```bash
+# Signup
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test User",
+    "email": "test@example.com",
+    "phone": "+234810147793",
+    "password": "TestPassword123"
+  }'
+
+# Login
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "TestPassword123"
+  }'
+```
+
+**Google OAuth**:
+1. Frontend: Click "Sign up with Google"
+2. Choose Google account
+3. Backend auto-creates user
+4. JWT returned and stored
+5. User can immediately claim businesses
 
 ---
 

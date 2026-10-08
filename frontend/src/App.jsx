@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { LANGUAGE_NAMES, TRANSLATIONS } from './languages'
 import './App.css'
 
@@ -629,6 +630,37 @@ export default function App() {
     }
   }
 
+  async function handleGoogleSignup(credentialResponse) {
+    try {
+      setAuthLoading(true)
+      const res = await fetch(`${API_BASE}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          credential: credentialResponse.credential
+        })
+      })
+
+      const data = await res.json()
+      if (!data.success) {
+        setAuthMessage(`❌ ${data.error || 'Google sign up failed'}`)
+        return
+      }
+
+      localStorage.setItem('auth_token', data.token)
+      localStorage.setItem('auth_user', JSON.stringify(data.user))
+      setUser(data.user)
+      setShowAuthModal(false)
+      setAuthMessage('')
+      setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
+      setAuthMode('login')
+    } catch (err) {
+      setAuthMessage(`❌ Error: ${err.message}`)
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
   function handleLogout() {
     localStorage.removeItem('auth_token')
     localStorage.removeItem('auth_user')
@@ -637,8 +669,9 @@ export default function App() {
   }
 
   return (
-    <>
-      <nav>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+      <>
+        <nav>
         <Link to="/" className="logo" style={{ textDecoration: 'none' }}>
           <img src="/assets/vukafia-logo.png" alt="Vukafia" className="logo-image" />
         </Link>
@@ -1266,6 +1299,27 @@ export default function App() {
                 >
                   {authLoading ? '⏳ Creating account...' : '✍️ Create Account'}
                 </button>
+
+                <div style={{ margin: '1.5rem 0', position: 'relative' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
+                    <span style={{ color: '#999', fontSize: '0.85rem' }}>or</span>
+                    <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <GoogleLogin
+                    onSuccess={handleGoogleSignup}
+                    onError={() => setAuthMessage('❌ Google sign up failed')}
+                    locale="en"
+                    theme="outline"
+                    size="large"
+                    width="100%"
+                    text="signup_with"
+                  />
+                </div>
+
                 <p style={{ textAlign: 'center', color: '#666', marginBottom: '1rem' }}>
                   Already have an account?{' '}
                   <button
@@ -2260,6 +2314,7 @@ export default function App() {
           </p>
         </div>
       </footer>
-    </>
+      </>
+    </GoogleOAuthProvider>
   )
 }
