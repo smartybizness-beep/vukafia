@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 import { LANGUAGE_NAMES, TRANSLATIONS } from './languages'
 import './App.css'
 
@@ -669,9 +668,8 @@ export default function App() {
   }
 
   return (
-    <GoogleOAuthProvider clientId="372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com">
-      <>
-        <nav>
+    <>
+      <nav>
         <Link to="/" className="logo" style={{ textDecoration: 'none' }}>
           <img src="/assets/vukafia-logo.png" alt="Vukafia" className="logo-image" />
         </Link>
@@ -1197,15 +1195,34 @@ export default function App() {
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>
-                  <GoogleLogin
-                    onSuccess={handleGoogleSignup}
-                    onError={() => setAuthMessage('❌ Google login failed')}
-                    locale="en"
-                    theme="outline"
-                    size="large"
-                    width="100%"
-                    text="signin_with"
-                  />
+                  <button
+                    onClick={() => {
+                      const clientId = '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
+                      const redirectUri = window.location.origin
+                      const scope = 'openid email profile'
+                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=id_token&scope=${scope}&nonce=random123`
+                      window.location.href = googleAuthUrl
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      background: '#fff',
+                      border: '1px solid #ddd',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" style={{ fill: 'currentColor' }}>
+                      <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.91 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
+                    </svg>
+                    Sign in with Google
+                  </button>
                 </div>
 
                 <p style={{ textAlign: 'center', color: '#666', marginBottom: '1rem' }}>
@@ -1330,15 +1347,34 @@ export default function App() {
                 </div>
 
                 <div style={{ marginBottom: '1.5rem' }}>
-                  <GoogleLogin
-                    onSuccess={handleGoogleSignup}
-                    onError={() => setAuthMessage('❌ Google sign up failed')}
-                    locale="en"
-                    theme="outline"
-                    size="large"
-                    width="100%"
-                    text="signup_with"
-                  />
+                  <button
+                    onClick={() => {
+                      const clientId = '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
+                      const redirectUri = window.location.origin
+                      const scope = 'openid email profile'
+                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=id_token&scope=${scope}&nonce=random123`
+                      window.location.href = googleAuthUrl
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      background: '#fff',
+                      border: '1px solid #ddd',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" style={{ fill: 'currentColor' }}>
+                      <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.91 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
+                    </svg>
+                    Sign up with Google
+                  </button>
                 </div>
 
                 <p style={{ textAlign: 'center', color: '#666', marginBottom: '1rem' }}>
@@ -2335,7 +2371,6 @@ export default function App() {
           </p>
         </div>
       </footer>
-      </>
-    </GoogleOAuthProvider>
+    </>
   )
 }
