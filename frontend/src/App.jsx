@@ -62,7 +62,8 @@ export default function App() {
   const [claimFee, setClaimFee] = useState(14.99)
   const [currency, setCurrency] = useState('NGN')
   const [paystackLoading, setPaystackLoading] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState('paystack') // paystack or whatsapp
+  const [bachsLoading, setBachsLoading] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState('paystack') // paystack, bachs, or whatsapp
   // OTP verification state
   const [claimOtpSent, setClaimOtpSent] = useState(false)
   const [claimOtpInput, setClaimOtpInput] = useState('')
@@ -469,6 +470,51 @@ export default function App() {
       setClaimMessage(`❌ Error: ${err.message}`)
     } finally {
       setPaystackLoading(false)
+    }
+  }
+
+  async function proceedWithBachsPayment() {
+    if (!selectedClaim) return
+
+    try {
+      setBachsLoading(true)
+
+      // Get auth token from localStorage
+      const token = localStorage.getItem('auth_token')
+      if (!token) {
+        setClaimMessage('❌ Please log in first')
+        return
+      }
+
+      // Initialize Bachs payment with backend
+      const res = await fetch(`${API_BASE}/api/claims/initialize-bachs-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          listing_id: selectedClaim.id,
+          currency: currency
+        })
+      })
+
+      const data = await res.json()
+      if (!data.success) {
+        setClaimMessage(`❌ ${data.error || 'Failed to initialize payment'}`)
+        return
+      }
+
+      // Store listing_id and session_id for callback verification
+      sessionStorage.setItem('pending_claim_listing_id', selectedClaim.id.toString())
+      sessionStorage.setItem('pending_bachs_session_id', data.sessionId)
+
+      // Redirect to Bachs checkout page
+      window.location.href = data.checkoutUrl
+    } catch (err) {
+      setClaimMessage(`❌ Error: ${err.message}`)
+    } finally {
+      setBachsLoading(false)
     }
   }
 
@@ -1461,7 +1507,7 @@ export default function App() {
                       onClick={() => setPaymentMethod('paystack')}
                       style={{
                         flex: 1,
-                        minWidth: '150px',
+                        minWidth: '140px',
                         padding: '1rem',
                         background: paymentMethod === 'paystack' ? '#10B981' : '#E5E7EB',
                         color: paymentMethod === 'paystack' ? 'white' : '#333',
@@ -1469,16 +1515,33 @@ export default function App() {
                         borderRadius: '8px',
                         cursor: 'pointer',
                         fontWeight: 'bold',
-                        fontSize: '0.9rem'
+                        fontSize: '0.85rem'
                       }}
                     >
-                      💳 Paystack (Automated)
+                      💳 Paystack
+                    </button>
+                    <button
+                      onClick={() => setPaymentMethod('bachs')}
+                      style={{
+                        flex: 1,
+                        minWidth: '140px',
+                        padding: '1rem',
+                        background: paymentMethod === 'bachs' ? '#0891b2' : '#E5E7EB',
+                        color: paymentMethod === 'bachs' ? 'white' : '#333',
+                        border: `2px solid ${paymentMethod === 'bachs' ? '#0891b2' : '#D1D5DB'}`,
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      💳 Bachs (NEW)
                     </button>
                     <button
                       onClick={() => setPaymentMethod('whatsapp')}
                       style={{
                         flex: 1,
-                        minWidth: '150px',
+                        minWidth: '140px',
                         padding: '1rem',
                         background: paymentMethod === 'whatsapp' ? '#25D366' : '#E5E7EB',
                         color: paymentMethod === 'whatsapp' ? 'white' : '#333',
@@ -1486,10 +1549,10 @@ export default function App() {
                         borderRadius: '8px',
                         cursor: 'pointer',
                         fontWeight: 'bold',
-                        fontSize: '0.9rem'
+                        fontSize: '0.85rem'
                       }}
                     >
-                      💬 WhatsApp (Manual)
+                      💬 WhatsApp
                     </button>
                   </div>
                 </div>
@@ -1590,10 +1653,41 @@ export default function App() {
                       ✅ Instant automated payment. You'll receive your verified badge immediately after successful payment.
                     </div>
                   </>
+                ) : paymentMethod === 'bachs' ? (
+                  <>
+                    <button
+                      onClick={proceedWithBachsPayment}
+                      disabled={bachsLoading}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        background: bachsLoading ? '#D1D5DB' : '#0891b2',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        fontWeight: 'bold',
+                        cursor: bachsLoading ? 'not-allowed' : 'pointer',
+                        marginBottom: '0.75rem'
+                      }}
+                    >
+                      {bachsLoading ? '⏳ Processing...' : '💳 Pay with Bachs'}
+                    </button>
+                    <div style={{
+                      marginTop: '1rem',
+                      padding: '1rem',
+                      background: '#DCFCE7',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      color: '#166534'
+                    }}>
+                      ✅ Instant automated payment. Supports card payments globally. You'll receive your verified badge immediately after payment.
+                    </div>
+                  </>
                 ) : (
                   <>
                     <button
-                      onClick={() => openWhatsApp(`Hi Vukafia! I want to claim my business and am ready to pay $${currency === 'NGN' ? '6,000' : '14.99'} ${currency}. Please send me payment instructions.`)}
+                      onClick={() => openWhatsApp(`Hi Vukafia! I want to claim my business and am ready to pay ${currency === 'NGN' ? '₦6,000' : '$14.99'} ${currency}. Please send me payment instructions.`)}
                       style={{
                         width: '100%',
                         padding: '0.75rem',
