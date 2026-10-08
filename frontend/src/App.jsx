@@ -76,8 +76,26 @@ export default function App() {
   const [claimBusinessWebsite, setClaimBusinessWebsite] = useState('')
   const [claimContactName, setClaimContactName] = useState('')
 
+  // Auth state
+  const [user, setUser] = useState(null)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authMode, setAuthMode] = useState('login') // login or signup
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authMessage, setAuthMessage] = useState('')
+  const [signupData, setSignupData] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
+  const [loginData, setLoginData] = useState({ email: '', password: '' })
+
   const WA_PHONE = '2348101477935'
   const API_BASE = ''
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token')
+    const userData = localStorage.getItem('auth_user')
+    if (token && userData) {
+      setUser(JSON.parse(userData))
+    }
+  }, [])
 
   // Fetch listings once on mount
   useEffect(() => {
@@ -528,6 +546,96 @@ export default function App() {
     setClaimMessage('')
   }
 
+  async function handleSignup() {
+    if (!signupData.name || !signupData.email || !signupData.phone || !signupData.password) {
+      setAuthMessage('❌ All fields are required')
+      return
+    }
+    if (signupData.password !== signupData.confirmPassword) {
+      setAuthMessage('❌ Passwords do not match')
+      return
+    }
+    if (signupData.password.length < 8) {
+      setAuthMessage('❌ Password must be at least 8 characters')
+      return
+    }
+
+    try {
+      setAuthLoading(true)
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: signupData.name,
+          email: signupData.email,
+          phone: signupData.phone,
+          password: signupData.password
+        })
+      })
+
+      const data = await res.json()
+      if (!data.success) {
+        setAuthMessage(`❌ ${data.error || 'Signup failed'}`)
+        return
+      }
+
+      localStorage.setItem('auth_token', data.token)
+      localStorage.setItem('auth_user', JSON.stringify(data.user))
+      setUser(data.user)
+      setShowAuthModal(false)
+      setAuthMessage('')
+      setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
+      setAuthMode('login')
+    } catch (err) {
+      setAuthMessage(`❌ Error: ${err.message}`)
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  async function handleLogin() {
+    if (!loginData.email || !loginData.password) {
+      setAuthMessage('❌ Email and password are required')
+      return
+    }
+
+    try {
+      setAuthLoading(true)
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: loginData.email,
+          password: loginData.password
+        })
+      })
+
+      const data = await res.json()
+      if (!data.success) {
+        setAuthMessage(`❌ ${data.error || 'Login failed'}`)
+        return
+      }
+
+      localStorage.setItem('auth_token', data.token)
+      localStorage.setItem('auth_user', JSON.stringify(data.user))
+      setUser(data.user)
+      setShowAuthModal(false)
+      setAuthMessage('')
+      setLoginData({ email: '', password: '' })
+    } catch (err) {
+      setAuthMessage(`❌ Error: ${err.message}`)
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('auth_user')
+    setUser(null)
+    setShowClaimModal(false)
+  }
+
   return (
     <>
       <nav>
@@ -593,6 +701,30 @@ export default function App() {
           <button className="btn-lst" onClick={listBusiness}>
             {t.listBusiness}
           </button>
+
+          {/* Auth Buttons */}
+          {!user ? (
+            <button
+              className="btn-lst"
+              onClick={() => { setAuthMode('login'); setShowAuthModal(true) }}
+              style={{ background: '#10B981' }}
+            >
+              👤 Login
+            </button>
+          ) : (
+            <div style={{ position: 'relative', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <span style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                👋 {user.name}
+              </span>
+              <button
+                className="btn-lst"
+                onClick={handleLogout}
+                style={{ background: '#EF4444', fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
+              >
+                Logout
+              </button>
+            </div>
+          )}
 
           {/* Language Selector (Last) */}
           <div style={{ position: 'relative' }}>
@@ -931,6 +1063,246 @@ export default function App() {
           )}
         </main>
       </div>
+
+      {/* Auth Modal (Login/Signup) */}
+      {showAuthModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1001,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: '12px',
+            padding: '2rem',
+            maxWidth: '400px',
+            width: '100%',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
+          }}>
+            <h2 style={{ marginBottom: '1.5rem', textAlign: 'center', color: '#333' }}>
+              {authMode === 'login' ? '👤 Login to Vukafia' : '✍️ Create Account'}
+            </h2>
+
+            {authMessage && (
+              <div style={{
+                padding: '0.75rem',
+                background: authMessage.includes('❌') ? '#FEE2E2' : '#DCFCE7',
+                color: authMessage.includes('❌') ? '#991B1B' : '#166534',
+                borderRadius: '8px',
+                marginBottom: '1rem',
+                fontSize: '0.9rem'
+              }}>
+                {authMessage}
+              </div>
+            )}
+
+            {authMode === 'login' ? (
+              <>
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={loginData.email}
+                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    marginBottom: '1rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    marginBottom: '1.5rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <button
+                  onClick={handleLogin}
+                  disabled={authLoading}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: authLoading ? '#D1D5DB' : '#10B981',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: authLoading ? 'not-allowed' : 'pointer',
+                    marginBottom: '1rem'
+                  }}
+                >
+                  {authLoading ? '⏳ Logging in...' : '👤 Login'}
+                </button>
+                <p style={{ textAlign: 'center', color: '#666', marginBottom: '1rem' }}>
+                  Don't have an account?{' '}
+                  <button
+                    onClick={() => { setAuthMode('signup'); setAuthMessage('') }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#10B981',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    Sign up
+                  </button>
+                </p>
+              </>
+            ) : (
+              <>
+                <input
+                  type="text"
+                  placeholder="Full name"
+                  value={signupData.name}
+                  onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    marginBottom: '0.75rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={signupData.email}
+                  onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    marginBottom: '0.75rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <input
+                  type="tel"
+                  placeholder="Phone number"
+                  value={signupData.phone}
+                  onChange={(e) => setSignupData({ ...signupData, phone: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    marginBottom: '0.75rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <input
+                  type="password"
+                  placeholder="Password (min 8 characters)"
+                  value={signupData.password}
+                  onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    marginBottom: '0.75rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <input
+                  type="password"
+                  placeholder="Confirm password"
+                  value={signupData.confirmPassword}
+                  onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    marginBottom: '1.5rem',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <button
+                  onClick={handleSignup}
+                  disabled={authLoading}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: authLoading ? '#D1D5DB' : '#10B981',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: authLoading ? 'not-allowed' : 'pointer',
+                    marginBottom: '1rem'
+                  }}
+                >
+                  {authLoading ? '⏳ Creating account...' : '✍️ Create Account'}
+                </button>
+                <p style={{ textAlign: 'center', color: '#666', marginBottom: '1rem' }}>
+                  Already have an account?{' '}
+                  <button
+                    onClick={() => { setAuthMode('login'); setAuthMessage('') }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#10B981',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    Login
+                  </button>
+                </p>
+              </>
+            )}
+
+            <button
+              onClick={() => { setShowAuthModal(false); setAuthMessage('') }}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                background: '#E5E7EB',
+                color: '#333',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                cursor: 'pointer'
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Claim Business Modal */}
       {showClaimModal && (
@@ -1475,28 +1847,79 @@ export default function App() {
             {/* STEP 5: PAYMENT */}
             {claimStep === 'payment' && selectedClaim && (
               <div>
-                <div style={{
-                  padding: '1.5rem',
-                  background: '#F9F5E6',
-                  borderRadius: '8px',
-                  marginBottom: '1.5rem',
-                  textAlign: 'center',
-                  borderLeft: '4px solid var(--accent)'
-                }}>
-                  <div style={{ marginBottom: '0.5rem' }}>
-                    <strong style={{ fontSize: '1.1rem' }}>{selectedClaim.name}</strong>
+                {!user ? (
+                  <div style={{
+                    padding: '1.5rem',
+                    background: '#FEE2E2',
+                    borderRadius: '8px',
+                    marginBottom: '1.5rem',
+                    textAlign: 'center',
+                    borderLeft: '4px solid #DC2626'
+                  }}>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#991B1B', marginBottom: '1rem' }}>
+                      🔐 Please Log In
+                    </div>
+                    <p style={{ color: '#7F1D1D', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                      You need to create an account or log in to claim this business.
+                    </p>
+                    <button
+                      onClick={() => { setAuthMode('login'); setShowAuthModal(true) }}
+                      style={{
+                        background: '#10B981',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '0.75rem 1.5rem',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        marginRight: '0.5rem'
+                      }}
+                    >
+                      👤 Login
+                    </button>
+                    <button
+                      onClick={() => { setAuthMode('signup'); setShowAuthModal(true) }}
+                      style={{
+                        background: '#3B82F6',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '0.75rem 1.5rem',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ✍️ Sign Up
+                    </button>
                   </div>
-                  <div style={{ color: '#666', fontSize: '0.9rem', marginBottom: '1rem' }}>
-                    {selectedClaim.city}, {selectedClaim.country}
+                ) : (
+                  <div style={{
+                    padding: '1.5rem',
+                    background: '#F9F5E6',
+                    borderRadius: '8px',
+                    marginBottom: '1.5rem',
+                    textAlign: 'center',
+                    borderLeft: '4px solid var(--accent)'
+                  }}>
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      <strong style={{ fontSize: '1.1rem' }}>{selectedClaim.name}</strong>
+                    </div>
+                    <div style={{ color: '#666', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                      {selectedClaim.city}, {selectedClaim.country}
+                    </div>
+                    <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#D97706', marginBottom: '0.5rem' }}>
+                      {currency === 'NGN' ? '₦' : '$'}{currency === 'NGN' ? '6,000' : '14.99'}
+                    </div>
+                    <div style={{ color: '#666', fontSize: '0.9rem' }}>
+                      One-time claim & verification fee
+                    </div>
                   </div>
-                  <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#D97706', marginBottom: '0.5rem' }}>
-                    {currency === 'NGN' ? '₦' : '$'}{currency === 'NGN' ? '6,000' : '14.99'}
-                  </div>
-                  <div style={{ color: '#666', fontSize: '0.9rem' }}>
-                    One-time claim & verification fee
-                  </div>
-                </div>
+                )}
 
+                {user && (
+                  <>
                 {/* Payment Method Selection */}
                 <div style={{ marginBottom: '1.5rem' }}>
                   <h3 style={{ fontSize: '0.95rem', marginBottom: '0.75rem', color: '#333' }}>
@@ -1718,6 +2141,8 @@ export default function App() {
                       3. Send your payment via bank transfer or mobile money<br/>
                       4. We'll verify and activate your claim within 2 hours
                     </div>
+                  </>
+                )}
                   </>
                 )}
 
