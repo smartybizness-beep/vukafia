@@ -1904,7 +1904,7 @@ export default function App() {
                       {selectedClaim.city}, {selectedClaim.country}
                     </div>
                     <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#D97706', marginBottom: '0.5rem' }}>
-                      {currency === 'NGN' ? '₦' : '$'}{currency === 'NGN' ? '6,000' : '14.99'}
+                      {paymentMethod === 'bachs' ? '$14.99' : (currency === 'NGN' ? '₦6,000' : '$14.99')}
                     </div>
                     <div style={{ color: '#666', fontSize: '0.9rem' }}>
                       One-time claim & verification fee
