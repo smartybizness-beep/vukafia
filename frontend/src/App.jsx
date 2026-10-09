@@ -533,10 +533,10 @@ export default function App() {
 
     // Store listing_id for tracking
     sessionStorage.setItem('pending_claim_listing_id', selectedClaim.id.toString())
-    sessionStorage.setItem('pending_payment_amount', selectedClaim.claim_fee || (currency === 'USD' ? '14.99' : '6000'))
-    sessionStorage.setItem('pending_payment_currency', currency)
+    sessionStorage.setItem('pending_payment_amount', '14.99')
+    sessionStorage.setItem('pending_payment_currency', 'USD')
 
-    // Redirect directly to Bachs payment link
+    // Redirect directly to Bachs payment link (USD only, Bachs handles conversion)
     window.location.href = 'https://checkout.bachs.io/pay/pl_cd0d5af8c662'
   }
 
@@ -2083,42 +2083,44 @@ export default function App() {
                   </div>
                 </div>
 
-                <div style={{
-                  marginBottom: '1.5rem',
-                  display: 'flex',
-                  gap: '0.5rem'
-                }}>
-                  <button
-                    onClick={() => setCurrency('NGN')}
-                    style={{
-                      flex: 1,
-                      padding: '0.5rem',
-                      background: currency === 'NGN' ? '#D97706' : '#E5E7EB',
-                      color: currency === 'NGN' ? 'white' : '#333',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    NGN (Nigeria)
-                  </button>
-                  <button
-                    onClick={() => setCurrency('USD')}
-                    style={{
-                      flex: 1,
-                      padding: '0.5rem',
-                      background: currency === 'USD' ? '#D97706' : '#E5E7EB',
-                      color: currency === 'USD' ? 'white' : '#333',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    USD (International)
-                  </button>
-                </div>
+                {paymentMethod === 'whatsapp' && (
+                  <div style={{
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    gap: '0.5rem'
+                  }}>
+                    <button
+                      onClick={() => setCurrency('NGN')}
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: currency === 'NGN' ? '#D97706' : '#E5E7EB',
+                        color: currency === 'NGN' ? 'white' : '#333',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      NGN (Nigeria)
+                    </button>
+                    <button
+                      onClick={() => setCurrency('USD')}
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        background: currency === 'USD' ? '#D97706' : '#E5E7EB',
+                        color: currency === 'USD' ? 'white' : '#333',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      USD (International)
+                    </button>
+                  </div>
+                )}
 
                 <div style={{
                   background: '#E0F2FE',
