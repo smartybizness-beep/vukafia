@@ -56,6 +56,7 @@ export default function App() {
   const [claimCountry, setClaimCountry] = useState('')
   const [claimResults, setClaimResults] = useState([])
   const [selectedClaim, setSelectedClaim] = useState(null)
+  const [skipSearch, setSkipSearch] = useState(false) // Skip search when claiming from detail page
   const [claimPhone, setClaimPhone] = useState('')
   const [claimLoading, setClaimLoading] = useState(false)
   const [claimMessage, setClaimMessage] = useState('')
@@ -97,11 +98,33 @@ export default function App() {
 
     // Check if user came from business detail page to claim
     const claimBusinessId = sessionStorage.getItem('claimBusinessId')
-    if (claimBusinessId) {
-      sessionStorage.removeItem('claimBusinessId')
-      resetClaim()
-      setShowClaimModal(true)
-      setClaimSearch(claimBusinessId)
+    const claimBusinessDataStr = sessionStorage.getItem('claimBusinessData')
+    if (claimBusinessId && claimBusinessDataStr) {
+      const businessData = JSON.parse(claimBusinessDataStr)
+
+      const userToken = localStorage.getItem('auth_token')
+      if (userToken) {
+        // User already logged in - show claim modal with pre-filled data
+        sessionStorage.removeItem('claimBusinessId')
+        sessionStorage.removeItem('claimBusinessData')
+        resetClaim()
+        setSelectedClaim({
+          id: claimBusinessId,
+          name: businessData.name,
+          category: businessData.category,
+          country: businessData.country,
+          address: businessData.address,
+          phone: businessData.phone,
+          website: businessData.website
+        })
+        setSkipSearch(true)
+        setClaimStep('edit')
+        setShowClaimModal(true)
+      } else {
+        // User not logged in - show auth modal first, keep claim data in sessionStorage
+        setAuthMode('signup')
+        setShowAuthModal(true)
+      }
     }
   }, [])
 
@@ -526,6 +549,7 @@ export default function App() {
     setSelectedClaim(null)
     setClaimPhone('')
     setClaimMessage('')
+    setSkipSearch(false)
   }
 
   async function handleSignup() {

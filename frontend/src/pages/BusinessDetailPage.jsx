@@ -191,7 +191,16 @@ export default function BusinessDetailPage() {
             {/* Claim Business Button - Prominent CTA */}
             <button
               onClick={() => {
+                // Pass business data to pre-fill the claim form
                 sessionStorage.setItem('claimBusinessId', id);
+                sessionStorage.setItem('claimBusinessData', JSON.stringify({
+                  name: business.name,
+                  category: business.category,
+                  country: business.country,
+                  address: business.address || '',
+                  phone: business.phone || '',
+                  website: business.website || ''
+                }));
                 navigate('/');
               }}
               style={{
