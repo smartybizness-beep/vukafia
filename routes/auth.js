@@ -153,25 +153,36 @@ router.post('/google-callback', async (req, res, next) => {
     const GOOGLE_CLIENT_ID = process.env.VITE_GOOGLE_CLIENT_ID || '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
     const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 
-    console.log('Google OAuth Callback - Code:', code.substring(0, 20) + '...')
-    console.log('Redirect URI:', redirectUri)
-    console.log('Client ID:', GOOGLE_CLIENT_ID)
-    console.log('Has Client Secret:', !!GOOGLE_CLIENT_SECRET)
+    console.log('Google OAuth Callback')
+    console.log('- Code:', code.substring(0, 20) + '...')
+    console.log('- Redirect URI:', redirectUri)
+    console.log('- Client ID:', GOOGLE_CLIENT_ID)
+    console.log('- Has Client Secret:', !!GOOGLE_CLIENT_SECRET)
+    console.log('- Client Secret value (first 20 chars):', GOOGLE_CLIENT_SECRET ? GOOGLE_CLIENT_SECRET.substring(0, 20) : 'NOT SET')
 
     if (!GOOGLE_CLIENT_SECRET) {
-      console.error('GOOGLE_CLIENT_SECRET is not set in environment variables')
-      return res.status(500).json({ error: 'Server configuration error: missing Google client secret' })
+      console.error('❌ GOOGLE_CLIENT_SECRET is not set in environment variables')
+      return res.status(500).json({ error: 'Server configuration error: GOOGLE_CLIENT_SECRET not set. Check Railway environment variables.' })
     }
 
     // Exchange code for tokens
-    console.log('Exchanging code for tokens...')
-    const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
-      code,
-      client_id: GOOGLE_CLIENT_ID,
-      client_secret: GOOGLE_CLIENT_SECRET,
-      redirect_uri: redirectUri,
-      grant_type: 'authorization_code'
-    })
+    console.log('Exchanging authorization code for tokens with Google...')
+    let tokenResponse
+    try {
+      tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
+        code,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code'
+      })
+    } catch (tokenErr) {
+      console.error('Google token exchange failed:')
+      console.error('- Status:', tokenErr.response?.status)
+      console.error('- Error:', tokenErr.response?.data?.error)
+      console.error('- Description:', tokenErr.response?.data?.error_description)
+      throw tokenErr
+    }
 
     const { id_token } = tokenResponse.data
 
