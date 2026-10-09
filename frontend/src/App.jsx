@@ -1156,7 +1156,7 @@ export default function App() {
                   <button
                     onClick={() => {
                       const clientId = '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
-                      const redirectUri = `${window.location.origin}/`
+                      const redirectUri = window.location.origin
                       const scope = 'openid email profile'
                       const state = Math.random().toString(36).substring(7)
                       sessionStorage.setItem('oauth_state', state)
@@ -1311,7 +1311,7 @@ export default function App() {
                   <button
                     onClick={() => {
                       const clientId = '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
-                      const redirectUri = `${window.location.origin}/`
+                      const redirectUri = window.location.origin
                       const scope = 'openid email profile'
                       const state = Math.random().toString(36).substring(7)
                       sessionStorage.setItem('oauth_state', state)
