@@ -105,37 +105,6 @@ export default function App() {
     }
   }, [])
 
-  // Handle Google OAuth callback (authorization code flow)
-  useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search)
-    const code = queryParams.get('code')
-
-    console.log('URL search params:', window.location.search)
-    console.log('Authorization code found:', !!code)
-
-    if (code) {
-      console.log('Sending auth code to backend...')
-      // Send code to backend to exchange for tokens
-      fetch(`${API_BASE}/api/auth/google-callback`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, redirectUri: window.location.origin })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            localStorage.setItem('auth_token', data.token)
-            localStorage.setItem('auth_user', JSON.stringify(data.user))
-            setUser(data.user)
-            setShowAuthModal(false)
-            window.history.replaceState({}, document.title, window.location.pathname)
-          } else {
-            console.error('OAuth callback failed:', data.error)
-          }
-        })
-        .catch(err => console.error('OAuth callback error:', err))
-    }
-  }, [])
 
   // Fetch listings once on mount
   useEffect(() => {
@@ -642,42 +611,6 @@ export default function App() {
     }
   }
 
-  async function handleGoogleSignup(credentialResponse) {
-    try {
-      setAuthLoading(true)
-      console.log('Sending Google token to backend...')
-      const res = await fetch(`${API_BASE}/api/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          credential: credentialResponse.credential
-        })
-      })
-
-      console.log('Backend response status:', res.status)
-      const data = await res.json()
-      console.log('Backend response data:', data)
-
-      if (!data.success) {
-        setAuthMessage(`❌ ${data.error || 'Google sign up failed'}`)
-        return
-      }
-
-      localStorage.setItem('auth_token', data.token)
-      localStorage.setItem('auth_user', JSON.stringify(data.user))
-      setUser(data.user)
-      setShowAuthModal(false)
-      setAuthMessage('')
-      setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
-      setAuthMode('login')
-    } catch (err) {
-      console.error('Google signup error:', err)
-      setAuthMessage(`❌ Error: ${err.message}`)
-    } finally {
-      setAuthLoading(false)
-    }
-  }
-
   function handleLogout() {
     localStorage.removeItem('auth_token')
     localStorage.removeItem('auth_user')
@@ -1144,47 +1077,6 @@ export default function App() {
                   {authLoading ? '⏳ Logging in...' : '👤 Login'}
                 </button>
 
-                <div style={{ margin: '1.5rem 0', position: 'relative' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
-                    <span style={{ color: '#999', fontSize: '0.85rem' }}>or</span>
-                    <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <button
-                    onClick={() => {
-                      const clientId = '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
-                      const redirectUri = window.location.origin
-                      const scope = 'openid email profile'
-                      const state = Math.random().toString(36).substring(7)
-                      sessionStorage.setItem('oauth_state', state)
-                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&state=${state}`
-                      console.log('Redirecting to Google with URL:', googleAuthUrl)
-                      window.location.href = googleAuthUrl
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      background: '#fff',
-                      border: '1px solid #ddd',
-                      borderRadius: '8px',
-                      fontSize: '1rem',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem'
-                    }}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" style={{ fill: 'currentColor' }}>
-                      <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.91 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
-                    </svg>
-                    Sign in with Google
-                  </button>
-                </div>
 
                 <p style={{ textAlign: 'center', color: '#666', marginBottom: '1rem' }}>
                   Don't have an account?{' '}
@@ -1299,47 +1191,6 @@ export default function App() {
                   {authLoading ? '⏳ Creating account...' : '✍️ Create Account'}
                 </button>
 
-                <div style={{ margin: '1.5rem 0', position: 'relative' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
-                    <span style={{ color: '#999', fontSize: '0.85rem' }}>or</span>
-                    <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <button
-                    onClick={() => {
-                      const clientId = '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
-                      const redirectUri = window.location.origin
-                      const scope = 'openid email profile'
-                      const state = Math.random().toString(36).substring(7)
-                      sessionStorage.setItem('oauth_state', state)
-                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&state=${state}`
-                      console.log('Redirecting to Google with URL:', googleAuthUrl)
-                      window.location.href = googleAuthUrl
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      background: '#fff',
-                      border: '1px solid #ddd',
-                      borderRadius: '8px',
-                      fontSize: '1rem',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem'
-                    }}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" style={{ fill: 'currentColor' }}>
-                      <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.91 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
-                    </svg>
-                    Sign up with Google
-                  </button>
-                </div>
 
                 <p style={{ textAlign: 'center', color: '#666', marginBottom: '1rem' }}>
                   Already have an account?{' '}
