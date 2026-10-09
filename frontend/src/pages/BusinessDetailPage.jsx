@@ -188,6 +188,32 @@ export default function BusinessDetailPage() {
               </div>
             </div>
 
+            {/* Claim Business Button - Prominent CTA */}
+            <button
+              onClick={() => navigate('/', { state: { showClaimModal: true, selectedClaim: { id } } })}
+              style={{
+                width: '100%',
+                padding: 'clamp(0.75rem, 3vw, 1rem)',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)',
+                minHeight: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '1rem',
+                transition: 'transform 0.2s',
+              }}
+              onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              ✅ Claim This Business
+            </button>
+
             {/* Action Buttons */}
             <div style={{
               display: 'grid',
