@@ -2152,6 +2152,17 @@ export default function App() {
 
                 {paymentMethod === 'bachs' ? (
                   <>
+                    <div style={{
+                      marginBottom: '1rem',
+                      padding: '0.75rem',
+                      background: '#F0F9FF',
+                      border: '1px solid #0891b2',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      color: '#0369A1'
+                    }}>
+                      ℹ️ You will be redirected to our secure payment page powered by Bachs.
+                    </div>
                     <button
                       onClick={proceedWithBachsPayment}
                       style={{
