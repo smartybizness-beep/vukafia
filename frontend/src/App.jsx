@@ -2355,6 +2355,19 @@ export default function App() {
                 Contact Support
               </button>
             </p>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <button onClick={() => navigate('/support')} style={{
+                background: 'transparent',
+                color: '#d4a017',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: '0.9rem',
+                textDecoration: 'none'
+              }}>
+                Help Center
+              </button>
+            </p>
           </div>
         </div>
 
