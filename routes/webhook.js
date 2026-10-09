@@ -11,9 +11,9 @@
 const express = require('express');
 const router  = express.Router();
 const db      = require('../db');
-const { handleWhatsAppMessage } = require('../services/whatsappBot');
+const { handleIncomingMessage } = require('../services/whatsappService');
 
-const WA_VERIFY_TOKEN = process.env.WA_VERIFY_TOKEN || 'vukafia_webhook_token';
+const WA_VERIFY_TOKEN = process.env.WA_VERIFY_TOKEN || 'vukafia_webhook_verify_2025';
 
 // ─── GET /api/webhook/whatsapp ────────────────────────────────────────────
 // Meta webhook verification (called once during setup)
@@ -30,7 +30,7 @@ router.get('/whatsapp', (req, res) => {
 });
 
 // ─── POST /api/webhook/whatsapp ───────────────────────────────────────────
-// Receives messages from WhatsApp Cloud API
+// Receives messages from WhatsApp Cloud API (Meta)
 router.post('/whatsapp', async (req, res, next) => {
   try {
     // Acknowledge immediately (Meta requires < 5s response)
@@ -48,21 +48,14 @@ router.post('/whatsapp', async (req, res, next) => {
 
     const from = message.from;          // sender's phone number
     const text = message.text?.body;    // message text
+    const messageId = message.id;       // unique message ID
+
     if (!text) return;                  // ignore non-text (images, etc.)
 
-    console.log(`📨 WA msg from ${from}: ${text}`);
-
-    // ── SAVE to DB ────────────────────────────────────────────────────────
-    const k = db.query();
-    await k('wa_messages').insert({
-      from_number: from,
-      to_number:   process.env.WA_PHONE_NUMBER || '2348101477935',
-      message:     text,
-      direction:   'inbound',
-    });
+    console.log(`📨 WhatsApp msg from ${from}: ${text}`);
 
     // ── PROCESS MESSAGE ───────────────────────────────────────────────────
-    await waService.handleMessage(from, text, k);
+    await handleIncomingMessage(from, text, messageId);
 
   } catch (err) {
     console.error('[WEBHOOK ERROR]', err.message);
