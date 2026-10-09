@@ -62,7 +62,6 @@ export default function App() {
   const [claimFee, setClaimFee] = useState(14.99)
   const [currency, setCurrency] = useState('NGN')
   const [paystackLoading, setPaystackLoading] = useState(false)
-  const [bachsLoading, setBachsLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('bachs') // bachs or whatsapp (paystack hidden for now)
   // OTP verification state
   const [claimOtpSent, setClaimOtpSent] = useState(false)
@@ -523,49 +522,22 @@ export default function App() {
     }
   }
 
-  async function proceedWithBachsPayment() {
+  function proceedWithBachsPayment() {
     if (!selectedClaim) return
 
-    try {
-      setBachsLoading(true)
-
-      // Get auth token from localStorage
-      const token = localStorage.getItem('auth_token')
-      if (!token) {
-        setClaimMessage('❌ Please log in first')
-        return
-      }
-
-      // Initialize Bachs payment with backend
-      const res = await fetch(`${API_BASE}/api/claims/initialize-bachs-payment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          listing_id: selectedClaim.id,
-          currency: currency
-        })
-      })
-
-      const data = await res.json()
-      if (!data.success) {
-        setClaimMessage(`❌ ${data.error || 'Failed to initialize payment'}`)
-        return
-      }
-
-      // Store listing_id and session_id for callback verification
-      sessionStorage.setItem('pending_claim_listing_id', selectedClaim.id.toString())
-      sessionStorage.setItem('pending_bachs_session_id', data.sessionId)
-
-      // Redirect to Bachs checkout page
-      window.location.href = data.checkoutUrl
-    } catch (err) {
-      setClaimMessage(`❌ Error: ${err.message}`)
-    } finally {
-      setBachsLoading(false)
+    const token = localStorage.getItem('auth_token')
+    if (!token) {
+      setClaimMessage('❌ Please log in first')
+      return
     }
+
+    // Store listing_id for tracking
+    sessionStorage.setItem('pending_claim_listing_id', selectedClaim.id.toString())
+    sessionStorage.setItem('pending_payment_amount', selectedClaim.claim_fee || (currency === 'USD' ? '14.99' : '6000'))
+    sessionStorage.setItem('pending_payment_currency', currency)
+
+    // Redirect directly to Bachs payment link
+    window.location.href = 'https://checkout.bachs.io/pay/pl_cd0d5af8c662'
   }
 
   function resetClaim() {
@@ -2180,21 +2152,20 @@ export default function App() {
                   <>
                     <button
                       onClick={proceedWithBachsPayment}
-                      disabled={bachsLoading}
                       style={{
                         width: '100%',
                         padding: '0.75rem',
-                        background: bachsLoading ? '#D1D5DB' : '#0891b2',
+                        background: '#0891b2',
                         color: 'white',
                         border: 'none',
                         borderRadius: '8px',
                         fontSize: '1rem',
                         fontWeight: 'bold',
-                        cursor: bachsLoading ? 'not-allowed' : 'pointer',
+                        cursor: 'pointer',
                         marginBottom: '0.75rem'
                       }}
                     >
-                      {bachsLoading ? '⏳ Processing...' : '💳 Pay with Bachs'}
+                      💳 Pay with Bachs
                     </button>
                     <div style={{
                       marginTop: '1rem',
