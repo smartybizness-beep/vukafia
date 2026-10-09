@@ -682,45 +682,6 @@ export default function App() {
         <Link to="/" className="logo" style={{ textDecoration: 'none' }}>
           <img src="/assets/vukafia-logo.png" alt="Vukafia" className="logo-image" />
         </Link>
-        <div className="ntabs">
-          <button
-            className={`ntab ${type === '' ? 'active' : ''}`}
-            onClick={() => setType('')}
-            title="Show all business types"
-          >
-            🌍 All
-          </button>
-          <button
-            className={`ntab ${type === 'product' ? 'active' : ''}`}
-            onClick={() => setType('product')}
-          >
-            {t.products}
-          </button>
-          <button
-            className={`ntab ${type === 'service' ? 'active' : ''}`}
-            onClick={() => setType('service')}
-          >
-            {t.services}
-          </button>
-          <button
-            className={`ntab ${type === 'restaurant' ? 'active' : ''}`}
-            onClick={() => setType('restaurant')}
-          >
-            {t.restaurants}
-          </button>
-          <button
-            className={`ntab ${type === 'tourism' ? 'active' : ''}`}
-            onClick={() => setType('tourism')}
-          >
-            {t.tourism}
-          </button>
-          <button
-            className={`ntab ${type === 'medical' ? 'active' : ''}`}
-            onClick={() => setType('medical')}
-          >
-            {t.medical}
-          </button>
-        </div>
         <div className="nav-right">
           <div className="nav-stat">
             <strong>{totalListings}</strong>{t.listings}
@@ -933,27 +894,6 @@ export default function App() {
               <option value="">All Categories</option>
               {categories.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-          </div>
-          <div className="sbb">
-            <div className="sbt">💬 WhatsApp AI</div>
-            <p style={{ fontSize: '0.77rem', color: 'var(--mu)', marginBottom: '0.65rem', lineHeight: 1.5 }}>
-              Find what you need in any language.
-            </p>
-            <button
-              style={{
-                width: '100%',
-                padding: '0.6rem',
-                background: 'var(--wa)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}
-              onClick={() => openWhatsApp(`👋 Welcome to Vukafia! I'm Trima, your AI assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}
-            >
-              💬 Open WhatsApp AI
-            </button>
           </div>
         </aside>
 
