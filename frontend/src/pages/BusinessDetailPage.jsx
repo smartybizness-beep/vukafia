@@ -190,7 +190,10 @@ export default function BusinessDetailPage() {
 
             {/* Claim Business Button - Prominent CTA */}
             <button
-              onClick={() => navigate('/', { state: { showClaimModal: true, selectedClaim: { id } } })}
+              onClick={() => {
+                sessionStorage.setItem('claimBusinessId', id);
+                navigate('/');
+              }}
               style={{
                 width: '100%',
                 padding: 'clamp(0.75rem, 3vw, 1rem)',

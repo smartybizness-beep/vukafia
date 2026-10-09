@@ -94,6 +94,15 @@ export default function App() {
     if (token && userData) {
       setUser(JSON.parse(userData))
     }
+
+    // Check if user came from business detail page to claim
+    const claimBusinessId = sessionStorage.getItem('claimBusinessId')
+    if (claimBusinessId) {
+      sessionStorage.removeItem('claimBusinessId')
+      resetClaim()
+      setShowClaimModal(true)
+      setClaimSearch(claimBusinessId)
+    }
   }, [])
 
   // Handle Google OAuth callback (authorization code flow)
