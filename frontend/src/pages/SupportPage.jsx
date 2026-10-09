@@ -38,7 +38,7 @@ export default function SupportPage() {
         },
         {
           q: 'Can I get a refund?',
-          a: 'Refunds are available within 30 days of purchase if you haven\'t used premium features. Contact support for refund requests.'
+          a: 'All sales are final. No refunds are available once payment is processed. Please ensure you want to proceed before completing your payment.'
         },
         {
           q: 'Do you offer payment plans?',
@@ -139,7 +139,7 @@ export default function SupportPage() {
         }}>
           {[
             { icon: '💬', title: 'Chat Support', desc: 'Real-time help' },
-            { icon: '📧', title: 'Email Support', desc: 'support@vukafia.com' },
+            { icon: '📧', title: 'Email Support', desc: 'info@vukafia.com' },
             { icon: '📱', title: 'WhatsApp', desc: '+234 810 147 7935' },
             { icon: '⏰', title: 'Response Time', desc: '2-4 hours' }
           ].map((item, i) => (
@@ -253,7 +253,7 @@ export default function SupportPage() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
             gap: '1rem'
           }}>
-            <a href="mailto:support@vukafia.com" style={{
+            <a href="mailto:info@vukafia.com" style={{
               padding: '0.75rem 1.5rem',
               background: 'rgba(255,255,255,0.2)',
               border: '1px solid white',

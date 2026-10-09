@@ -2314,8 +2314,8 @@ export default function App() {
               </a>
             </p>
             <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
-              <a href="mailto:hello@vukafia.com" style={{ color: '#d4a017', textDecoration: 'none' }}>
-                📧 Email: hello@vukafia.com
+              <a href="mailto:info@vukafia.com" style={{ color: '#d4a017', textDecoration: 'none' }}>
+                📧 Email: info@vukafia.com
               </a>
             </p>
             <button onClick={() => navigate('/contact')} style={{
