@@ -1156,9 +1156,12 @@ export default function App() {
                   <button
                     onClick={() => {
                       const clientId = '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
-                      const redirectUri = window.location.origin
+                      const redirectUri = `${window.location.origin}/`
                       const scope = 'openid email profile'
-                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline`
+                      const state = Math.random().toString(36).substring(7)
+                      sessionStorage.setItem('oauth_state', state)
+                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&state=${state}`
+                      console.log('Redirecting to Google with URL:', googleAuthUrl)
                       window.location.href = googleAuthUrl
                     }}
                     style={{
@@ -1308,9 +1311,12 @@ export default function App() {
                   <button
                     onClick={() => {
                       const clientId = '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
-                      const redirectUri = window.location.origin
+                      const redirectUri = `${window.location.origin}/`
                       const scope = 'openid email profile'
-                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline`
+                      const state = Math.random().toString(36).substring(7)
+                      sessionStorage.setItem('oauth_state', state)
+                      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&state=${state}`
+                      console.log('Redirecting to Google with URL:', googleAuthUrl)
                       window.location.href = googleAuthUrl
                     }}
                     style={{

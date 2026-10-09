@@ -153,7 +153,18 @@ router.post('/google-callback', async (req, res, next) => {
     const GOOGLE_CLIENT_ID = process.env.VITE_GOOGLE_CLIENT_ID || '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
     const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 
+    console.log('Google OAuth Callback - Code:', code.substring(0, 20) + '...')
+    console.log('Redirect URI:', redirectUri)
+    console.log('Client ID:', GOOGLE_CLIENT_ID)
+    console.log('Has Client Secret:', !!GOOGLE_CLIENT_SECRET)
+
+    if (!GOOGLE_CLIENT_SECRET) {
+      console.error('GOOGLE_CLIENT_SECRET is not set in environment variables')
+      return res.status(500).json({ error: 'Server configuration error: missing Google client secret' })
+    }
+
     // Exchange code for tokens
+    console.log('Exchanging code for tokens...')
     const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
       code,
       client_id: GOOGLE_CLIENT_ID,
