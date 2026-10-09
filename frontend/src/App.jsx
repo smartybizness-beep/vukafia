@@ -592,6 +592,28 @@ export default function App() {
       setAuthMessage('')
       setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
       setAuthMode('login')
+
+      // Check if user was trying to claim a business
+      const claimBusinessId = sessionStorage.getItem('claimBusinessId')
+      const claimBusinessDataStr = sessionStorage.getItem('claimBusinessData')
+      if (claimBusinessId && claimBusinessDataStr) {
+        const businessData = JSON.parse(claimBusinessDataStr)
+        sessionStorage.removeItem('claimBusinessId')
+        sessionStorage.removeItem('claimBusinessData')
+        resetClaim()
+        setSelectedClaim({
+          id: claimBusinessId,
+          name: businessData.name,
+          category: businessData.category,
+          country: businessData.country,
+          address: businessData.address,
+          phone: businessData.phone,
+          website: businessData.website
+        })
+        setSkipSearch(true)
+        setClaimStep('edit')
+        setShowClaimModal(true)
+      }
     } catch (err) {
       setAuthMessage(`❌ Error: ${err.message}`)
     } finally {
@@ -628,6 +650,28 @@ export default function App() {
       setShowAuthModal(false)
       setAuthMessage('')
       setLoginData({ email: '', password: '' })
+
+      // Check if user was trying to claim a business
+      const claimBusinessId = sessionStorage.getItem('claimBusinessId')
+      const claimBusinessDataStr = sessionStorage.getItem('claimBusinessData')
+      if (claimBusinessId && claimBusinessDataStr) {
+        const businessData = JSON.parse(claimBusinessDataStr)
+        sessionStorage.removeItem('claimBusinessId')
+        sessionStorage.removeItem('claimBusinessData')
+        resetClaim()
+        setSelectedClaim({
+          id: claimBusinessId,
+          name: businessData.name,
+          category: businessData.category,
+          country: businessData.country,
+          address: businessData.address,
+          phone: businessData.phone,
+          website: businessData.website
+        })
+        setSkipSearch(true)
+        setClaimStep('edit')
+        setShowClaimModal(true)
+      }
     } catch (err) {
       setAuthMessage(`❌ Error: ${err.message}`)
     } finally {
