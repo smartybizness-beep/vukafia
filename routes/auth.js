@@ -150,7 +150,7 @@ router.post('/google-callback', async (req, res, next) => {
     }
 
     const k = db.query()
-    const GOOGLE_CLIENT_ID = process.env.VITE_GOOGLE_CLIENT_ID || '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
+    const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '372615640842-neq3e0j2581e5lh4udddcf35emsdc1a2.apps.googleusercontent.com'
     const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 
     console.log('Google OAuth Callback')
