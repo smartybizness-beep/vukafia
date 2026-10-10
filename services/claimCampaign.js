@@ -9,7 +9,7 @@
 'use strict';
 
 const db = require('../db');
-const { sendMessage } = require('./whatsappService');
+const { sendMessage, sendClaimInvitationTemplate } = require('./whatsappService');
 
 /**
  * Get all Google-verified businesses with WhatsApp numbers
@@ -105,15 +105,12 @@ async function sendClaimInvitations(businesses, options = {}) {
         continue;
       }
 
-      // Create claim link
-      const claimLink = `${baseClaimUrl}/${business.id}`;
-      const message = createClaimMessage(business.name, claimLink);
-
       if (dryRun) {
         console.log(`${progress} 🧪 [DRY RUN] ${business.name} (${phone})`);
-        console.log(`    Message preview:\n${message.substring(0, 100)}...`);
+        console.log(`    Template: claim_invitation with business name: ${business.name}`);
       } else {
-        const sent = await sendMessage(phone, message);
+        // Send via WhatsApp template
+        const sent = await sendClaimInvitationTemplate(phone, business.name, business.id);
         if (sent) {
           console.log(`${progress} ✅ ${business.name} (${phone})`);
           results.sent++;
@@ -123,7 +120,7 @@ async function sendClaimInvitations(businesses, options = {}) {
           results.errors.push({
             business: business.name,
             phone,
-            error: 'Send failed'
+            error: 'Template send failed'
           });
         }
       }

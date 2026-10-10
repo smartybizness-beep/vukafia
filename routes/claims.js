@@ -11,6 +11,7 @@ const db = require('../db');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { initializePayment, verifyPayment, getClaimFee, PAYSTACK_PUBLIC } = require('../services/paystack');
 const { createCheckoutSession, verifyPayment: verifyBachsPayment, processWebhookEvent } = require('../services/bachsPayment');
+const { sendPaymentConfirmationTemplate, sendClaimVerifiedTemplate } = require('../services/whatsappService');
 
 // ─── GET /api/claims/search ────────────────────────────────────────────────
 // Search for a listing to claim (by name + country)
@@ -333,6 +334,20 @@ router.post('/verify-bachs-payment', requireAuth, async (req, res, next) => {
       status: 'completed',
       claimed_at: new Date()
     }).catch(() => {}); // Table may not exist yet
+
+    // Send WhatsApp confirmation templates (async, don't block response)
+    const businessPhone = listing.phone?.replace(/\D/g, '');
+    if (businessPhone) {
+      // Send payment confirmation
+      sendPaymentConfirmationTemplate(businessPhone, listing.name, 14.99, listing_id)
+        .catch(err => console.error('Failed to send payment confirmation:', err.message));
+
+      // Send claim verified template
+      setTimeout(() => {
+        sendClaimVerifiedTemplate(businessPhone, listing.name, listing_id)
+          .catch(err => console.error('Failed to send claim verified:', err.message));
+      }, 2000); // Send after 2 seconds
+    }
 
     res.json({
       success: true,

@@ -12,6 +12,7 @@ const db = require('../db');
 const WA_PHONE_NUMBER_ID = process.env.WA_PHONE_NUMBER_ID;
 const WA_API_TOKEN = process.env.WA_API_TOKEN;
 const WA_API_URL = `https://graph.instagram.com/v18.0/${WA_PHONE_NUMBER_ID}/messages`;
+const BASE_URL = process.env.BASE_URL || 'https://vukafia.com';
 
 /**
  * Send a message via WhatsApp API
@@ -137,6 +138,178 @@ Questions? Reply here or contact support! 📞
 }
 
 /**
+ * Send Claim Invitation Template
+ * Send to businesses inviting them to claim
+ */
+async function sendClaimInvitationTemplate(recipientPhone, businessName, businessId) {
+  try {
+    const claimLink = `${BASE_URL}/claim/${businessId}`;
+
+    const response = await axios.post(
+      WA_API_URL,
+      {
+        messaging_product: 'whatsapp',
+        to: recipientPhone,
+        type: 'template',
+        template: {
+          name: 'claim_invitation',
+          language: { code: 'en_US' },
+          parameters: {
+            body: {
+              parameters: [
+                { type: 'text', text: businessName.split(' ')[0] },  // First name
+                { type: 'text', text: businessName },
+                { type: 'text', text: claimLink }
+              ]
+            }
+          }
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${WA_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log(`✅ Claim invitation sent to ${recipientPhone}`);
+    return true;
+  } catch (err) {
+    console.error('❌ Claim invitation send failed:', err.response?.data || err.message);
+    return false;
+  }
+}
+
+/**
+ * Send Claim Verified Template
+ * Send after successful claim verification
+ */
+async function sendClaimVerifiedTemplate(recipientPhone, businessName, businessId) {
+  try {
+    const businessLink = `${BASE_URL}/business/${businessId}`;
+
+    const response = await axios.post(
+      WA_API_URL,
+      {
+        messaging_product: 'whatsapp',
+        to: recipientPhone,
+        type: 'template',
+        template: {
+          name: 'claim_verified',
+          language: { code: 'en_US' },
+          parameters: {
+            body: {
+              parameters: [
+                { type: 'text', text: businessName.split(' ')[0] },  // First name
+                { type: 'text', text: businessName },
+                { type: 'text', text: businessLink }
+              ]
+            }
+          }
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${WA_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log(`✅ Claim verified template sent to ${recipientPhone}`);
+    return true;
+  } catch (err) {
+    console.error('❌ Claim verified send failed:', err.response?.data || err.message);
+    return false;
+  }
+}
+
+/**
+ * Send Payment Confirmation Template
+ * Send after successful payment
+ */
+async function sendPaymentConfirmationTemplate(recipientPhone, businessName, amount, businessId) {
+  try {
+    const businessLink = `${BASE_URL}/business/${businessId}`;
+
+    const response = await axios.post(
+      WA_API_URL,
+      {
+        messaging_product: 'whatsapp',
+        to: recipientPhone,
+        type: 'template',
+        template: {
+          name: 'payment_confirmation',
+          language: { code: 'en_US' },
+          parameters: {
+            body: {
+              parameters: [
+                { type: 'text', text: businessName },
+                { type: 'text', text: amount.toFixed(2) },
+                { type: 'text', text: businessLink }
+              ]
+            }
+          }
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${WA_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log(`✅ Payment confirmation sent to ${recipientPhone}`);
+    return true;
+  } catch (err) {
+    console.error('❌ Payment confirmation send failed:', err.response?.data || err.message);
+    return false;
+  }
+}
+
+/**
+ * Send OTP Verification Template
+ * Send OTP code for 2FA
+ */
+async function sendOTPTemplate(recipientPhone, otpCode) {
+  try {
+    const response = await axios.post(
+      WA_API_URL,
+      {
+        messaging_product: 'whatsapp',
+        to: recipientPhone,
+        type: 'template',
+        template: {
+          name: 'otp_verification',
+          language: { code: 'en_US' },
+          parameters: {
+            body: {
+              parameters: [
+                { type: 'text', text: otpCode }
+              ]
+            }
+          }
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${WA_API_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log(`✅ OTP sent to ${recipientPhone}`);
+    return true;
+  } catch (err) {
+    console.error('❌ OTP send failed:', err.response?.data || err.message);
+    return false;
+  }
+}
+
+/**
  * Process incoming WhatsApp message
  * Route messages to appropriate handlers
  */
@@ -240,5 +413,9 @@ module.exports = {
   sendTemplate,
   sendPaymentConfirmation,
   sendVerificationLink,
+  sendClaimInvitationTemplate,
+  sendClaimVerifiedTemplate,
+  sendPaymentConfirmationTemplate,
+  sendOTPTemplate,
   handleIncomingMessage,
 };
