@@ -10,12 +10,24 @@
 
 const express = require('express');
 const router = express.Router();
-const { requireAdminAuth } = require('../middleware/auth');
 const {
   getCampaignStats,
   sendClaimInvitations,
   getUnclaimedBusinesses
 } = require('../services/claimCampaign');
+
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'vukafia_admin_2025';
+
+// Admin auth middleware — check for ADMIN_TOKEN
+const requireAdminAuth = (req, res, next) => {
+  const auth = req.headers.authorization;
+  const token = auth?.startsWith('Bearer ') ? auth.slice(7) : req.query.admin_token;
+
+  if (token !== ADMIN_TOKEN) {
+    return res.status(401).json({ error: 'Admin token required' });
+  }
+  next();
+};
 
 // ─── GET /api/campaigns/stats ─────────────────────────────────────────────
 // Get campaign statistics (preview before running)
