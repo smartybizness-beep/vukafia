@@ -18,12 +18,12 @@ export const TRANSLATIONS = {
     // Hero Section
     heroTagline: 'Rising Markets. Connecting Africa.',
     heroTitle: 'Trans-African #1 Business Directory',
-    heroDesc: 'Discover verified products and services from businesses across all 54 African nations. Search, connect, trade — powered by WhatsApp AI.',
+    heroDesc: 'Discover verified products and services from businesses across all 54 African nations. Search, connect, trade — powered by AI WhatsApp Assistant.',
 
     // Buttons
     listBusiness: '+ List Business',
     claimBusiness: '✓ Claim Business',
-    whatsappAi: '💬 WhatsApp AI',
+    whatsappAssistant: '💬 WhatsApp Assistant',
     scrollDown: 'Scroll Down',
     search: 'Search',
 
@@ -76,7 +76,7 @@ export const TRANSLATIONS = {
     // Buttons
     listBusiness: '+ List Your Business',
     claimBusiness: '✓ Claim Your Business',
-    whatsappAi: '💬 WhatsApp AI',
+    whatsappAssistant: '💬 WhatsApp Assistant',
     scrollDown: 'Scroll Down',
     search: 'Search',
 
@@ -129,7 +129,7 @@ export const TRANSLATIONS = {
     // Buttons
     listBusiness: '+ Lister Entreprise',
     claimBusiness: '✓ Réclamer Entreprise',
-    whatsappAi: '💬 WhatsApp IA',
+    whatsappAssistant: '💬 WhatsApp Assistant',
     scrollDown: 'Défiler',
     search: 'Rechercher',
 
@@ -182,7 +182,7 @@ export const TRANSLATIONS = {
     // Buttons
     listBusiness: '+ Orodhesha Biashara',
     claimBusiness: '✓ Dai Biashara',
-    whatsappAi: '💬 WhatsApp AI',
+    whatsappAssistant: '💬 WhatsApp Assistant',
     scrollDown: 'Scroll Chini',
     search: 'Tafuta',
 
@@ -235,7 +235,7 @@ export const TRANSLATIONS = {
     // Buttons
     listBusiness: '+ Listar Negocio',
     claimBusiness: '✓ Reclamar Negocio',
-    whatsappAi: '💬 WhatsApp IA',
+    whatsappAssistant: '💬 WhatsApp Assistant',
     scrollDown: 'Desplazarse',
     search: 'Buscar',
 

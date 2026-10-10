@@ -700,8 +700,8 @@ export default function App() {
             <strong>54+</strong>{t.nations}
           </div>
 
-          <button className="btn-wa-n" onClick={() => openWhatsApp(`👋 Welcome to Vukafia! I'm Trima, your AI assistant.\n\nWhat would you like to do?\n\n1️⃣ Register a new business\n2️⃣ Claim an existing business\n3️⃣ Search for businesses`)}>
-            {t.whatsappAi}
+          <button className="btn-wa-n" onClick={() => openWhatsApp(`👋 Hello! I'm Trima, your AI WhatsApp Assistant.\n\nI'm here to help you:\n\n1️⃣ 📝 Register your business (FREE)\n2️⃣ ✅ Claim your business ($14.99)\n3️⃣ 🔍 Search for businesses\n4️⃣ ❓ Get help & support\n\nWhat would you like to do?`)}>
+            {t.whatsappAssistant}
           </button>
           <button
             className="btn-lst"
