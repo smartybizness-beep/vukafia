@@ -131,7 +131,7 @@ const KNOWLEDGE_BASE = {
   // Support and Help
   'how do i contact support': 'Click "💬 Send Inquiry" in the chat, or use the contact section in the footer (WhatsApp or email). Our team responds within 24 hours.',
   'what are your support hours': 'We respond to inquiries Monday-Friday, 9am-6pm African Time. Weekend inquiries are answered by Monday.',
-  'do you have a phone number': 'You can reach us via WhatsApp (+234 810 147 7935) or email (hello@vukafia.com).',
+  'do you have a phone number': 'You can reach us via WhatsApp (+234 810 147 7935) or email (info@vukafia.com).',
   'how fast is customer support': 'Most inquiries get a response within 2-4 hours during business hours. Complex issues may take up to 24 hours.',
 
   // Common Issues

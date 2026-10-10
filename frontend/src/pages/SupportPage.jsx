@@ -97,7 +97,7 @@ export default function SupportPage() {
         },
         {
           q: 'How do I get featured?',
-          a: 'Featured businesses get priority visibility. Contact us at support@vukafia.com to discuss premium placement options.'
+          a: 'Featured businesses get priority visibility. Contact us at info@vukafia.com to discuss premium placement options.'
         },
         {
           q: 'Can customers find me in search results?',

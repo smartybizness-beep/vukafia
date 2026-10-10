@@ -273,7 +273,7 @@ export default function ContactPage() {
               💬 <a href="https://wa.me/2348101477935" style={{ color: '#25D366', textDecoration: 'none', fontWeight: 'bold' }}>WhatsApp: +234 810 147 7935</a>
             </p>
             <p style={{ color: '#4a3520', marginTop: '0.5rem' }}>
-              📧 Email: <a href="mailto:hello@vukafia.com" style={{ color: '#c0522a', textDecoration: 'none' }}>hello@vukafia.com</a>
+              📧 Email: <a href="mailto:info@vukafia.com" style={{ color: '#c0522a', textDecoration: 'none' }}>info@vukafia.com</a>
             </p>
           </div>
         </div>

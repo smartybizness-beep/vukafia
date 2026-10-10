@@ -1381,7 +1381,7 @@ export default function App() {
                   style={{
                     width: '100%',
                     padding: '0.75rem',
-                    background: 'var(--accent)',
+                    background: 'var(--tm)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
@@ -1428,7 +1428,7 @@ export default function App() {
                           borderRadius: '8px',
                           marginBottom: '0.75rem',
                           cursor: business.claimed ? 'not-allowed' : 'pointer',
-                          borderLeft: `4px solid ${business.claimed ? '#EF4444' : 'var(--accent)'}`,
+                          borderLeft: `4px solid ${business.claimed ? '#EF4444' : '#0284c7'}`,
                           transition: 'all 0.2s',
                           opacity: business.claimed ? 0.6 : 1
                         }}
@@ -1895,7 +1895,7 @@ export default function App() {
                     borderRadius: '8px',
                     marginBottom: '1.5rem',
                     textAlign: 'center',
-                    borderLeft: '4px solid var(--accent)'
+                    borderLeft: '4px solid #0284c7'
                   }}>
                     <div style={{ marginBottom: '0.5rem' }}>
                       <strong style={{ fontSize: '1.1rem' }}>{selectedClaim.name}</strong>
