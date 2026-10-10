@@ -31,6 +31,7 @@ const webhookRouter  = require('./routes/webhook');
 const searchRouter   = require('./routes/search');
 const claimsRouter   = require('./routes/claims');
 const inquiriesRouter = require('./routes/inquiries');
+const campaignsRouter = require('./routes/campaigns');
 
 const app  = express();
 app.set('trust proxy', 1);
@@ -120,6 +121,7 @@ app.use('/api/claims',     claimsRouter);
 app.use('/api/business',   businessRouter);
 app.use('/api/auth',       authRouter);
 app.use('/api/inquiries',  inquiriesRouter);  // Contact form & inquiry submissions
+app.use('/api/campaigns',  campaignsRouter);  // Marketing campaigns (admin only)
 app.use('/api/admin',      crawlerRouter);  // Crawler management (must come first - uses admin token)
 app.use('/api/admin',      adminRouter);    // Admin dashboard (uses JWT auth)
 app.use('/api/webhook',    webhookRouter);  // WhatsApp webhook
