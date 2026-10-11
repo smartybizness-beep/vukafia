@@ -56,7 +56,7 @@ export const TRANSLATIONS = {
     loading: '⏳ Loading...',
 
     // Footer
-    copyright: '© 2026 Vukafia. Rising Markets. Connecting Africa.',
+    copyright: '© 2026 SOT Smartybiz Ltd. Rising Markets. Connecting Africa.',
     privacy: 'Privacy Policy',
     terms: 'Terms of Service'
   },
@@ -109,7 +109,7 @@ export const TRANSLATIONS = {
     loading: '⏳ Loading...',
 
     // Footer
-    copyright: '© 2026 Vukafia. Wetin Don Dey Rise. Connecting Africa.',
+    copyright: '© 2026 SOT Smartybiz Ltd. Wetin Don Dey Rise. Connecting Africa.',
     privacy: 'Privacy Policy',
     terms: 'Terms of Service'
   },
@@ -162,7 +162,7 @@ export const TRANSLATIONS = {
     loading: '⏳ Chargement...',
 
     // Footer
-    copyright: '© 2026 Vukafia. Marchés Émergents. Connecter l\'Afrique.',
+    copyright: '© 2026 SOT Smartybiz Ltd. Marchés Émergents. Connecter l\'Afrique.',
     privacy: 'Politique de Confidentialité',
     terms: 'Conditions d\'Utilisation'
   },
@@ -215,7 +215,7 @@ export const TRANSLATIONS = {
     loading: '⏳ Kupakia...',
 
     // Footer
-    copyright: '© 2026 Vukafia. Soko Zinazokua. Kuunganisha Afrika.',
+    copyright: '© 2026 SOT Smartybiz Ltd. Soko Zinazokua. Kuunganisha Afrika.',
     privacy: 'Sera ya Faragha',
     terms: 'Masharti ya Huduma'
   },
@@ -268,7 +268,7 @@ export const TRANSLATIONS = {
     loading: '⏳ Cargando...',
 
     // Footer
-    copyright: '© 2026 Vukafia. Mercados Emergentes. Conectando África.',
+    copyright: '© 2026 SOT Smartybiz Ltd. Mercados Emergentes. Conectando África.',
     privacy: 'Política de Privacidad',
     terms: 'Términos de Servicio'
   }
