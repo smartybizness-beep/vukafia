@@ -28,8 +28,12 @@ function initializeMailer() {
 
   try {
     if (emailService === 'gmail') {
+      // Use explicit Gmail SMTP settings instead of service: 'gmail'
+      // This works better on Railway and other cloud platforms
       transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
         auth: {
           user: emailUser,
           pass: emailPassword // Use App Password for Gmail if 2FA enabled
@@ -239,7 +243,9 @@ async function testEmailConfigDetailed() {
     }
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
       auth: {
         user: emailUser,
         pass: emailPassword
