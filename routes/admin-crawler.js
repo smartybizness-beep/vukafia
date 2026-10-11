@@ -11,11 +11,13 @@ const { crawlGoogleMaps } = require('../services/googleMapsCrawler');
 const { triggerJob, getSchedulerStatus } = require('../jobs/scheduler');
 const { testEmailConfig, sendSuccessEmail, sendFailureEmail } = require('../services/mailer');
 
-// Middleware to verify admin (optional - add proper auth in production)
+// Middleware to verify admin token
 function requireAdmin(req, res, next) {
-  // TODO: Add proper JWT verification
-  // For now, just check if admin token is provided
-  const token = req.headers['x-admin-token'];
+  const auth = req.headers.authorization;
+  const tokenFromBearer = auth?.startsWith('Bearer ') ? auth.slice(7) : null;
+  const tokenFromHeader = req.headers['x-admin-token'];
+  const token = tokenFromBearer || tokenFromHeader;
+
   if (!token || token !== process.env.ADMIN_TOKEN) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
