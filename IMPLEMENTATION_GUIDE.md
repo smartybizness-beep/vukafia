@@ -2,13 +2,15 @@
 ## Complete Technical Documentation
 
 **Project**: Vukafia Trans-African Business Directory  
-**Date**: September 25, 2026 (Updated)  
+**Operator**: SOT Smartybiz Ltd  
+**Date**: October 11, 2026 (Updated)  
 **Status**: Live & Operational (218+ Listings, 54+ Nations, Real Photos)  
-**Latest Updates**: Restaurant type filter, B2B commodity focus, Google Maps photos, Pagination
+**Latest Updates**: Company branding added to footer, AI WhatsApp Assistant, WhatsApp Business API integration, Message templates, Bulk claim campaigns
 
 ---
 
 ## Table of Contents
+0. [Company Information](#company-information-october-11-2026)
 1. [Architecture Overview](#architecture-overview)
 2. [Database Setup](#database-setup)
 3. [Deployment Pipeline](#deployment-pipeline)
@@ -23,7 +25,31 @@
 12. [Pagination & Performance](#pagination--performance)
 13. [Trima AI Assistant & Knowledge Base](#trima-ai-assistant--knowledge-base)
 14. [Crawler Email Notifications](#crawler-email-notifications-september-28-2026)
-15. [Troubleshooting Reference](#troubleshooting-reference)
+15. [WhatsApp Integration](#whatsapp-integration-october-11-2026)
+16. [Troubleshooting Reference](#troubleshooting-reference)
+
+---
+
+## Company Information (October 11, 2026)
+
+### Branding & Legal
+- **Registered Company**: SOT Smartybiz Ltd
+- **Platform Name**: Vukafia (Trans-African Business Directory)
+- **Website**: https://vukafia.com
+- **Contact Email**: info@vukafia.com (updated from hello@/support@)
+- **Support WhatsApp**: +2348101477935
+
+### Footer Copyright
+- **Display**: © 2026 SOT Smartybiz Ltd. Rising Markets. Connecting Africa.
+- **Implementation**: Uses translation system (`t.copyright` in React)
+- **Location**: App.jsx (line 2275) + Layout.jsx (line 170)
+- **Languages**: English, French, Pidgin, Swahili, Spanish (all use same translation)
+- **Last Updated**: October 11, 2026 (commit eb7e762)
+
+### Company Details in Code
+- All email references updated to **info@vukafia.com** (October 10, 2026)
+- Footer uses dynamic translation from `frontend/src/languages.js`
+- Deployed via Railway auto-deploy from GitHub
 
 ---
 
