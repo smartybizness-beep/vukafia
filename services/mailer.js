@@ -221,9 +221,45 @@ async function testEmailConfig() {
   }
 }
 
+/**
+ * Test email configuration with detailed error info
+ */
+async function testEmailConfigDetailed() {
+  try {
+    const emailService = process.env.EMAIL_SERVICE || 'gmail';
+    const emailUser = process.env.EMAIL_USER;
+    const emailPassword = process.env.EMAIL_PASSWORD;
+
+    console.log('[MAILER DEBUG] Service:', emailService);
+    console.log('[MAILER DEBUG] User:', emailUser);
+    console.log('[MAILER DEBUG] Password length:', emailPassword?.length || 0);
+
+    if (!emailUser || !emailPassword) {
+      return { success: false, error: 'Email credentials missing', details: { emailUser, emailPassword: emailPassword ? '***' : 'MISSING' } };
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: emailUser,
+        pass: emailPassword
+      }
+    });
+
+    console.log('[MAILER DEBUG] Verifying connection...');
+    await transporter.verify();
+    console.log('[MAILER DEBUG] ✅ Connection verified');
+    return { success: true, message: 'Email configuration is valid' };
+  } catch (err) {
+    console.error('[MAILER DEBUG] Error:', err.message);
+    return { success: false, error: err.message, code: err.code };
+  }
+}
+
 module.exports = {
   initializeMailer,
   sendSuccessEmail,
   sendFailureEmail,
-  testEmailConfig
+  testEmailConfig,
+  testEmailConfigDetailed
 };

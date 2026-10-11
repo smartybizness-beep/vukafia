@@ -9,7 +9,7 @@ const express = require('express');
 const router = express.Router();
 const { crawlGoogleMaps } = require('../services/googleMapsCrawler');
 const { triggerJob, getSchedulerStatus } = require('../jobs/scheduler');
-const { testEmailConfig, sendSuccessEmail, sendFailureEmail } = require('../services/mailer');
+const { testEmailConfig, testEmailConfigDetailed, sendSuccessEmail, sendFailureEmail } = require('../services/mailer');
 
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'vukafia_admin_2025';
 
@@ -103,14 +103,16 @@ router.get('/crawler/test-email-debug', async (req, res) => {
 
     console.log('[EMAIL DEBUG] Config:', config);
 
-    // Test email configuration
-    const isValid = await testEmailConfig();
-    console.log('[EMAIL DEBUG] Configuration valid:', isValid);
+    // Test email configuration with detailed error info
+    const testResult = await testEmailConfigDetailed();
+    console.log('[EMAIL DEBUG] Test result:', testResult);
 
-    if (!isValid) {
+    if (!testResult.success) {
       return res.status(400).json({
         success: false,
         message: 'Email configuration failed.',
+        error: testResult.error,
+        code: testResult.code,
         debug: config
       });
     }
