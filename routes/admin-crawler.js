@@ -11,6 +11,8 @@ const { crawlGoogleMaps } = require('../services/googleMapsCrawler');
 const { triggerJob, getSchedulerStatus } = require('../jobs/scheduler');
 const { testEmailConfig, sendSuccessEmail, sendFailureEmail } = require('../services/mailer');
 
+const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'vukafia_admin_2025';
+
 // Middleware to verify admin token
 function requireAdmin(req, res, next) {
   const auth = req.headers.authorization;
@@ -18,7 +20,7 @@ function requireAdmin(req, res, next) {
   const tokenFromHeader = req.headers['x-admin-token'];
   const token = tokenFromBearer || tokenFromHeader;
 
-  if (!token || token !== process.env.ADMIN_TOKEN) {
+  if (!token || token !== ADMIN_TOKEN) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   next();
