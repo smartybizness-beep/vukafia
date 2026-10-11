@@ -83,6 +83,45 @@ router.post('/crawler/trigger', requireAdmin, async (req, res) => {
 });
 
 /**
+ * POST /api/admin/crawler/test-trigger
+ * Temporary endpoint to manually test crawler (no auth required)
+ */
+router.post('/crawler/test-trigger', async (req, res) => {
+  try {
+    console.log('[TEST] Manually triggering crawler...');
+    const startTime = Date.now();
+    const result = await crawlGoogleMaps();
+    const duration = Math.round((Date.now() - startTime) / 1000);
+
+    // Send success email
+    await sendSuccessEmail({
+      ...result,
+      duration,
+      timestamp: new Date()
+    });
+
+    res.json({
+      success: true,
+      result,
+      duration,
+      message: `Crawler test completed! Email sent to admin.`
+    });
+  } catch (err) {
+    console.error('[TEST] Crawler test error:', err.message);
+    const duration = Math.round((Date.now() - startTime) / 1000);
+
+    // Send failure email
+    await sendFailureEmail(err, duration);
+
+    res.status(500).json({
+      success: false,
+      error: err.message,
+      message: 'Crawler test failed. Error email sent to admin.'
+    });
+  }
+});
+
+/**
  * POST /api/admin/crawler/test-email
  * Test email configuration
  */
