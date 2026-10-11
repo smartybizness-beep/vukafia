@@ -51,7 +51,7 @@ app.use(cors({
     ? process.env.ALLOWED_ORIGINS.split(',')
     : ['http://localhost:3000', 'https://vukafia.com', 'https://www.vukafia.com'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token'],
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
