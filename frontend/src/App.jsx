@@ -2272,7 +2272,7 @@ export default function App() {
         {/* Copyright */}
         <div style={{ textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
           <p style={{ margin: '0.5rem 0', fontSize: '0.85rem', opacity: 0.7 }}>
-            © 2026 Vukafia. Rising Markets. Connecting Africa.
+            {t.copyright}
           </p>
           <p style={{ margin: '0.5rem 0', fontSize: '0.75rem', opacity: 0.6 }}>
             Serving businesses across Africa | Privacy Policy | Terms of Service
