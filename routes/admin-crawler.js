@@ -83,6 +83,66 @@ router.post('/crawler/trigger', requireAdmin, async (req, res) => {
 });
 
 /**
+ * GET /api/admin/crawler/test-email-debug
+ * Test email with detailed debug output (no auth required)
+ */
+router.get('/crawler/test-email-debug', async (req, res) => {
+  try {
+    console.log('[EMAIL DEBUG] Starting email test...');
+
+    // Check environment variables
+    const emailUser = process.env.EMAIL_USER;
+    const emailPassword = process.env.EMAIL_PASSWORD;
+    const adminEmail = process.env.ADMIN_EMAIL || 'smartybizness@gmail.com';
+
+    const config = {
+      emailUser: emailUser ? '✅ SET' : '❌ MISSING',
+      emailPassword: emailPassword ? '✅ SET' : '❌ MISSING',
+      adminEmail: adminEmail
+    };
+
+    console.log('[EMAIL DEBUG] Config:', config);
+
+    // Test email configuration
+    const isValid = await testEmailConfig();
+    console.log('[EMAIL DEBUG] Configuration valid:', isValid);
+
+    if (!isValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email configuration failed.',
+        debug: config
+      });
+    }
+
+    // Send test email
+    console.log('[EMAIL DEBUG] Sending test email to', adminEmail);
+    await sendSuccessEmail({
+      inserted: 42,
+      updated: 8,
+      total: 487,
+      progress: 48,
+      duration: 127,
+      timestamp: new Date()
+    });
+
+    res.json({
+      success: true,
+      message: 'Test email sent successfully!',
+      sentTo: adminEmail,
+      debug: config
+    });
+  } catch (err) {
+    console.error('[EMAIL DEBUG] Error:', err.message);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+      stack: err.stack
+    });
+  }
+});
+
+/**
  * POST /api/admin/crawler/test-email
  * Test email configuration
  */
