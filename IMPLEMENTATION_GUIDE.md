@@ -5,7 +5,7 @@
 **Operator**: SOT Smartybiz Ltd  
 **Date**: October 11, 2026 (Updated)  
 **Status**: Live & Operational (218+ Listings, 54+ Nations, Real Photos)  
-**Latest Updates**: Company branding added to footer, AI WhatsApp Assistant, WhatsApp Business API integration, Message templates, Bulk claim campaigns
+**Latest Updates**: Company branding added to footer, AI WhatsApp Assistant, WhatsApp Business API integration, Message templates, Bulk claim campaigns, Daily email notifications for crawler jobs
 
 ---
 
@@ -24,7 +24,7 @@
 11. [Google Maps Crawler](#google-maps-crawler)
 12. [Pagination & Performance](#pagination--performance)
 13. [Trima AI Assistant & Knowledge Base](#trima-ai-assistant--knowledge-base)
-14. [Crawler Email Notifications](#crawler-email-notifications-september-28-2026)
+14. [Crawler Email Notifications](#crawler-email-notifications-october-11-2026)
 15. [WhatsApp Integration](#whatsapp-integration-october-11-2026)
 16. [Troubleshooting Reference](#troubleshooting-reference)
 
@@ -1423,10 +1423,12 @@ This session focused on **AI Assistant Enhancement**, **Multi-Language Support**
 
 
 
-## Crawler Email Notifications (September 28, 2026)
+## Crawler Email Notifications (October 11, 2026)
 
 ### Feature Overview
-Automated email notifications for the Google Crawler job that runs daily at 2 AM UTC. Admins receive detailed reports on successful crawls and immediate alerts on failures.
+✅ **Fully Operational** — Automated email notifications for the Google Crawler job that runs daily at **2:00 AM UTC**. Admins receive detailed reports on successful crawls and immediate alerts on failures.
+
+**Status**: Tested and working (October 11, 2026)
 
 ### Setup Instructions
 
@@ -1435,34 +1437,67 @@ Automated email notifications for the Google Crawler job that runs daily at 2 AM
 npm install nodemailer
 ```
 
-#### 2. Configure Email Service
-Add to `.env`:
+#### 2. Configure Email Service (Railway Environment Variables)
+Set these on Railway Dashboard → Variables:
 ```
-# Email Notifications
-EMAIL_SERVICE=gmail              # 'gmail' or 'custom'
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_app_password
+EMAIL_SERVICE=gmail
+EMAIL_USER=smartybizness@gmail.com
+EMAIL_PASSWORD=skmw vsmd frud douk          # (App Password - update with your own)
 ADMIN_EMAIL=smartybizness@gmail.com
-
-# Optional: For custom SMTP
-# EMAIL_HOST=smtp.example.com
-# EMAIL_PORT=587
 ```
 
-#### 3. Gmail Setup (Recommended)
+#### 3. Gmail Setup (Required)
 1. Go to https://myaccount.google.com/security
-2. Enable 2-Factor Authentication (if not already)
+2. Enable 2-Factor Authentication
 3. Create App Password:
    - Go to Security → App Passwords
    - Select "Mail" and "Windows Computer"
-   - Copy 16-character password
-   - Paste into `EMAIL_PASSWORD` in .env
+   - Copy 16-character password (e.g., `skmw vsmd frud douk`)
+   - Add to Railway Variables as `EMAIL_PASSWORD`
+4. **Do NOT use your regular Gmail password** — App Password is required for 2FA accounts
 
-#### 4. Test Email Configuration
+#### 4. Railway Network Configuration (Critical!)
+⚠️ **Required for SMTP to work on Railway:**
+1. Go to Railway Dashboard → Your Project → Settings
+2. Find **"Outbound IPv6"** section
+3. **Enable "Enable Outbound IPv6"** toggle
+4. Wait for redeploy (30-60 seconds)
+
+**Why**: Railway blocks outbound SMTP by default. IPv6 enables outbound connections.
+
+#### 5. Test Email Configuration
 ```bash
-# Test endpoint (requires ADMIN_TOKEN header)
-curl -X POST http://localhost:5000/api/admin/crawler/test-email \
-  -H "x-admin-token: your_admin_token"
+# No auth required - just tests email sending
+curl https://vukafia.com/api/admin/crawler/test-email-debug
+```
+
+**Expected Response**:
+```json
+{
+  "success": true,
+  "message": "Test email sent! Check your inbox.",
+  "sentTo": "smartybizness@gmail.com"
+}
+```
+
+### Gmail SMTP Configuration
+
+**Service**: Gmail SMTP (smtp.gmail.com)  
+**Port**: 465 (TLS/SSL)  
+**Authentication**: App Password (not regular password)  
+**Files Modified**: `services/mailer.js`
+
+```javascript
+// Configuration in mailer.js
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,  // TLS enabled
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD  // App Password
+  }
+});
 ```
 
 ### Email Features
@@ -1476,11 +1511,11 @@ curl -X POST http://localhost:5000/api/admin/crawler/test-email \
   - Job duration in seconds
 - 📍 Data Picked Up section
 - ⏱️ Timestamp and next scheduled run
-- Professional HTML formatting
+- Professional HTML formatting with green success indicators
 
 #### ❌ Failure Email Contains:
-- Error message and full stack trace
-- Troubleshooting steps:
+- ❌ Error message and full stack trace
+- 📋 Troubleshooting steps:
   - Check Google Maps API quota
   - Verify API key and permissions
   - Confirm database connectivity
@@ -1497,14 +1532,15 @@ curl -X POST http://localhost:5000/api/admin/crawler/test-email \
 **Modified Files**:
 - `jobs/scheduler.js` - Added email notifications on job completion
 - `routes/admin-crawler.js` - Added test-email endpoint, manual job trigger sends emails
-- `.env` - Added EMAIL_* configuration variables
+- `.env` (local) and Railway Variables - Added EMAIL_* configuration
 
 ### Job Details
 
 **Daily Crawler Schedule**: 2:00 AM UTC  
 **Email Recipients**: Configured in `ADMIN_EMAIL`  
 **Retry Policy**: Automatic at next scheduled time if fails  
-**Email Service**: Gmail (default) or custom SMTP  
+**Email Service**: Gmail SMTP (smtp.gmail.com:465)  
+**Status**: ✅ Tested and operational as of October 11, 2026  
 
 ### Email API Endpoints
 
