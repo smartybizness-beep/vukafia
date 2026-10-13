@@ -721,10 +721,8 @@ Include:
 
 ### Contact for Disputes
 
-- 📧 **Standard**: info@vukafia.com
-- 🚨 **Urgent**: info@vukafia.com (mark URGENT)
+- 📧 **All Correspondence**: info@vukafia.com
 - 💬 **WhatsApp**: +2348101477935
-- ⚖️ **Legal**: legal@vukafia.com
 
 ---
 

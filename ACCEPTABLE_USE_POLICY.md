@@ -12,7 +12,7 @@ This Acceptable Use Policy ("Policy") outlines the prohibited activities, busine
 
 **Platform**: Trans-African Business Directory  
 **Operator**: SOT Smartybiz Ltd  
-**Contact**: info@vukafia.com | WhatsApp: +2348101477935
+**Contact**: All correspondence to info@vukafia.com | WhatsApp: +2348101477935
 
 ---
 

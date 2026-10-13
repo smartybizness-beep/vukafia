@@ -170,9 +170,6 @@ export default function RefundPolicyPage() {
           <p style={{ color: '#666', margin: '0.5rem 0' }}>
             💬 WhatsApp: <strong>+2348101477935</strong>
           </p>
-          <p style={{ color: '#666', margin: '0.5rem 0' }}>
-            ⚖️ Legal: <strong>legal@vukafia.com</strong>
-          </p>
         </section>
 
         <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #ddd', textAlign: 'center', color: '#999', fontSize: '0.85rem' }}>

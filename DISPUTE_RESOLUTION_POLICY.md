@@ -20,7 +20,7 @@ This Dispute Resolution Policy outlines how Vukafia addresses complaints, disput
 
 **Platform**: Trans-African Business Directory  
 **Operator**: SOT Smartybiz Ltd  
-**Contact**: info@vukafia.com | WhatsApp: +2348101477935
+**Contact**: All correspondence to info@vukafia.com | WhatsApp: +2348101477935
 
 ---
 
