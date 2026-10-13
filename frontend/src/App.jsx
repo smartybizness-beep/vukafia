@@ -2217,6 +2217,19 @@ export default function App() {
               <a href="https://vukafia.com" style={{ color: '#d4a017', textDecoration: 'none' }}>Browse Businesses</a>
             </p>
             <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <button onClick={() => navigate('/templates')} style={{
+                background: 'transparent',
+                color: '#d4a017',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: '0.9rem',
+                textDecoration: 'none'
+              }}>
+                Trade Templates
+              </button>
+            </p>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
               <button onClick={() => navigate('/contact')} style={{
                 background: 'transparent',
                 color: '#d4a017',
@@ -2240,6 +2253,45 @@ export default function App() {
                 textDecoration: 'none'
               }}>
                 Help Center
+              </button>
+            </p>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <button onClick={() => navigate('/refund-policy')} style={{
+                background: 'transparent',
+                color: '#d4a017',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: '0.9rem',
+                textDecoration: 'none'
+              }}>
+                Refund Policy
+              </button>
+            </p>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <button onClick={() => navigate('/acceptable-use-policy')} style={{
+                background: 'transparent',
+                color: '#d4a017',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: '0.9rem',
+                textDecoration: 'none'
+              }}>
+                Acceptable Use
+              </button>
+            </p>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <button onClick={() => navigate('/dispute-resolution')} style={{
+                background: 'transparent',
+                color: '#d4a017',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                fontSize: '0.9rem',
+                textDecoration: 'none'
+              }}>
+                Dispute Resolution
               </button>
             </p>
           </div>
