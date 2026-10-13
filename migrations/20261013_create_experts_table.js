@@ -22,7 +22,7 @@ exports.up = async function(knex) {
     t.decimal('rating', 3, 1).defaultTo(0.0);  // 1-5 stars
     t.integer('review_count').defaultTo(0);
     t.boolean('verified').defaultTo(false);
-    t.enum('status', ['active', 'inactive', 'pending_verification']).defaultTo('pending_verification');
+    t.enu('status', ['active', 'inactive', 'pending_verification']).defaultTo('pending_verification');
     t.timestamps(true, true);
   });
 };

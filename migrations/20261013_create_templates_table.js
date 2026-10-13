@@ -4,24 +4,32 @@
  */
 
 exports.up = async function(knex) {
+  if (knex.client.config.client === 'pg') {
+    await knex.raw(`CREATE TYPE template_type_enum AS ENUM ('invoice', 'packing', 'permit', 'customs', 'insurance', 'checklist');`).catch(() => {});
+  }
+
   return knex.schema.createTable('templates', t => {
     t.increments('id').primary();
-    t.string('name').notNullable();  // "Export Invoice", "Packing List", etc.
+    t.string('name').notNullable();
     t.text('description');
-    t.string('category').notNullable();  // "invoicing", "shipping", "compliance", "customs"
-    t.string('file_url').notNullable();  // PDF/DOC URL
-    t.string('country_code').notNullable();  // NG, KE, GH, BJ for Nigeria, Kenya, Ghana, Benin
-    t.string('country_name');  // Nigeria, Kenya, Ghana, Benin
-    t.string('trade_route');  // "Nigeria-Kenya", "Kenya-Ghana", etc.
-    t.text('instructions');  // How to fill out template
-    t.boolean('is_free').defaultTo(true);  // Free access model
-    t.integer('access_days').defaultTo(7);  // Free access duration (7 days)
-    t.enum('template_type', ['invoice', 'packing', 'permit', 'customs', 'insurance', 'checklist']).notNullable();
+    t.string('category').notNullable();
+    t.string('file_url').notNullable();
+    t.string('country_code').notNullable();
+    t.string('country_name');
+    t.string('trade_route');
+    t.text('instructions');
+    t.boolean('is_free').defaultTo(true);
+    t.integer('access_days').defaultTo(7);
+    t.enu('template_type', ['invoice', 'packing', 'permit', 'customs', 'insurance', 'checklist']).notNullable();
     t.boolean('active').defaultTo(true);
     t.timestamps(true, true);
   });
 };
 
 exports.down = async function(knex) {
-  return knex.schema.dropTable('templates');
+  await knex.schema.dropTable('templates');
+
+  if (knex.client.config.client === 'pg') {
+    await knex.raw(`DROP TYPE IF EXISTS template_type_enum CASCADE;`).catch(() => {});
+  }
 };
