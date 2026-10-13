@@ -1,22 +1,10 @@
+// Legacy migration - table created in 20261013_2_create_templates_table.js
 exports.up = async function(knex) {
-  return knex.schema.createTable('templates', t => {
-    t.increments('id').primary();
-    t.string('name').notNullable();
-    t.text('description');
-    t.string('category').notNullable();
-    t.string('file_url').notNullable();
-    t.string('country_code').notNullable();
-    t.string('country_name');
-    t.string('trade_route');
-    t.text('instructions');
-    t.boolean('is_free').defaultTo(true);
-    t.integer('access_days').defaultTo(7);
-    t.string('template_type', 20).notNullable();
-    t.boolean('active').defaultTo(true);
-    t.timestamps(true, true);
-  });
+  const hasTable = await knex.schema.hasTable('templates');
+  // Skip if table already exists - it was created by the numbered migration
+  if (hasTable) return;
 };
 
 exports.down = async function(knex) {
-  return knex.schema.dropTable('templates');
+  // No-op in rollback
 };
