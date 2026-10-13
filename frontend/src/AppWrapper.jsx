@@ -3,6 +3,9 @@ import AppHome from './App';
 import ContactPage from './pages/ContactPage';
 import BusinessDetailPage from './pages/BusinessDetailPage';
 import SupportPage from './pages/SupportPage';
+import AcceptableUsePolicyPage from './pages/AcceptableUsePolicyPage';
+import RefundPolicyPage from './pages/RefundPolicyPage';
+import DisputeResolutionPage from './pages/DisputeResolutionPage';
 import Chatbot from './components/Chatbot';
 
 export default function AppWrapper() {
@@ -13,6 +16,9 @@ export default function AppWrapper() {
         <Route path="/business/:id" element={<BusinessDetailPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/acceptable-use-policy" element={<AcceptableUsePolicyPage />} />
+        <Route path="/refund-policy" element={<RefundPolicyPage />} />
+        <Route path="/dispute-resolution" element={<DisputeResolutionPage />} />
       </Routes>
       <Chatbot />
     </Router>

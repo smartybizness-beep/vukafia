@@ -170,7 +170,17 @@ export default function Layout({ children }) {
             {t.copyright}
           </p>
           <p style={{ margin: '0.5rem 0', fontSize: '0.75rem', opacity: 0.6 }}>
-            Serving businesses across Africa | Privacy Policy | Terms of Service
+            <a href="/acceptable-use-policy" style={{ color: '#d4a017', textDecoration: 'none' }}>
+              Acceptable Use Policy
+            </a>
+            {' | '}
+            <a href="/refund-policy" style={{ color: '#d4a017', textDecoration: 'none' }}>
+              Refund Policy
+            </a>
+            {' | '}
+            <a href="/dispute-resolution" style={{ color: '#d4a017', textDecoration: 'none' }}>
+              Dispute Resolution
+            </a>
           </p>
         </div>
       </footer>
