@@ -13,9 +13,7 @@ exports.up = async function(knex) {
       is_free: true,
       access_days: 7,
       template_type: 'invoice',
-      active: true,
-      created_at: knex.fn.now(),
-      updated_at: knex.fn.now()
+      active: true
     },
     {
       name: 'Packing List - Nigeria to Kenya',
@@ -29,9 +27,7 @@ exports.up = async function(knex) {
       is_free: true,
       access_days: 7,
       template_type: 'packing',
-      active: true,
-      created_at: knex.fn.now(),
-      updated_at: knex.fn.now()
+      active: true
     },
     {
       name: 'Bill of Lading Template - Nigeria',
@@ -45,11 +41,8 @@ exports.up = async function(knex) {
       is_free: true,
       access_days: 7,
       template_type: 'packing',
-      active: true,
-      created_at: knex.fn.now(),
-      updated_at: knex.fn.now()
+      active: true
     },
-    // Kenya Templates
     {
       name: 'Commercial Invoice - Kenya',
       description: 'Standard commercial invoice template for Kenyan exporters',
@@ -62,9 +55,7 @@ exports.up = async function(knex) {
       is_free: true,
       access_days: 7,
       template_type: 'invoice',
-      active: true,
-      created_at: knex.fn.now(),
-      updated_at: knex.fn.now()
+      active: true
     },
     {
       name: 'Customs Declaration Form - Kenya',
@@ -78,11 +69,8 @@ exports.up = async function(knex) {
       is_free: true,
       access_days: 7,
       template_type: 'customs',
-      active: true,
-      created_at: knex.fn.now(),
-      updated_at: knex.fn.now()
+      active: true
     },
-    // Ghana Templates
     {
       name: 'Invoice Template - Ghana',
       description: 'Standard invoice for Ghanaian businesses',
@@ -95,9 +83,7 @@ exports.up = async function(knex) {
       is_free: true,
       access_days: 7,
       template_type: 'invoice',
-      active: true,
-      created_at: knex.fn.now(),
-      updated_at: knex.fn.now()
+      active: true
     },
     {
       name: 'Export Permit Application - Ghana',
@@ -111,11 +97,8 @@ exports.up = async function(knex) {
       is_free: true,
       access_days: 7,
       template_type: 'permit',
-      active: true,
-      created_at: knex.fn.now(),
-      updated_at: knex.fn.now()
+      active: true
     },
-    // Benin Templates
     {
       name: 'Commercial Invoice - Benin',
       description: 'Invoice template for Beninese exporters',
@@ -128,16 +111,16 @@ exports.up = async function(knex) {
       is_free: true,
       access_days: 7,
       template_type: 'invoice',
-      active: true,
-      created_at: knex.fn.now(),
-      updated_at: knex.fn.now()
+      active: true
     }
   ];
 
-  // Insert only if not already present
-  const existing = await knex('templates').count('* as count').first();
-  if (existing.count === 0) {
+  // Insert templates
+  try {
     await knex('templates').insert(templates);
+  } catch (err) {
+    // Ignore if already exists
+    console.log('Templates already seeded or error:', err.message);
   }
 };
 
