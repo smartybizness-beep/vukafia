@@ -167,7 +167,7 @@ export default function Layout({ children }) {
         {/* Copyright */}
         <div style={{ textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
           <p style={{ margin: '0.5rem 0', fontSize: '0.85rem', opacity: 0.7 }}>
-            {t.copyright}
+            © 2026 SOT Smartybiz Ltd. Rising Markets. Connecting Africa.
           </p>
           <p style={{ margin: '0.5rem 0', fontSize: '0.75rem', opacity: 0.6 }}>
             <a href="/acceptable-use-policy" style={{ color: '#d4a017', textDecoration: 'none' }}>
