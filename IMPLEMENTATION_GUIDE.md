@@ -26,7 +26,9 @@
 13. [Trima AI Assistant & Knowledge Base](#trima-ai-assistant--knowledge-base)
 14. [Crawler Email Notifications](#crawler-email-notifications-october-11-2026)
 15. [WhatsApp Integration](#whatsapp-integration-october-11-2026)
-16. [Troubleshooting Reference](#troubleshooting-reference)
+16. [Verified Reviews System](#verified-reviews-system-october-13-2026)
+17. [Trade Templates & Compliance Hub](#trade-templates--compliance-hub-october-13-2026)
+18. [Troubleshooting Reference](#troubleshooting-reference)
 
 ---
 
@@ -1751,6 +1753,105 @@ Add to `Layout.jsx` footer:
 
 ---
 
+## Verified Reviews System (October 13, 2026)
+
+### Overview
+Bidirectional review system where buyers review sellers and sellers review buyers, with evidence/screenshot support and auto-escalation for low ratings.
+
+### Database Tables
+- **reviews**: Core review records with ratings, text, status tracking
+- **review_evidence**: Screenshot/receipt attachments for verification
+- **review_responses**: Seller responses to reviews (like Google Maps)
+- **review_disputes**: Auto-escalation for ratings ≤2 stars
+
+### API Endpoints
+```
+POST   /api/reviews              - Create review with optional evidence
+GET    /api/reviews/listing/:id  - Fetch all reviews for a listing
+POST   /api/reviews/:id/response - Seller responds to review
+POST   /api/reviews/:id/dispute  - Flag review for dispute
+GET    /api/reviews/user/:id     - Get user's reviews
+```
+
+### Frontend Components
+- **ReviewForm.jsx**: 5-star rating, emoji feedback, comment textarea, file upload
+- **ReviewsList.jsx**: Display reviews with evidence gallery, seller responses, status badges
+- **Business Detail Page**: Integrated reviews section showing 4.8/5.0 sample rating
+
+### Status
+- ✅ Database migrations created
+- ✅ API routes implemented
+- ✅ Frontend components built
+- ✅ Reviews section added to business detail pages
+- ⚠️ Sample data: Shows 4.8/5.0 with 24 reviews (placeholder)
+- 📝 **TODO**: Implement actual review form submission
+
+---
+
+## Trade Templates & Compliance Hub (October 13, 2026)
+
+### Overview
+Free 7-day access to trade documentation templates, compliance checklists, and expert directory for cross-border trade in Nigeria, Kenya, Ghana, Benin.
+
+### Database Tables
+- **templates**: Trade documents (invoices, packing lists, customs forms, permits)
+- **template_access**: Track free 7-day access per user per template
+- **checklists**: Country-pair trade compliance guides
+- **checklist_steps**: Individual steps in trade workflows
+- **experts**: Directory of customs brokers, lawyers, consultants
+
+### API Endpoints
+```
+GET    /api/templates                    - List templates with filters
+GET    /api/templates/:id                - Get single template
+POST   /api/templates/:id/download       - Track 7-day free access
+GET    /api/templates/checklists/:from/:to - Compliance checklist
+GET    /api/templates/experts            - Expert directory
+```
+
+### Frontend Components
+- **TemplatesPage.jsx**: Browse & filter templates by country & type (routes: /templates)
+- **ChecklistPage.jsx**: Interactive checklist with progress tracking (routes: /checklists/:from/:to)
+- **Home Page Banner**: Prominent gold gradient banner showcasing Trade Templates
+
+### Sample Templates Added
+```
+✅ Nigeria (NG):
+   - Commercial Invoice
+   - Packing List (NG→KE)
+   - Bill of Lading
+
+✅ Kenya (KE):
+   - Commercial Invoice
+   - Customs Declaration Form (KRA)
+
+✅ Ghana (GH):
+   - Invoice Template
+   - Export Permit (GEPA)
+
+✅ Benin (BJ):
+   - Commercial Invoice
+```
+
+### Status
+- ✅ Database migrations created
+- ✅ API routes implemented
+- ✅ Frontend pages built
+- ✅ Home page banner added
+- ✅ Footer navigation links added
+- ⚠️ Sample templates added via seed migration
+- ⚠️ **ISSUE**: Templates not displaying - seed migration may not have executed
+- 📝 **TODO**: Verify templates in database, test API endpoint directly
+
+### Troubleshooting
+**Templates not showing:**
+1. Check if migration ran: Query `SELECT COUNT(*) FROM templates;`
+2. If 0 rows: Run seed migration manually: `npm run migrate`
+3. Test API: `curl http://localhost:5000/api/templates?country=NG`
+4. Check frontend console (F12) for fetch errors
+
+---
+
 **Document Created**: October 13, 2026  
 **Last Reviewed**: October 13, 2026  
-**Status**: Ready for Paystack submission ✅
+**Status**: Verified Reviews & Trade Templates deployed (templates need data verification) ⚠️

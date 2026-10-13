@@ -1,17 +1,10 @@
+// Legacy migration - table created in 20261013_6_create_review_evidence_table.js
 exports.up = async function(knex) {
-  return knex.schema.createTable('review_evidence', t => {
-    t.increments('id').primary();
-    t.integer('review_id').references('id').inTable('reviews').onDelete('CASCADE');
-    t.string('file_url').notNullable();
-    t.string('file_type', 20).defaultTo('image');
-    t.string('mime_type');
-    t.integer('file_size');
-    t.text('description');
-    t.string('status', 20).defaultTo('pending');
-    t.timestamps(true, true);
-  });
+  const hasTable = await knex.schema.hasTable('review_evidence');
+  // Skip if table already exists - it was created by the numbered migration
+  if (hasTable) return;
 };
 
 exports.down = async function(knex) {
-  return knex.schema.dropTable('review_evidence');
+  // No-op in rollback
 };
