@@ -6,6 +6,8 @@ import SupportPage from './pages/SupportPage';
 import AcceptableUsePolicyPage from './pages/AcceptableUsePolicyPage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
 import DisputeResolutionPage from './pages/DisputeResolutionPage';
+import TemplatesPage from './pages/TemplatesPage';
+import ChecklistPage from './pages/ChecklistPage';
 import Chatbot from './components/Chatbot';
 
 export default function AppWrapper() {
@@ -19,6 +21,8 @@ export default function AppWrapper() {
         <Route path="/acceptable-use-policy" element={<AcceptableUsePolicyPage />} />
         <Route path="/refund-policy" element={<RefundPolicyPage />} />
         <Route path="/dispute-resolution" element={<DisputeResolutionPage />} />
+        <Route path="/templates" element={<TemplatesPage />} />
+        <Route path="/checklists/:from/:to" element={<ChecklistPage />} />
       </Routes>
       <Chatbot />
     </Router>
