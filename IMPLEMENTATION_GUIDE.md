@@ -1615,3 +1615,142 @@ curl http://localhost:5000/api/admin/crawler/status \
 - ✅ Real business photos from Google Maps API with Unsplash fallback
 - ✅ 218+ African businesses across 54 nations
 - ✅ 5 business types: Products, Services, Restaurants, Tourism, Medical
+
+---
+
+## Compliance Policies (October 13, 2026)
+
+### Overview
+Vukafia has implemented comprehensive compliance policies for payment processor integration and merchant account requirements. These policies answer all Paystack compliance questions.
+
+### Available Policies
+
+#### 1. **Acceptable Use Policy**
+- **File**: `ACCEPTABLE_USE_POLICY.md`
+- **Content**:
+  - ✅ Prohibited business types
+  - ✅ Prohibited products/services
+  - ✅ Prohibited seller conduct
+  - ✅ Prohibited content guidelines
+  - ✅ Geographic restrictions
+  - ✅ Enforcement actions (warning, suspension, removal)
+  - ✅ Appeals process
+
+#### 2. **Refund Policy**
+- **File**: `REFUND_POLICY.md`
+- **Content**:
+  - ✅ Claim verification fee ($14.99 USD - NON-REFUNDABLE)
+  - ✅ Refundable scenarios (technical failure, fraud only)
+  - ✅ Transaction payment handling (buyer-seller responsibility)
+  - ✅ Dispute escalation process
+  - ✅ Chargeback and fraud prevention
+  - ✅ Refund timelines and methods
+
+#### 3. **Dispute Resolution Policy**
+- **File**: `DISPUTE_RESOLUTION_POLICY.md`
+- **Content**:
+  - ✅ Types of disputes covered
+  - ✅ Resolution process and investigation phases
+  - ✅ Outcomes (warning, suspension, permanent removal)
+  - ✅ Appeal process (15-day window)
+  - ✅ Harassment and abuse reporting
+  - ✅ Law enforcement cooperation
+  - ✅ Timeline expectations (24 hours to 15 days)
+
+### Paystack Compliance Status
+
+**All 8 Questions Answered** ✅
+
+1. ✅ How does seller page work & vendor onboarding?
+2. ✅ What KYC information is collected?
+3. ✅ What enhanced due diligence is performed?
+4. ✅ Acceptable use policy? **CREATED**
+5. ✅ Fulfillment model? (Direct vendor shipping)
+6. ✅ Fund holding process? (No funds held by Vukafia)
+7. ✅ Refund policy? **CREATED**
+8. ✅ Dispute handling? **CREATED**
+
+### Publishing Policies to Website
+
+**To make policies accessible at vukafia.com/[policy-name]:**
+
+**Option 1: Simple Static Pages (Easiest)**
+```bash
+# Create public HTML files
+cp ACCEPTABLE_USE_POLICY.md frontend/public/acceptable-use-policy.html
+cp REFUND_POLICY.md frontend/public/refund-policy.html
+cp DISPUTE_RESOLUTION_POLICY.md frontend/public/dispute-resolution.html
+
+# Deploy
+git push origin main  # Railway auto-deploys
+```
+
+**Option 2: React Routes (Better UX)**
+```bash
+# Create React components
+frontend/src/pages/AcceptableUsePolicyPage.jsx
+frontend/src/pages/RefundPolicyPage.jsx
+frontend/src/pages/DisputeResolutionPage.jsx
+
+# Add routes in App.jsx
+<Route path="/acceptable-use-policy" element={<AcceptableUsePolicyPage />} />
+<Route path="/refund-policy" element={<RefundPolicyPage />} />
+<Route path="/dispute-resolution" element={<DisputeResolutionPage />} />
+```
+
+**Option 3: Backend Routes (Most Flexible)**
+```bash
+# Create endpoint in Express
+app.get('/api/policies/acceptable-use', (req, res) => {
+  res.sendFile('ACCEPTABLE_USE_POLICY.md');
+});
+
+# Serve through frontend
+```
+
+### Files Created & Committed
+
+✅ **ACCEPTABLE_USE_POLICY.md** (1,241 lines)
+- Commit: 260d807
+- Location: Root of repository
+
+✅ **REFUND_POLICY.md** (898 lines)
+- Commit: 260d807
+- Location: Root of repository
+
+✅ **DISPUTE_RESOLUTION_POLICY.md** (1,138 lines)
+- Commit: 260d807
+- Location: Root of repository
+
+### Next Steps
+
+1. **Publish policies to website** (Option 1, 2, or 3 above)
+2. **Update footer** with policy links
+3. **Update signup flow** to require acceptance
+4. **Provide to Paystack** during onboarding
+5. **Monitor compliance** with policies
+
+### Footer Links (Recommended)
+
+Add to `Layout.jsx` footer:
+```javascript
+<p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+  <a href="/acceptable-use-policy" style={{ color: '#d4a017', textDecoration: 'none' }}>
+    Acceptable Use Policy
+  </a>
+  {' | '}
+  <a href="/refund-policy" style={{ color: '#d4a017', textDecoration: 'none' }}>
+    Refund Policy
+  </a>
+  {' | '}
+  <a href="/dispute-resolution" style={{ color: '#d4a017', textDecoration: 'none' }}>
+    Dispute Resolution
+  </a>
+</p>
+```
+
+---
+
+**Document Created**: October 13, 2026  
+**Last Reviewed**: October 13, 2026  
+**Status**: Ready for Paystack submission ✅
