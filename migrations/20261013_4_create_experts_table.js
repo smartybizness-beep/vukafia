@@ -1,5 +1,8 @@
 exports.up = async function(knex) {
-  return knex.schema.createTableIfNotExists('experts', t => {
+  const hasTable = await knex.schema.hasTable('experts');
+  if (hasTable) return;
+
+  return knex.schema.createTable('experts', t => {
     t.increments('id').primary();
     t.string('name').notNullable();
     t.text('bio');

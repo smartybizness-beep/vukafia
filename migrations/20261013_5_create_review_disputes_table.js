@@ -1,5 +1,8 @@
 exports.up = async function(knex) {
-  return knex.schema.createTableIfNotExists('review_disputes', t => {
+  const hasTable = await knex.schema.hasTable('review_disputes');
+  if (hasTable) return;
+
+  return knex.schema.createTable('review_disputes', t => {
     t.increments('id').primary();
     t.integer('review_id').references('id').inTable('reviews').onDelete('CASCADE');
     t.integer('listing_id').references('id').inTable('listings').onDelete('CASCADE');
