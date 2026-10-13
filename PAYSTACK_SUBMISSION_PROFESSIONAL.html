@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paystack Compliance Questionnaire Response</title>
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            line-height: 1.5;
+            color: #333;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 50px 40px;
+            background: white;
+        }
+        h1 {
+            font-size: 24px;
+            color: #1a1a1a;
+            margin: 30px 0 10px 0;
+            font-weight: bold;
+        }
+        h2 {
+            font-size: 14px;
+            color: #333;
+            margin: 25px 0 12px 0;
+            font-weight: bold;
+            padding-bottom: 5px;
+        }
+        h3 {
+            font-size: 12px;
+            color: #444;
+            margin: 18px 0 10px 0;
+            font-weight: bold;
+        }
+        p {
+            margin: 10px 0;
+            text-align: justify;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+            font-size: 11px;
+        }
+        th {
+            background: #f0f0f0;
+            color: #333;
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ccc;
+            font-weight: bold;
+        }
+        td {
+            padding: 9px;
+            border: 1px solid #ddd;
+        }
+        tr:nth-child(odd) {
+            background: white;
+        }
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+        ul, ol {
+            margin: 12px 0;
+            padding-left: 25px;
+        }
+        li {
+            margin: 6px 0;
+            line-height: 1.4;
+        }
+        .contact-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+        }
+        .page-break {
+            page-break-after: always;
+            margin: 30px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 11px;
+            color: #666;
+        }
+        strong {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Paystack Compliance Questionnaire - Response</h1>
+
+    <p><strong>Company:</strong> SOT Smartybiz Ltd<br>
+    <strong>Platform:</strong> Vukafia Trans-African Business Directory<br>
+    <strong>Website:</strong> https://vukafia.com<br>
+    <strong>Date:</strong> October 13, 2026<br>
+    <strong>Contact:</strong> info@vukafia.com | +2348101477935</p>
+
+    <hr>
+
+    <h2>Question 1: How does the unique page for sellers work, and how do you onboard vendors?</h2>
+
+    <p>Vukafia provides each business with a unique listing page within our directory. The page displays comprehensive business information including contact details, photos, services offered, Google ratings, and verified information sourced directly from Google Maps. Sellers can customize their profiles and have access to analytics that shows how their listing is performing within the directory.</p>
+
+    <p>Our onboarding process is straightforward and typically takes between 20-30 minutes from registration to going live. A user begins by signing up with their email address and password. They then search for their business in our database, which is populated with verified businesses from Google Maps. Once they locate their business, they proceed with the claim process. The business information is automatically pre-populated from our Google Maps data, which reduces friction and ensures accuracy.</p>
+
+    <p>After the automatic population, the seller reviews and confirms their business information. They then complete a brief KYC verification where we collect contact information and verify their identity. Finally, they pay the one-time claim fee of $14.99 USD through either Bachs or Paystack. Within 24 hours, their business listing goes live in our directory and becomes visible across all 54 African nations we serve.</p>
+
+    <p>All information is stored securely with HTTPS encryption, password hashing using bcrypt, JWT token authentication, and PostgreSQL database encryption. We maintain PCI DSS compliance for all payment processing.</p>
+
+    <h2>Question 2: What KYC information do you collect from third-party sellers?</h2>
+
+    <p>We operate a tiered KYC approach based on business risk profile. All sellers provide basic information: full name, email address, phone number, business name, business address, and business category. Website information is optional but encouraged as it provides additional verification data.</p>
+
+    <p>For vendors in higher-risk categories—such as financial services, medical services, firearms/ammunition, gambling, or alcohol and tobacco—we conduct enhanced KYC. This includes verification of government-issued ID, business registration documents, tax identification numbers, proof of address, and relevant business licenses. We cross-reference all information with Google Maps data to validate accuracy, including photo verification and review validation.</p>
+
+    <p>All data is stored in our PostgreSQL database with encrypted fields. We maintain this information for seven years per compliance requirements and allow sellers to request deletion in accordance with GDPR. KYC information is kept separate from payment data for security purposes.</p>
+
+    <h2>Question 3: What enhanced due diligence do you carry out on vendors?</h2>
+
+    <p>Our due diligence process happens at three levels. At the first level, all vendors undergo real-time automated screening. This includes validation of email format and phone numbers, address postal codes, analysis of name patterns, detection of duplicate accounts, flagging of rapid successive claims (more than 5 claims within one hour), and identification of suspicious email patterns. We also verify information against Google Maps data, authenticate photos, and validate ratings and reviews.</p>
+
+    <p>When potential issues arise or a vendor falls into a higher-risk category, they move to our second level of due diligence, which typically takes 24-48 hours. At this stage, we conduct manual policy compliance checks, verify information consistency across databases, confirm phone and address details, verify website domain ownership, and check business registrations. For high-risk categories, we verify relevant licenses and certifications.</p>
+
+    <p>For complex cases or suspected fraudulent activity, we conduct enhanced verification that may take 3-7 business days. This includes document review of government identification, business registration documents, professional licenses, and bank account verification. We also run sanctions screening against OFAC lists, EU sanctions lists, and UN consolidated lists. We check for politically exposed persons and conduct background investigations including legal history, financial crime database checks, and negative media searches where legally permitted.</p>
+
+    <p>After a vendor is approved, we continue monitoring on an ongoing basis. We conduct monthly compliance audits on random samples of our vendor base, review customer complaints, monitor for unusual transaction patterns, analyze ratings and reviews, and conduct annual re-verification of vendor information.</p>
+
+    <h2>Question 4: Do you have an acceptable use policy? Please share the direct link.</h2>
+
+    <p>Yes, we have published a comprehensive Acceptable Use Policy that is available at <strong>https://vukafia.com/acceptable-use-policy</strong>.</p>
+
+    <p>Our policy prohibits a range of business types and activities that we consider incompatible with our platform. These include unlicensed financial services such as money lending, currency exchange, and investment schemes; illegal activities including drug trafficking, weapons trafficking, and human trafficking; fraudulent operations like advance-fee schemes and romance scams; counterfeit goods and stolen property; and unregistered pharmaceutical or medical services.</p>
+
+    <p>We also prohibit certain seller conduct including misrepresentation of business information, posting fake reviews, impersonating other businesses, harassment or discrimination, intellectual property violations, and spam. Content restrictions include hate speech, sexually explicit material, graphic violence, child exploitation material, and health-related misinformation.</p>
+
+    <p>When violations occur, we take graduated enforcement action. Minor violations result in a warning with a five-day period to cure the issue. Serious or repeated violations result in suspension of the listing for 30-90 days. Severe violations or confirmed fraud result in permanent removal from the platform. Sellers have the right to appeal any action within 15 days of notification, provided they have new evidence or can demonstrate a process violation.</p>
+
+    <h2>Question 5: Is your business a fulfillment center? Or do vendors ship directly to customers?</h2>
+
+    <p>Vukafia is a B2B business directory platform, not an e-commerce marketplace or fulfillment center. Vendors ship directly to customers. We do not hold inventory, operate warehouses, provide logistics services, or process orders and shipments. Our role is limited to facilitating discovery and connection.</p>
+
+    <p>When a buyer uses Vukafia, they search our directory to discover businesses across Africa. They view the verified business listing, which includes information pulled from Google Maps—such as photos, ratings, contact information, and business details. The buyer then contacts the vendor directly through WhatsApp, phone, or email. The buyer and vendor negotiate terms, agree on pricing, and arrange payment directly between themselves. The vendor ships the product directly to the buyer's location, and the buyer confirms receipt directly with the vendor.</p>
+
+    <p>Vukafia's involvement extends only to steps one through three: discovery, verification, and connection facilitation. We maintain no involvement in payment processing, shipment, or dispute resolution between buyers and vendors. This model keeps the relationship direct between the two parties and eliminates unnecessary intermediaries.</p>
+
+    <h2>Question 6: Do you hold funds until buyer confirmation? Describe the process.</h2>
+
+    <p>No, Vukafia does not hold funds. We are a directory platform, not a payment processor or escrow service. We do not hold buyer funds, process transactions between buyers and vendors, provide escrow services, or act as a payment intermediary.</p>
+
+    <p>The only payment Vukafia receives directly is the $14.99 USD claim fee, paid by business owners to activate their listing in our directory. This is processed through either Bachs (for USD payments) or Paystack (for local currency payments). This fee is non-refundable because the service is delivered immediately—the listing is created, the business is verified, and the directory placement is activated within 24 hours of payment.</p>
+
+    <p>All transaction payments between buyers and vendors are handled directly between the parties. Buyers may pay vendors through bank transfer, mobile money platforms like M-Pesa, cash on delivery, or by using payment processors of the vendor's choosing such as Paystack or Flutterwave. Vukafia plays no role in these transactions.</p>
+
+    <p>If a buyer and vendor have a dispute regarding a transaction, they resolve it directly with each other. If one party involved payment through a third-party processor like Paystack, they can file a chargeback or dispute through that processor's standard dispute resolution process.</p>
+
+    <h2>Question 7: Do you have a refund policy? If yes, please share it.</h2>
+
+    <p>Yes. Our refund policy is available at <strong>https://vukafia.com/refund-policy</strong>.</p>
+
+    <p>The $14.99 USD claim fee is non-refundable. When a vendor pays this fee, we immediately provide the service: we verify their business information against Google Maps, create their unique listing page, set up WhatsApp integration, provide analytics dashboard access, and ensure they receive 12 months of featured directory placement. Because these services are delivered immediately upon payment, refunds are not offered for change of mind, user error, or device-related technical issues.</p>
+
+    <p>We do make limited exceptions to this policy in specific circumstances. If we experience a technical failure on our end—such as payment processing but the listing not being created within 24 hours—we will issue a refund within 5-10 business days. Similarly, if a vendor reports an unauthorized charge or fraud, we refund the fee within 5-10 business days. If our platform experiences extended unavailability (7 or more consecutive days), we will offer a refund or service credit.</p>
+
+    <p>To request a refund, vendors email us at info@vukafia.com with their transaction ID, the date of payment, the amount, and detailed explanation of their situation. We respond within 5 business days and complete any investigation within 15 business days. Refunds are issued to the original payment method within 5-10 business days of approval.</p>
+
+    <p>For disputes between buyers and vendors regarding transaction refunds, that is the responsibility of the parties involved. Vukafia does not process refunds for buyer-seller disputes, as we are not involved in those transactions. Buyers and vendors resolve transaction disputes directly with each other or through their payment processor's dispute process.</p>
+
+    <h2>Question 8: How do you handle disputes and other issues?</h2>
+
+    <p>We have a formal dispute resolution process in place. Users can file a complaint by emailing info@vukafia.com or contacting us via WhatsApp at +2348101477935. The complaint should include the user's name and contact information, the business name and ID involved, the date of the issue, a detailed description of the problem, any relevant documentation or evidence (such as screenshots or email threads), and the resolution being requested.</p>
+
+    <p>Our response time depends on the severity of the issue. For standard issues like product quality complaints or technical questions, we typically respond within 5-10 business days. For high-priority issues such as fraud or serious policy violations, we respond within 2-5 business days. For critical issues like threats of violence, child safety concerns, or ongoing criminal activity, we respond within 24-48 hours.</p>
+
+    <p>When we receive a complaint, we conduct a three-phase investigation. In phase one, we collect evidence from both the complainant and the vendor involved, gather relevant transaction records, and review system logs. This typically takes 2-5 days. In phase two, we verify information by cross-referencing with Google Maps data, confirming payment records, reviewing communication history, and assessing policy compliance. This phase takes 3-7 days. In phase three, we conduct a neutral assessment, document our findings, determine whether a policy violation occurred, and make a final decision.</p>
+
+    <p>When we determine that a vendor has violated our policies, we take graduated action. For minor first-time violations, we issue a warning and give the vendor 5 days to correct the issue, with 30 days of monitoring afterward. For serious or repeated violations, we suspend the listing from the directory for 30-90 days, during which time the vendor cannot claim new businesses. For severe violations or confirmed fraud, we permanently remove the vendor from our platform with no refund of the claim fee.</p>
+
+    <p>Vendors have the right to appeal our decisions within 15 days of receiving notification, provided they have new evidence, can demonstrate a factual error, or believe our process was not followed correctly. Appeals are reviewed by a different team member than the original decision, and we provide a final decision within 7-10 business days. This decision is binding and cannot be appealed further.</p>
+
+    <p>For disputes between buyers and vendors, our role is limited. We do not process refunds or resolve transaction-specific disputes on behalf of either party. Instead, we refer them to resolve the matter directly or, if payment was processed through a third party, to use that processor's dispute resolution system. However, if we determine that a vendor engaged in fraud, we remove them from the platform and may refer the case to law enforcement.</p>
+
+    <div class="contact-info">
+        <h3>Contact Information</h3>
+        <p><strong>Email:</strong> info@vukafia.com<br>
+        <strong>WhatsApp:</strong> +2348101477935<br>
+        <strong>Legal:</strong> legal@vukafia.com<br>
+        <strong>Website:</strong> https://vukafia.com</p>
+    </div>
+
+    <div class="footer">
+        <p>This response represents Vukafia's current policies and procedures as of October 13, 2026. For the most up-to-date information, please visit our website or contact our support team directly.</p>
+    </div>
+</body>
+</html>
