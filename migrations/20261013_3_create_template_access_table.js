@@ -1,5 +1,5 @@
 exports.up = async function(knex) {
-  return knex.schema.createTable('template_access', t => {
+  return knex.schema.createTableIfNotExists('template_access', t => {
     t.increments('id').primary();
     t.integer('user_id').references('id').inTable('users').onDelete('CASCADE');
     t.integer('template_id').references('id').inTable('templates').onDelete('CASCADE');

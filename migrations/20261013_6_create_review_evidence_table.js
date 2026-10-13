@@ -1,5 +1,5 @@
 exports.up = async function(knex) {
-  return knex.schema.createTable('review_evidence', t => {
+  return knex.schema.createTableIfNotExists('review_evidence', t => {
     t.increments('id').primary();
     t.integer('review_id').references('id').inTable('reviews').onDelete('CASCADE');
     t.string('file_url').notNullable();
