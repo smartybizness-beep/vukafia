@@ -10,6 +10,7 @@ const express = require('express');
 const router = express.Router();
 const { getKnex } = require('../db');
 const { requireAuth } = require('../middleware/auth');
+const whatsappService = require('../services/whatsappService');
 
 // ─── GET ALL TEMPLATES ─────────────────────────────────────────────────────
 router.get('/', async (req, res) => {
@@ -52,17 +53,44 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// ─── HELPER: Send WhatsApp Confirmation ────────────────────────────────────
+async function sendTemplateDownloadConfirmation(phone, templateName, expiresAt, daysRemaining) {
+  if (!phone) return;
+
+  const expiryDate = expiresAt.toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric' });
+  const message = `
+📄 *Trade Document Downloaded!*
+
+You've successfully downloaded: *${templateName}*
+
+✅ *Free Access Granted* (7 days)
+📅 *Expires:* ${expiryDate}
+⏰ *Days Remaining:* ${daysRemaining}
+
+After ${daysRemaining} days, upgrade to premium for continued access.
+
+👉 Upgrade: https://vukafia.com/premium
+💬 Questions? Contact us: +2348101477935
+  `.trim();
+
+  return whatsappService.sendMessage(phone, message);
+}
+
 // ─── DOWNLOAD TEMPLATE (Track Free 7-Day Access) ────────────────────────────
 router.post('/:id/download', async (req, res) => {
   try {
     const { id } = req.params;
+    const { phone } = req.body;
     const knex = getKnex();
 
     const template = await knex('templates').where('id', id).first();
     if (!template) return res.status(404).json({ error: 'Template not found' });
 
-    // For unauthenticated users, just return the template (free for all)
+    // For unauthenticated users, send confirmation if phone provided
     if (!req.user) {
+      if (phone) {
+        await sendTemplateDownloadConfirmation(phone, template.name, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 7);
+      }
       return res.json({
         file_url: template.file_url,
         access_type: 'free',
@@ -99,11 +127,17 @@ router.post('/:id/download', async (req, res) => {
         });
       }
 
-      // Still within free period
+      // Still within free period - send confirmation
+      const daysRemaining = Math.ceil((new Date(access.free_access_expires_at) - now) / (1000 * 60 * 60 * 24));
+      const userPhone = req.user.wa_number || phone;
+      if (userPhone) {
+        await sendTemplateDownloadConfirmation(userPhone, template.name, access.free_access_expires_at, daysRemaining);
+      }
+
       return res.json({
         file_url: template.file_url,
         access_type: 'free',
-        days_remaining: Math.ceil((new Date(access.free_access_expires_at) - now) / (1000 * 60 * 60 * 24)),
+        days_remaining: daysRemaining,
         message: 'Downloaded successfully (free access)'
       });
     }
@@ -118,6 +152,12 @@ router.post('/:id/download', async (req, res) => {
       first_access_at: firstAccess,
       free_access_expires_at: expiresAt
     });
+
+    // Send WhatsApp confirmation
+    const userPhone = req.user.wa_number || phone;
+    if (userPhone) {
+      await sendTemplateDownloadConfirmation(userPhone, template.name, expiresAt, 7);
+    }
 
     res.status(201).json({
       file_url: template.file_url,

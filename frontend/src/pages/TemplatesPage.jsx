@@ -6,6 +6,7 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState('NG');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [phoneInput, setPhoneInput] = useState('');
 
   useEffect(() => {
     fetchTemplates();
@@ -32,15 +33,24 @@ export default function TemplatesPage() {
 
   const handleDownload = async (templateId) => {
     try {
-      const headers = {};
+      const headers = { 'Content-Type': 'application/json' };
+      const body = {};
       const token = localStorage.getItem('auth_token');
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        // For unauthenticated users, ask for phone number if not already provided
+        const phone = phoneInput || prompt('Enter your WhatsApp number (e.g., 2348101234567) to receive access confirmation:');
+        if (phone) {
+          body.phone = phone;
+          setPhoneInput(phone);
+        }
       }
 
       const response = await fetch(`/api/templates/${templateId}/download`, {
         method: 'POST',
-        headers
+        headers,
+        body: Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
       });
 
       if (response.status === 402) {
@@ -52,6 +62,7 @@ export default function TemplatesPage() {
         const data = await response.json();
         // Redirect to file URL
         window.open(data.file_url, '_blank');
+        alert('✅ Download confirmed! Check your WhatsApp for access details.');
       } else {
         const error = await response.json();
         alert(`Error: ${error.error || 'Failed to download template'}`);
