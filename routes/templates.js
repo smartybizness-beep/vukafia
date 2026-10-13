@@ -53,7 +53,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // ─── DOWNLOAD TEMPLATE (Track Free 7-Day Access) ────────────────────────────
-router.post('/:id/download', requireAuth, async (req, res) => {
+router.post('/:id/download', async (req, res) => {
   try {
     const { id } = req.params;
     const knex = getKnex();
@@ -61,7 +61,16 @@ router.post('/:id/download', requireAuth, async (req, res) => {
     const template = await knex('templates').where('id', id).first();
     if (!template) return res.status(404).json({ error: 'Template not found' });
 
-    // Check user's access
+    // For unauthenticated users, just return the template (free for all)
+    if (!req.user) {
+      return res.json({
+        file_url: template.file_url,
+        access_type: 'free',
+        message: 'Download link ready (free access for all)'
+      });
+    }
+
+    // For authenticated users, track access
     const access = await knex('template_access')
       .where('user_id', req.user.id)
       .where('template_id', id)

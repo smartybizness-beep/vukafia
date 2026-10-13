@@ -32,11 +32,15 @@ export default function TemplatesPage() {
 
   const handleDownload = async (templateId) => {
     try {
+      const headers = {};
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`/api/templates/${templateId}/download`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
+        headers
       });
 
       if (response.status === 402) {
@@ -48,10 +52,13 @@ export default function TemplatesPage() {
         const data = await response.json();
         // Redirect to file URL
         window.open(data.file_url, '_blank');
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error || 'Failed to download template'}`);
       }
     } catch (err) {
       console.error('Error downloading template:', err);
-      alert('Login required to download templates');
+      alert('Error downloading template. Please try again.');
     }
   };
 
