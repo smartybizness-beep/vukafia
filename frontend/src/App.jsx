@@ -908,6 +908,39 @@ export default function App() {
         </aside>
 
         <main className="main">
+          {/* Trade Templates Banner */}
+          <div style={{
+            background: 'linear-gradient(135deg, #d4a017 0%, #c9931d 100%)',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            marginBottom: '2rem',
+            color: '#fff',
+            cursor: 'pointer',
+            transition: 'transform 0.2s',
+          }}
+          onClick={() => navigate('/templates')}
+          onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+          onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.3rem' }}>📋 Trade Templates & Compliance</h3>
+            <p style={{ margin: '0.5rem 0', fontSize: '0.95rem', opacity: 0.95 }}>
+              Access free trade documentation templates (invoices, packing lists, customs forms), compliance checklists, and expert directory to simplify your cross-border transactions.
+            </p>
+            <button style={{
+              background: '#fff',
+              color: '#d4a017',
+              border: 'none',
+              padding: '0.6rem 1.5rem',
+              borderRadius: '6px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginTop: '0.8rem',
+              fontSize: '0.9rem'
+            }}>
+              Explore Templates →
+            </button>
+          </div>
+
           <div style={{ marginBottom: '1rem' }}>
             <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.5rem' }}>
               {type === '' ? '🌍 All Businesses'
