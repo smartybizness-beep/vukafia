@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Commercial Invoice - Nigeria</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -40,12 +39,17 @@
       font-size: 14px;
     }
 
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
     .btn-download {
       background: #2e7d32;
       color: white;
     }
 
-    .btn-download:hover {
+    .btn-download:active {
       background: #1b5e20;
     }
 
@@ -54,7 +58,7 @@
       color: white;
     }
 
-    .btn-clear:hover {
+    .btn-clear:active {
       background: #424242;
     }
 
@@ -63,7 +67,7 @@
       color: white;
     }
 
-    .btn-print:hover {
+    .btn-print:active {
       background: #1565c0;
     }
 
@@ -97,19 +101,6 @@
       color: #333;
     }
 
-    .section {
-      margin-bottom: 15px;
-    }
-
-    .section-title {
-      font-weight: bold;
-      background: #e8f5e9;
-      padding: 8px 12px;
-      margin-bottom: 10px;
-      border-left: 4px solid #2e7d32;
-      color: #1b5e20;
-    }
-
     .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -137,6 +128,19 @@
       }
     }
 
+    .section {
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-weight: bold;
+      background: #e8f5e9;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+      border-left: 4px solid #2e7d32;
+      color: #1b5e20;
+    }
+
     .field-group {
       margin-bottom: 10px;
     }
@@ -155,6 +159,7 @@
       border-radius: 4px;
       font-family: Arial, sans-serif;
       font-size: 13px;
+      font-size: 16px;
     }
 
     .field-input:focus {
@@ -246,13 +251,13 @@
 <body>
   <div class="container">
     <div class="button-bar">
-      <button class="btn btn-download" onclick="downloadPDF()">📥 Download as PDF</button>
+      <button class="btn btn-download" onclick="savePDF()">📥 Save as PDF</button>
       <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
       <button class="btn btn-clear" onclick="clearForm()">🔄 Clear Form</button>
     </div>
 
     <div class="note">
-      💡 Fill in all fields, then click "Download as PDF" to save your completed invoice.
+      💡 <strong>How to use:</strong> Fill in all fields below, then click "Save as PDF" (uses browser print-to-PDF feature) or "Print" to get your document.
     </div>
 
     <div id="invoice">
@@ -480,23 +485,15 @@
   </div>
 
   <script>
-    function downloadPDF() {
-      const invoiceDiv = document.getElementById('invoice');
-      const opt = {
-        margin: 10,
-        filename: 'Commercial-Invoice-Nigeria.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-      };
-
-      html2pdf().set(opt).from(invoiceDiv).save();
+    function savePDF() {
+      window.print();
     }
 
     function clearForm() {
       if (confirm('Are you sure you want to clear all fields?')) {
-        document.querySelectorAll('input').forEach(input => {
-          if (input.value !== '1' && input.value !== '2' && input.value !== '3') {
+        const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="number"]');
+        inputs.forEach(input => {
+          if (!input.hasAttribute('readonly') && input.value !== '1' && input.value !== '2' && input.value !== '3') {
             input.value = '';
           }
         });

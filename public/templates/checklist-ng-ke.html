@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade Compliance Checklist - Nigeria to Kenya</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 10px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .button-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-print {
+      background: #d32f2f;
+      color: white;
+    }
+
+    .btn-print:active {
+      background: #b71c1c;
+    }
+
+    .btn-clear {
+      background: #757575;
+      color: white;
+    }
+
+    .btn-clear:active {
+      background: #424242;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #d32f2f;
+      padding-bottom: 15px;
+    }
+
+    .header h1 {
+      color: #d32f2f;
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 30px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 15px 0;
+      border: 2px solid #d32f2f;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4caf50, #8bc34a);
+      width: 0%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      transition: width 0.3s;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #d32f2f;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      background: #ffebee;
+      padding: 12px;
+      border-left: 4px solid #d32f2f;
+      font-weight: bold;
+      color: #b71c1c;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      gap: 12px;
+    }
+
+    .checklist-item:last-child {
+      border-bottom: none;
+    }
+
+    .checklist-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .checklist-item input[type="checkbox"]:checked + .item-content {
+      color: #4caf50;
+      text-decoration: line-through;
+    }
+
+    .item-content {
+      flex: 1;
+    }
+
+    .item-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 3px;
+    }
+
+    .item-detail {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .timeline {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #555;
+    }
+
+    .note {
+      background: #fff3cd;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #856404;
+      margin-bottom: 15px;
+      border-left: 4px solid #ffc107;
+    }
+
+    @media (max-width: 768px) {
+      .button-bar {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media print {
+      .button-bar { display: none; }
+      .container { box-shadow: none; }
+      body { background: white; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="button-bar">
+      <button class="btn btn-print" onclick="window.print()">🖨️ Print Checklist</button>
+      <button class="btn btn-clear" onclick="clearChecks()">🔄 Reset Checks</button>
+    </div>
+
+    <div id="checklist">
+      <div class="header">
+        <h1>✅ Trade Compliance Checklist</h1>
+        <p>Nigeria → Kenya Export</p>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill">0%</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value" id="completed">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Steps</div>
+          <div class="stat-value" id="total">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Progress</div>
+          <div class="stat-value" id="percentage">0%</div>
+        </div>
+      </div>
+
+      <div class="note">
+        💡 <strong>How to use:</strong> Check off each step as you complete it. This helps you track your compliance journey from Nigeria to Kenya.
+      </div>
+
+      <!-- NIGERIAN REQUIREMENTS -->
+      <div class="section">
+        <div class="section-title">🇳🇬 NIGERIA - Pre-Export Requirements</div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Register with Nigerian Customs Service (NCS)</div>
+            <div class="item-detail">Obtain importer/exporter code. Contact: NCS Tariff and Trade Department</div>
+            <div class="timeline">Timeline: 3-5 business days</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Obtain Certificate of Origin</div>
+            <div class="item-detail">Get from the appropriate chamber of commerce (e.g., Nigerian Association of Chambers of Commerce, Industry, Mines and Agriculture)</div>
+            <div class="timeline">Timeline: 2-3 business days</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Prepare Commercial Invoice</div>
+            <div class="item-detail">Include: product description, HS codes, quantities, prices, terms of sale, exporter details</div>
+            <div class="timeline">Timeline: 1 day</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Arrange Pre-shipment Inspection</div>
+            <div class="item-detail">Contact: COTECNA or COTECNA-accredited inspectors in Nigeria</div>
+            <div class="timeline">Timeline: 2-3 business days</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Obtain Export License (if applicable)</div>
+            <div class="item-detail">Contact: Federal Ministry of Trade, Investment and Industry</div>
+            <div class="timeline">Timeline: 5-7 business days</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Prepare Packing List & Bill of Lading</div>
+            <div class="item-detail">Detailed documentation of all packages and shipping details</div>
+            <div class="timeline">Timeline: 1-2 days</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHIPPING DOCUMENTATION -->
+      <div class="section">
+        <div class="section-title">📦 SHIPPING & LOGISTICS</div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Arrange Freight Forwarder</div>
+            <div class="item-detail">Select FMDQ-registered forwarder for customs clearance assistance</div>
+            <div class="timeline">Timeline: 1-2 days</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Arrange Cargo Insurance</div>
+            <div class="item-detail">Obtain marine cargo insurance covering Lagos to Mombasa/Nairobi route</div>
+            <div class="timeline">Timeline: 1 day</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">File Shipping Documents</div>
+            <div class="item-detail">Submit documents to shipping company: invoice, packing list, B/L, insurance</div>
+            <div class="timeline">Timeline: 1-2 days before shipment</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Obtain Bill of Lading</div>
+            <div class="item-detail">Receive signed B/L from shipping line confirming cargo loaded</div>
+            <div class="timeline">Timeline: Same day as loading</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KENYAN REQUIREMENTS -->
+      <div class="section">
+        <div class="section-title">🇰🇪 KENYA - Import Requirements</div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Notify Kenya Revenue Authority (KRA)</div>
+            <div class="item-detail">Buyer/importer must declare arrival of cargo at port. Contact: KRA Customs</div>
+            <div class="timeline">Timeline: Within 14 days of arrival</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Customs Entry Procedure</div>
+            <div class="item-detail">File customs entry form with KRA including: invoice, B/L, packing list, insurance</div>
+            <div class="timeline">Timeline: 2-3 business days</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Goods Inspection (if required)</div>
+            <div class="item-detail">KRA may conduct physical inspection at Mombasa or Nairobi port</div>
+            <div class="timeline">Timeline: 1-2 business days</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Pay Customs Duties & Taxes</div>
+            <div class="item-detail">Pay applicable import duties and VAT (standard rate: 16% VAT)</div>
+            <div class="timeline">Timeline: Before clearance</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Obtain Customs Clearance Certificate</div>
+            <div class="item-detail">Receive C7 form confirming goods cleared through customs</div>
+            <div class="timeline">Timeline: After payment and inspection</div>
+          </div>
+        </div>
+
+        <div class="checklist-item">
+          <input type="checkbox" onchange="updateProgress()">
+          <div class="item-content">
+            <div class="item-title">Collect Goods from Port</div>
+            <div class="item-detail">Arrange transport from Mombasa Port/JKIA to final destination</div>
+            <div class="timeline">Timeline: 1-2 days after clearance</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOTAL TIMELINE -->
+      <div class="section" style="background: #e8f5e9; padding: 15px; border-radius: 4px;">
+        <strong style="color: #2e7d32;">📅 TOTAL COMPLIANCE TIMELINE</strong>
+        <p style="margin-top: 8px; color: #555; font-size: 13px;">
+          <strong>Nigeria Pre-Export:</strong> 10-15 business days<br>
+          <strong>Shipping:</strong> 10-14 days (Lagos → Mombasa)<br>
+          <strong>Kenya Import:</strong> 3-5 business days<br>
+          <strong>Total Duration:</strong> 25-35 business days (5-7 weeks)
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updateProgress() {
+      const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+      const checked = document.querySelectorAll('.checklist-item input[type="checkbox"]:checked').length;
+      const total = checkboxes.length;
+      const percentage = Math.round((checked / total) * 100);
+
+      document.getElementById('completed').textContent = checked;
+      document.getElementById('total').textContent = total;
+      document.getElementById('percentage').textContent = percentage + '%';
+      document.getElementById('progressFill').style.width = percentage + '%';
+      document.getElementById('progressFill').textContent = percentage + '%';
+    }
+
+    function clearChecks() {
+      if (confirm('Reset all checks?')) {
+        document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+        updateProgress();
+      }
+    }
+
+    // Initialize progress on page load
+    window.addEventListener('load', updateProgress);
+  </script>
+</body>
+</html>

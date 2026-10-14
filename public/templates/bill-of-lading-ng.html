@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bill of Lading - Nigeria</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -228,7 +228,7 @@
 <body>
   <div class="container">
     <div class="button-bar">
-      <button class="btn btn-download" onclick="downloadPDF()">📥 Download as PDF</button>
+      <button class="btn btn-download" onclick="savePDF()">📥 Save as PDF</button>
       <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
       <button class="btn btn-clear" onclick="clearForm()">🔄 Clear Form</button>
     </div>
@@ -404,7 +404,7 @@
   </div>
 
   <script>
-    function downloadPDF() {
+    function savePDF() {
       const bolDiv = document.getElementById('bol');
       const opt = {
         margin: 10,
@@ -414,7 +414,7 @@
         jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
       };
 
-      html2pdf().set(opt).from(bolDiv).save();
+      window.print().set(opt).from(bolDiv).save();
     }
 
     function clearForm() {
