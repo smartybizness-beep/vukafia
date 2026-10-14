@@ -908,38 +908,123 @@ export default function App() {
         </aside>
 
         <main className="main">
-          {/* Trade Templates Banner */}
-          <div style={{
+          {/* Featured Templates Section */}
+          <section style={{
             background: 'linear-gradient(135deg, #d4a017 0%, #c9931d 100%)',
             borderRadius: '12px',
-            padding: '1.5rem',
-            marginBottom: '2rem',
-            color: '#fff',
-            cursor: 'pointer',
-            transition: 'transform 0.2s',
-          }}
-          onClick={() => navigate('/templates')}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.3rem' }}>📋 Trade Templates & Compliance</h3>
-            <p style={{ margin: '0.5rem 0', fontSize: '0.95rem', opacity: 0.95 }}>
-              Access free trade documentation templates (invoices, packing lists, customs forms), compliance checklists, and expert directory to simplify your cross-border transactions.
-            </p>
-            <button style={{
-              background: '#fff',
-              color: '#d4a017',
-              border: 'none',
-              padding: '0.6rem 1.5rem',
-              borderRadius: '6px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              marginTop: '0.8rem',
-              fontSize: '0.9rem'
+            padding: '2rem',
+            marginBottom: '2.5rem',
+            color: '#fff'
+          }}>
+            <div style={{ marginBottom: '2rem' }}>
+              <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>📋 Trade Templates & Compliance Hub</h2>
+              <p style={{ margin: '0.5rem 0 0 0', fontSize: '1rem', opacity: 0.95 }}>
+                Free access to professional trade documents, compliance checklists, and expert network for cross-border commerce.
+              </p>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '1rem',
+              marginBottom: '1.5rem'
             }}>
-              Explore Templates →
+              <div style={{
+                background: 'rgba(255,255,255,0.15)',
+                padding: '1.2rem',
+                borderRadius: '8px',
+                backdropFilter: 'blur(10px)',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                border: '1px solid rgba(255,255,255,0.2)'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.25)';
+                e.currentTarget.style.transform = 'translateY(-4px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+              >
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📄</div>
+                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem' }}>Invoices</h3>
+                <p style={{ margin: '0', fontSize: '0.85rem', opacity: 0.9 }}>Commercial invoices for NG, KE, GH, BJ</p>
+              </div>
+
+              <div style={{
+                background: 'rgba(255,255,255,0.15)',
+                padding: '1.2rem',
+                borderRadius: '8px',
+                backdropFilter: 'blur(10px)',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                border: '1px solid rgba(255,255,255,0.2)'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.25)';
+                e.currentTarget.style.transform = 'translateY(-4px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+              >
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📦</div>
+                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem' }}>Packing Lists</h3>
+                <p style={{ margin: '0', fontSize: '0.85rem', opacity: 0.9 }}>Detailed shipment documentation</p>
+              </div>
+
+              <div style={{
+                background: 'rgba(255,255,255,0.15)',
+                padding: '1.2rem',
+                borderRadius: '8px',
+                backdropFilter: 'blur(10px)',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                border: '1px solid rgba(255,255,255,0.2)'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.25)';
+                e.currentTarget.style.transform = 'translateY(-4px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+              >
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>⚓</div>
+                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem' }}>Bills of Lading</h3>
+                <p style={{ margin: '0', fontSize: '0.85rem', opacity: 0.9 }}>Sea freight documentation</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigate('/templates')}
+              style={{
+                background: '#fff',
+                color: '#d4a017',
+                border: 'none',
+                padding: '0.8rem 2rem',
+                borderRadius: '6px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                transition: 'all 0.2s',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.25)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+              }}
+            >
+              Browse All Templates →
             </button>
-          </div>
+          </section>
 
           <div style={{ marginBottom: '1rem' }}>
             <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.5rem' }}>

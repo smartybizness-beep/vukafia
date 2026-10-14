@@ -2,187 +2,435 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Packing List - Nigeria to Kenya</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0.5in; }
-    .page { max-width: 8.5in; }
-    .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-    .header h1 { margin: 0; font-size: 18px; }
-    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-    th, td { border: 1px solid #333; padding: 8px; text-align: left; }
-    th { background: #f0f0f0; font-weight: bold; }
-    .section-title { font-weight: bold; background: #f0f0f0; padding: 8px; margin-top: 15px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 10px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .button-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .btn-download {
+      background: #1976d2;
+      color: white;
+    }
+
+    .btn-download:hover {
+      background: #1565c0;
+    }
+
+    .btn-clear {
+      background: #757575;
+      color: white;
+    }
+
+    .btn-clear:hover {
+      background: #424242;
+    }
+
+    .btn-print {
+      background: #f57c00;
+      color: white;
+    }
+
+    .btn-print:hover {
+      background: #e65100;
+    }
+
+    #packing {
+      padding: 0;
+      background: white;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #1976d2;
+      padding-bottom: 15px;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      margin-bottom: 5px;
+      color: #1565c0;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .section-title {
+      font-weight: bold;
+      background: #e3f2fd;
+      padding: 8px 12px;
+      margin: 15px 0 10px 0;
+      border-left: 4px solid #1976d2;
+      color: #1565c0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .two-col {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .button-bar {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+
+    .field-group {
+      margin-bottom: 10px;
+    }
+
+    .field-label {
+      font-weight: 600;
+      color: #333;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+    }
+
+    .field-input:focus {
+      outline: none;
+      border-color: #1976d2;
+      background: #f1f8ff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #e3f2fd;
+      font-weight: bold;
+      color: #1565c0;
+    }
+
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    .note {
+      background: #fff3cd;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #856404;
+      margin-bottom: 15px;
+    }
+
+    .summary {
+      background: #e3f2fd;
+      padding: 10px;
+      margin: 15px 0;
+      border-radius: 4px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary-label {
+      font-weight: 600;
+      color: #1565c0;
+    }
+
+    .summary-value {
+      font-weight: bold;
+      color: #333;
+    }
+
+    @media print {
+      .button-bar { display: none; }
+      .container { box-shadow: none; }
+      body { background: white; padding: 0; }
+    }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="header">
-      <h1>PACKING LIST</h1>
-      <p>Nigeria → Kenya Export Shipment</p>
+  <div class="container">
+    <div class="button-bar">
+      <button class="btn btn-download" onclick="downloadPDF()">📥 Download as PDF</button>
+      <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-clear" onclick="clearForm()">🔄 Clear Form</button>
     </div>
 
-    <table style="margin-bottom: 20px;">
-      <tr>
-        <td style="width: 50%;">
-          <strong>SHIPPER (Exporter):</strong><br>
-          Company: ________________________<br>
-          Address: ________________________<br>
-          Nigeria<br>
-          Contact: ________________________<br>
-          Email: ________________________
-        </td>
-        <td>
-          <strong>CONSIGNEE (Importer):</strong><br>
-          Company: ________________________<br>
-          Address: ________________________<br>
-          Kenya<br>
-          Contact: ________________________<br>
-          Email: ________________________
-        </td>
-      </tr>
-    </table>
-
-    <table>
-      <tr>
-        <td style="width: 25%;">
-          <strong>Packing List No.:</strong><br>
-          ________________________
-        </td>
-        <td style="width: 25%;">
-          <strong>Date:</strong><br>
-          ________________________
-        </td>
-        <td style="width: 25%;">
-          <strong>Invoice No.:</strong><br>
-          ________________________
-        </td>
-        <td style="width: 25%;">
-          <strong>Purchase Order:</strong><br>
-          ________________________
-        </td>
-      </tr>
-    </table>
-
-    <div class="section-title">CONTENTS & PACKAGING</div>
-    <table>
-      <thead>
-        <tr>
-          <th>Carton/Box No.</th>
-          <th>Item Description</th>
-          <th>Qty</th>
-          <th>Unit</th>
-          <th>Weight per Unit (kg)</th>
-          <th>Total Weight (kg)</th>
-          <th>Dimensions (L×W×H cm)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>_____________________</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>_____________________</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td>_____________________</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-        </tr>
-        <tr>
-          <td>4</td>
-          <td>_____________________</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-          <td>_____</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div style="margin-top: 20px;">
-      <table style="width: 100%;">
-        <tr>
-          <td style="border: none; font-weight: bold;">Total Cartons:</td>
-          <td style="border: none;">_____</td>
-          <td style="border: none; font-weight: bold;">Gross Weight (kg):</td>
-          <td style="border: none;">_____</td>
-          <td style="border: none; font-weight: bold;">Net Weight (kg):</td>
-          <td style="border: none;">_____</td>
-        </tr>
-      </table>
+    <div class="note">
+      💡 Fill in all fields, then click "Download as PDF" to save your completed packing list.
     </div>
 
-    <div class="section-title">MARKING & LABELING</div>
-    <p style="border: 1px solid #ccc; padding: 10px; height: 80px;">
-      <strong>Marks on Boxes/Cartons:</strong><br>
-      ________________________________<br>
-      ________________________________<br>
-      ________________________________
-    </p>
-
-    <div class="section-title">SHIPPING INFORMATION</div>
-    <table>
-      <tr>
-        <td style="width: 33%;">
-          <strong>Vessel/Flight:</strong><br>
-          ________________________
-        </td>
-        <td style="width: 33%;">
-          <strong>Port of Departure:</strong><br>
-          Lagos/Apapa Port
-        </td>
-        <td style="width: 33%;">
-          <strong>Port of Arrival:</strong><br>
-          Mombasa/Nairobi
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <strong>ETD:</strong><br>
-          ________________________
-        </td>
-        <td>
-          <strong>ETA:</strong><br>
-          ________________________
-        </td>
-        <td>
-          <strong>Shipping Term:</strong><br>
-          ________________________
-        </td>
-      </tr>
-    </table>
-
-    <div style="margin-top: 25px;">
-      <div style="display: inline-block; width: 45%;">
-        <p style="border-top: 1px solid #333; padding-top: 5px;">
-          Prepared By: ________________________<br>
-          Date: ________________________
-        </p>
+    <div id="packing">
+      <div class="header">
+        <h1>📦 PACKING LIST</h1>
+        <p>Nigeria → Kenya Export Shipment</p>
       </div>
-      <div style="display: inline-block; width: 45%; float: right;">
-        <p style="border-top: 1px solid #333; padding-top: 5px;">
-          Authorized Signature: ________________________<br>
-          Date: ________________________
-        </p>
+
+      <div class="two-col">
+        <div>
+          <div class="section-title">SHIPPER (Exporter)</div>
+          <div class="field-group">
+            <div class="field-label">Company</div>
+            <input type="text" class="field-input" placeholder="Your company name">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Address</div>
+            <input type="text" class="field-input" placeholder="Full address">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Nigeria</div>
+            <input type="text" class="field-input" value="Nigeria" readonly style="background: #f5f5f5;">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Contact</div>
+            <input type="text" class="field-input" placeholder="Phone/Email">
+          </div>
+        </div>
+
+        <div>
+          <div class="section-title">CONSIGNEE (Importer)</div>
+          <div class="field-group">
+            <div class="field-label">Company</div>
+            <input type="text" class="field-input" placeholder="Buyer's company">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Address</div>
+            <input type="text" class="field-input" placeholder="Full address">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Country/City</div>
+            <input type="text" class="field-input" placeholder="Kenya">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Contact</div>
+            <input type="text" class="field-input" placeholder="Phone/Email">
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <div class="field-group">
+          <div class="field-label">Packing List No.</div>
+          <input type="text" class="field-input" placeholder="PL-2024-001">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Date</div>
+          <input type="date" class="field-input">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Invoice No.</div>
+          <input type="text" class="field-input" placeholder="INV number">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Purchase Order</div>
+          <input type="text" class="field-input" placeholder="PO number">
+        </div>
+      </div>
+
+      <div class="section-title">CONTENTS & PACKAGING</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 8%;">Carton</th>
+            <th style="width: 25%;">Description</th>
+            <th style="width: 8%;">Qty</th>
+            <th style="width: 8%;">Unit</th>
+            <th style="width: 12%;">Weight/Unit (kg)</th>
+            <th style="width: 12%;">Total Weight (kg)</th>
+            <th style="width: 15%;">Dimensions L×W×H (cm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" class="field-input" value="1" style="text-align: center;"></td>
+            <td><input type="text" class="field-input" placeholder="Product description"></td>
+            <td><input type="number" class="field-input" placeholder="0"></td>
+            <td><input type="text" class="field-input" placeholder="pcs"></td>
+            <td><input type="number" class="field-input" placeholder="0"></td>
+            <td><input type="number" class="field-input" placeholder="0" readonly style="background: #f5f5f5;"></td>
+            <td><input type="text" class="field-input" placeholder="0×0×0"></td>
+          </tr>
+          <tr>
+            <td><input type="text" class="field-input" value="2" style="text-align: center;"></td>
+            <td><input type="text" class="field-input" placeholder="Product description"></td>
+            <td><input type="number" class="field-input" placeholder="0"></td>
+            <td><input type="text" class="field-input" placeholder="pcs"></td>
+            <td><input type="number" class="field-input" placeholder="0"></td>
+            <td><input type="number" class="field-input" placeholder="0" readonly style="background: #f5f5f5;"></td>
+            <td><input type="text" class="field-input" placeholder="0×0×0"></td>
+          </tr>
+          <tr>
+            <td><input type="text" class="field-input" value="3" style="text-align: center;"></td>
+            <td><input type="text" class="field-input" placeholder="Product description"></td>
+            <td><input type="number" class="field-input" placeholder="0"></td>
+            <td><input type="text" class="field-input" placeholder="pcs"></td>
+            <td><input type="number" class="field-input" placeholder="0"></td>
+            <td><input type="number" class="field-input" placeholder="0" readonly style="background: #f5f5f5;"></td>
+            <td><input type="text" class="field-input" placeholder="0×0×0"></td>
+          </tr>
+          <tr>
+            <td><input type="text" class="field-input" value="4" style="text-align: center;"></td>
+            <td><input type="text" class="field-input" placeholder="Product description"></td>
+            <td><input type="number" class="field-input" placeholder="0"></td>
+            <td><input type="text" class="field-input" placeholder="pcs"></td>
+            <td><input type="number" class="field-input" placeholder="0"></td>
+            <td><input type="number" class="field-input" placeholder="0" readonly style="background: #f5f5f5;"></td>
+            <td><input type="text" class="field-input" placeholder="0×0×0"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="summary">
+        <div class="summary-item">
+          <span class="summary-label">Total Cartons:</span>
+          <input type="number" class="field-input" style="width: 60px; text-align: center;" placeholder="0">
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Gross Weight (kg):</span>
+          <input type="number" class="field-input" style="width: 80px; text-align: center;" placeholder="0">
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Net Weight (kg):</span>
+          <input type="number" class="field-input" style="width: 80px; text-align: center;" placeholder="0">
+        </div>
+      </div>
+
+      <div class="section-title">MARKING & LABELING</div>
+      <div class="field-group">
+        <div class="field-label">Marks on Boxes/Cartons (as shown on shipment)</div>
+        <textarea class="field-input" placeholder="Describe marking details..." style="min-height: 60px; resize: vertical;"></textarea>
+      </div>
+
+      <div class="section-title">SHIPPING INFORMATION</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        <div class="field-group">
+          <div class="field-label">Vessel/Flight</div>
+          <input type="text" class="field-input" placeholder="Vessel name">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Port of Departure</div>
+          <input type="text" class="field-input" placeholder="Lagos/Apapa">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Port of Arrival</div>
+          <input type="text" class="field-input" placeholder="Mombasa/Nairobi">
+        </div>
+        <div class="field-group">
+          <div class="field-label">ETD (Estimated Departure)</div>
+          <input type="date" class="field-input">
+        </div>
+        <div class="field-group">
+          <div class="field-label">ETA (Estimated Arrival)</div>
+          <input type="date" class="field-input">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Shipping Term</div>
+          <input type="text" class="field-input" placeholder="CIF/FOB/DDP">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
+        <div>
+          <div style="border-top: 2px solid #333; padding-top: 10px; min-height: 60px;"></div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">Prepared By: ___________________</div>
+          <div style="font-size: 12px; color: #666;">Date: ___________________</div>
+        </div>
+        <div>
+          <div style="border-top: 2px solid #333; padding-top: 10px; min-height: 60px;"></div>
+          <div style="font-size: 12px; color: #666; margin-top: 5px;">Authorized Signature: ___________________</div>
+          <div style="font-size: 12px; color: #666;">Date: ___________________</div>
+        </div>
       </div>
     </div>
   </div>
+
+  <script>
+    function downloadPDF() {
+      const packingDiv = document.getElementById('packing');
+      const opt = {
+        margin: 10,
+        filename: 'Packing-List-Nigeria-Kenya.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+      };
+
+      html2pdf().set(opt).from(packingDiv).save();
+    }
+
+    function clearForm() {
+      if (confirm('Are you sure you want to clear all fields?')) {
+        document.querySelectorAll('input, textarea').forEach(input => {
+          if (input.value !== '1' && input.value !== '2' && input.value !== '3' && input.value !== '4' && input.value !== 'Nigeria') {
+            input.value = '';
+          }
+        });
+      }
+    }
+  </script>
 </body>
 </html>

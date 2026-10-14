@@ -2,166 +2,506 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Commercial Invoice - Nigeria</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; line-height: 1.6; }
-    .page { max-width: 8.5in; height: 11in; margin: 0 auto; padding: 0.5in; background: white; box-sizing: border-box; }
-    .header { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-    .logo { font-weight: bold; font-size: 18px; }
-    .document-title { text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 20px; }
-    .section { margin-bottom: 15px; }
-    .section-title { font-weight: bold; background: #f0f0f0; padding: 5px 10px; margin-bottom: 8px; }
-    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-    th, td { border: 1px solid #333; padding: 8px; text-align: left; }
-    th { background: #f0f0f0; font-weight: bold; }
-    .signature-section { margin-top: 30px; display: flex; justify-content: space-around; }
-    .signature-line { border-top: 1px solid #333; width: 200px; text-align: center; }
-    .total-section { margin-top: 15px; text-align: right; }
-    .total-row { font-weight: bold; font-size: 1.1em; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 10px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .button-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+
+    .btn-download {
+      background: #2e7d32;
+      color: white;
+    }
+
+    .btn-download:hover {
+      background: #1b5e20;
+    }
+
+    .btn-clear {
+      background: #757575;
+      color: white;
+    }
+
+    .btn-clear:hover {
+      background: #424242;
+    }
+
+    .btn-print {
+      background: #1976d2;
+      color: white;
+    }
+
+    .btn-print:hover {
+      background: #1565c0;
+    }
+
+    #invoice {
+      padding: 0;
+      background: white;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #2e7d32;
+      padding-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo {
+      font-weight: bold;
+      font-size: 18px;
+      color: #2e7d32;
+    }
+
+    .document-title {
+      text-align: center;
+      font-weight: bold;
+      font-size: 20px;
+      flex: 1;
+      color: #333;
+    }
+
+    .section {
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-weight: bold;
+      background: #e8f5e9;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+      border-left: 4px solid #2e7d32;
+      color: #1b5e20;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: 768px) {
+      .two-col {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .button-bar {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+
+    .field-group {
+      margin-bottom: 10px;
+    }
+
+    .field-label {
+      font-weight: 600;
+      color: #333;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+    }
+
+    .field-input:focus {
+      outline: none;
+      border-color: #2e7d32;
+      background: #f1f8f6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background: #e8f5e9;
+      font-weight: bold;
+      color: #1b5e20;
+    }
+
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    .total-section {
+      margin-top: 15px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .total-table {
+      width: 300px;
+    }
+
+    .total-row {
+      font-weight: bold;
+      background: #e8f5e9;
+    }
+
+    .signature-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .signature-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+
+    .signature-box {
+      border-top: 2px solid #333;
+      padding-top: 10px;
+      min-height: 60px;
+    }
+
+    .signature-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .note {
+      background: #fff3cd;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #856404;
+      margin-bottom: 15px;
+    }
+
+    @media print {
+      .button-bar { display: none; }
+      .container { box-shadow: none; }
+      body { background: white; padding: 0; }
+    }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="header">
-      <div class="logo">EXPORTER COMPANY DETAILS</div>
-      <div class="document-title">COMMERCIAL INVOICE</div>
+  <div class="container">
+    <div class="button-bar">
+      <button class="btn btn-download" onclick="downloadPDF()">📥 Download as PDF</button>
+      <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-clear" onclick="clearForm()">🔄 Clear Form</button>
     </div>
 
-    <table style="margin-bottom: 20px;">
-      <tr>
-        <td>
-          <strong>EXPORTER (Shipper):</strong><br>
-          Company: ________________________<br>
-          Address: ________________________<br>
-          City/State: ________________________<br>
-          Country: Nigeria<br>
-          Telephone: ________________________<br>
-          Email: ________________________<br>
-          Tax/VAT ID: ________________________
-        </td>
-        <td>
-          <strong>INVOICE DETAILS:</strong><br>
-          Invoice No.: ________________________<br>
-          Date: ________________________<br>
-          Terms: ________________________<br>
-          Currency: ________________________<br>
-          Reference Number: ________________________<br>
-          Buyer Order No.: ________________________
-        </td>
-      </tr>
-    </table>
+    <div class="note">
+      💡 Fill in all fields, then click "Download as PDF" to save your completed invoice.
+    </div>
 
-    <table style="margin-bottom: 20px;">
-      <tr>
-        <td>
-          <strong>CONSIGNEE (Buyer):</strong><br>
-          Company: ________________________<br>
-          Address: ________________________<br>
-          City: ________________________<br>
-          Country: ________________________<br>
-          Contact: ________________________<br>
-          Phone: ________________________<br>
-          Email: ________________________
-        </td>
-        <td>
-          <strong>SHIPMENT DETAILS:</strong><br>
-          Port of Loading: Lagos/Apapa<br>
-          Port of Discharge: ________________________<br>
-          Vessel Name: ________________________<br>
-          Bill of Lading No.: ________________________<br>
-          Container No.: ________________________<br>
-          Weight (Kg): ________________________<br>
-          Marks & Numbers: ________________________
-        </td>
-      </tr>
-    </table>
+    <div id="invoice">
+      <div class="header">
+        <div class="logo">VUKAFIA</div>
+        <div class="document-title">COMMERCIAL INVOICE</div>
+      </div>
 
-    <div class="section">
-      <div class="section-title">ITEMS DESCRIPTION</div>
-      <table>
-        <thead>
+      <div class="two-col">
+        <div class="section">
+          <div class="section-title">EXPORTER (Shipper)</div>
+          <div class="field-group">
+            <div class="field-label">Company Name</div>
+            <input type="text" class="field-input" placeholder="Your company name">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Address</div>
+            <input type="text" class="field-input" placeholder="Full address">
+          </div>
+          <div class="field-group">
+            <div class="field-label">City/State</div>
+            <input type="text" class="field-input" placeholder="City/State">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Country</div>
+            <input type="text" class="field-input" placeholder="Nigeria">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Telephone</div>
+            <input type="tel" class="field-input" placeholder="+234...">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Email</div>
+            <input type="email" class="field-input" placeholder="email@example.com">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Tax/VAT ID</div>
+            <input type="text" class="field-input" placeholder="VAT ID">
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">INVOICE DETAILS</div>
+          <div class="field-group">
+            <div class="field-label">Invoice Number</div>
+            <input type="text" class="field-input" placeholder="INV-2024-001">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Date</div>
+            <input type="date" class="field-input">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Payment Terms</div>
+            <input type="text" class="field-input" placeholder="e.g., Net 30 days">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Currency</div>
+            <input type="text" class="field-input" placeholder="USD">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Reference Number</div>
+            <input type="text" class="field-input" placeholder="Optional">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Buyer Order No.</div>
+            <input type="text" class="field-input" placeholder="PO number">
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="section">
+          <div class="section-title">CONSIGNEE (Buyer)</div>
+          <div class="field-group">
+            <div class="field-label">Company Name</div>
+            <input type="text" class="field-input" placeholder="Buyer's company">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Address</div>
+            <input type="text" class="field-input" placeholder="Full address">
+          </div>
+          <div class="field-group">
+            <div class="field-label">City</div>
+            <input type="text" class="field-input" placeholder="City">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Country</div>
+            <input type="text" class="field-input" placeholder="Country">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Contact Person</div>
+            <input type="text" class="field-input" placeholder="Name">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Email</div>
+            <input type="email" class="field-input" placeholder="email@example.com">
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">SHIPMENT DETAILS</div>
+          <div class="field-group">
+            <div class="field-label">Port of Loading</div>
+            <input type="text" class="field-input" placeholder="Lagos/Apapa">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Port of Discharge</div>
+            <input type="text" class="field-input" placeholder="Destination port">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Vessel Name</div>
+            <input type="text" class="field-input" placeholder="Ship name">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Bill of Lading No.</div>
+            <input type="text" class="field-input" placeholder="B/L number">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Container No.</div>
+            <input type="text" class="field-input" placeholder="Container ID">
+          </div>
+          <div class="field-group">
+            <div class="field-label">Weight (Kg)</div>
+            <input type="number" class="field-input" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">ITEMS</div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 10%;">Item #</th>
+              <th style="width: 35%;">Description</th>
+              <th style="width: 10%;">HS Code</th>
+              <th style="width: 10%;">Qty</th>
+              <th style="width: 10%;">Unit</th>
+              <th style="width: 15%;">Unit Price</th>
+              <th style="width: 10%;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" class="field-input" value="1" style="text-align: center;"></td>
+              <td><input type="text" class="field-input" placeholder="Product/service description"></td>
+              <td><input type="text" class="field-input" placeholder="Code"></td>
+              <td><input type="number" class="field-input" placeholder="0"></td>
+              <td><input type="text" class="field-input" placeholder="pcs/kg"></td>
+              <td><input type="number" class="field-input" placeholder="0.00"></td>
+              <td><input type="number" class="field-input" placeholder="0.00" readonly style="background: #f5f5f5;"></td>
+            </tr>
+            <tr>
+              <td><input type="text" class="field-input" value="2" style="text-align: center;"></td>
+              <td><input type="text" class="field-input" placeholder="Product/service description"></td>
+              <td><input type="text" class="field-input" placeholder="Code"></td>
+              <td><input type="number" class="field-input" placeholder="0"></td>
+              <td><input type="text" class="field-input" placeholder="pcs/kg"></td>
+              <td><input type="number" class="field-input" placeholder="0.00"></td>
+              <td><input type="number" class="field-input" placeholder="0.00" readonly style="background: #f5f5f5;"></td>
+            </tr>
+            <tr>
+              <td><input type="text" class="field-input" value="3" style="text-align: center;"></td>
+              <td><input type="text" class="field-input" placeholder="Product/service description"></td>
+              <td><input type="text" class="field-input" placeholder="Code"></td>
+              <td><input type="number" class="field-input" placeholder="0"></td>
+              <td><input type="text" class="field-input" placeholder="pcs/kg"></td>
+              <td><input type="number" class="field-input" placeholder="0.00"></td>
+              <td><input type="number" class="field-input" placeholder="0.00" readonly style="background: #f5f5f5;"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="total-section">
+        <table class="total-table">
           <tr>
-            <th>Item No.</th>
-            <th>Description of Goods</th>
-            <th>HS Code</th>
-            <th>Qty</th>
-            <th>Unit</th>
-            <th>Unit Price</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>_____________________</td>
-            <td>_____</td>
-            <td>_____</td>
-            <td>_____</td>
-            <td>_____</td>
-            <td>_____</td>
+            <td>Subtotal:</td>
+            <td><input type="number" class="field-input" placeholder="0.00"></td>
           </tr>
           <tr>
-            <td>2</td>
-            <td>_____________________</td>
-            <td>_____</td>
-            <td>_____</td>
-            <td>_____</td>
-            <td>_____</td>
-            <td>_____</td>
+            <td>Freight/Shipping:</td>
+            <td><input type="number" class="field-input" placeholder="0.00"></td>
           </tr>
           <tr>
-            <td>3</td>
-            <td>_____________________</td>
-            <td>_____</td>
-            <td>_____</td>
-            <td>_____</td>
-            <td>_____</td>
-            <td>_____</td>
+            <td>Insurance:</td>
+            <td><input type="number" class="field-input" placeholder="0.00"></td>
           </tr>
-        </tbody>
-      </table>
-    </div>
+          <tr class="total-row">
+            <td>TOTAL INVOICE VALUE:</td>
+            <td><input type="number" class="field-input" placeholder="0.00" style="font-weight: bold; font-size: 14px;"></td>
+          </tr>
+        </table>
+      </div>
 
-    <div class="total-section">
-      <div style="display: flex; justify-content: space-between; width: 300px; margin-left: auto;">
-        <span>Subtotal:</span>
-        <span>USD _____________</span>
+      <div class="section">
+        <div class="section-title">SPECIAL TERMS</div>
+        <div class="field-group">
+          <div class="field-label">Incoterms</div>
+          <input type="text" class="field-input" placeholder="e.g., CIF, FOB, DDP">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Bank Details</div>
+          <input type="text" class="field-input" placeholder="Account number, bank name">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Special Instructions</div>
+          <input type="text" class="field-input" placeholder="Any special notes">
+        </div>
       </div>
-      <div style="display: flex; justify-content: space-between; width: 300px; margin-left: auto;">
-        <span>Freight/Shipping:</span>
-        <span>USD _____________</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; width: 300px; margin-left: auto;">
-        <span>Insurance:</span>
-        <span>USD _____________</span>
-      </div>
-      <div class="total-row" style="display: flex; justify-content: space-between; width: 300px; margin-left: auto; margin-top: 10px; border-top: 2px solid #333; padding-top: 10px;">
-        <span>TOTAL INVOICE VALUE:</span>
-        <span>USD _____________</span>
-      </div>
-    </div>
 
-    <div style="margin-top: 20px; font-size: 0.9em;">
-      <p><strong>Incoterms:</strong> ________________________</p>
-      <p><strong>Bank Details:</strong> ________________________</p>
-      <p><strong>Special Instructions:</strong> ________________________</p>
-    </div>
-
-    <div class="signature-section" style="margin-top: 30px;">
-      <div>
-        <div class="signature-line"></div>
-        <small>Exporter/Authorized Signature</small>
+      <div class="signature-section">
+        <div class="signature-box">
+          <div class="signature-label">Exporter/Authorized Signature</div>
+        </div>
+        <div class="signature-box">
+          <div class="signature-label">Date</div>
+        </div>
       </div>
-      <div>
-        <div class="signature-line"></div>
-        <small>Date</small>
+
+      <div class="note" style="margin-top: 20px;">
+        <strong>DECLARATION:</strong> I hereby declare that the particulars furnished above are true and correct. This Commercial Invoice is issued in accordance with the export regulations of Nigeria.
       </div>
     </div>
-
-    <p style="font-size: 0.8em; margin-top: 15px; color: #666;">
-      <strong>DECLARATION:</strong> I hereby declare that the particulars furnished above are true and correct. This Commercial Invoice is issued in accordance with the export regulations of Nigeria and the import regulations of the destination country.
-    </p>
   </div>
+
+  <script>
+    function downloadPDF() {
+      const invoiceDiv = document.getElementById('invoice');
+      const opt = {
+        margin: 10,
+        filename: 'Commercial-Invoice-Nigeria.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+      };
+
+      html2pdf().set(opt).from(invoiceDiv).save();
+    }
+
+    function clearForm() {
+      if (confirm('Are you sure you want to clear all fields?')) {
+        document.querySelectorAll('input').forEach(input => {
+          if (input.value !== '1' && input.value !== '2' && input.value !== '3') {
+            input.value = '';
+          }
+        });
+      }
+    }
+  </script>
 </body>
 </html>
