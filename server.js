@@ -80,6 +80,9 @@ app.use('/api/auth/', authLimiter);
 // ─── ADMIN UI (static; data still requires an admin JWT) ───────────────────
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin'), { extensions: ['html'] }));
 
+// ─── PUBLIC STATIC FILES (templates, assets) ──────────────────────────────────
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+
 // ─── FRONTEND (React SPA) ─────────────────────────────────────────────────────
 // Serve built React app from frontend/dist (production only)
 const frontendPath = path.join(__dirname, 'frontend', 'dist');
