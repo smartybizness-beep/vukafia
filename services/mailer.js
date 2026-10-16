@@ -67,7 +67,7 @@ async function sendSuccessEmail(result) {
 
   try {
     const recipientEmail = process.env.ADMIN_EMAIL || 'smartybizness@gmail.com';
-    const { inserted = 0, updated = 0, total = 0, progress = 0, duration = 0, timestamp = new Date() } = result;
+    const { inserted = 0, updated = 0, total = 0, target = 10000, progress = 0, duration = 0, timestamp = new Date() } = result;
 
     const htmlContent = `
       <html>
@@ -95,7 +95,7 @@ async function sendSuccessEmail(result) {
               <td style="border: 1px solid #ddd; padding: 10px; color: #2196F3; font-weight: bold;">${total}</td>
             </tr>
             <tr style="background-color: #f9f9f9;">
-              <td style="border: 1px solid #ddd; padding: 10px;">Progress to 1000</td>
+              <td style="border: 1px solid #ddd; padding: 10px;">Progress to ${target.toLocaleString()}</td>
               <td style="border: 1px solid #ddd; padding: 10px; color: #9C27B0; font-weight: bold;">${progress}%</td>
             </tr>
             <tr>
@@ -109,7 +109,7 @@ async function sendSuccessEmail(result) {
             <li><strong>${inserted}</strong> new African businesses added to the directory</li>
             <li><strong>${updated}</strong> existing businesses updated with latest info</li>
             <li>Database now contains <strong>${total}</strong> verified businesses</li>
-            <li>Target progress: <strong>${progress}% of 1000 goal</strong></li>
+            <li>Target progress: <strong>${progress}% of ${target.toLocaleString()} goal</strong></li>
           </ul>
 
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
