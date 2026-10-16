@@ -246,6 +246,16 @@
       .container { box-shadow: none; }
       body { background: white; padding: 0; }
     }
+
+    /* Phones: wide tables scroll sideways inside themselves instead of widening the page */
+    @media (max-width: 768px) {
+      table:not(.total-table) { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      table:not(.total-table) td .field-input { min-width: 72px; }
+      table:not(.total-table) td:first-child .field-input { min-width: 44px; }
+      table:not(.total-table) td:nth-child(2) .field-input,
+      table:not(.total-table) td:nth-child(3) .field-input { min-width: 150px; }
+      .total-table { width: 100%; max-width: 320px; }
+    }
   </style>
 </head>
 <body>

@@ -97,7 +97,7 @@ export default function NewsPage() {
           Latest business, policy and market headlines from all 54 African countries, updated every 6 hours.
         </p>
 
-        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
           <button style={chip(!category)} onClick={() => updateParam('category', '')}>All News</button>
           {meta.categories.map(c => (
             <button key={c.key} style={chip(category === c.key)} onClick={() => updateParam('category', c.key)}>
@@ -117,7 +117,7 @@ export default function NewsPage() {
           </select>
           <form
             onSubmit={e => { e.preventDefault(); updateParam('q', searchInput.trim()); }}
-            style={{ flex: '2 1 300px', display: 'flex', gap: '0.5rem' }}
+            style={{ flex: '2 1 240px', minWidth: 0, maxWidth: '100%', display: 'flex', gap: '0.5rem' }}
           >
             <input
               value={searchInput}
@@ -149,7 +149,7 @@ export default function NewsPage() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))', gap: '1rem' }}>
           {articles.map(a => (
             <a
               key={a.id}
@@ -172,7 +172,7 @@ export default function NewsPage() {
                 </span>
               </div>
               <h3 style={{ margin: 0, fontSize: '1.02rem', lineHeight: 1.4, color: '#2d1f0e' }}>{a.title}</h3>
-              <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#888' }}>
+              <div style={{ marginTop: 'auto', display: 'flex', flexWrap: 'wrap', gap: '0.25rem 1rem', justifyContent: 'space-between', fontSize: '0.8rem', color: '#888' }}>
                 <span>{a.source}</span>
                 <span>{timeAgo(a.published_at)}</span>
               </div>

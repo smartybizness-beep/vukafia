@@ -386,14 +386,15 @@ export default function BusinessDetailPage() {
 
             <div style={{
               display: 'flex',
+              flexWrap: 'wrap',
               alignItems: 'center',
-              gap: '1rem',
+              gap: '0.5rem 1rem',
               marginBottom: '1.5rem',
               padding: '1rem',
               background: '#fafafa',
               borderRadius: '8px'
             }}>
-              <div style={{ fontSize: '2.5rem' }}>⭐⭐⭐⭐⭐</div>
+              <div style={{ fontSize: 'clamp(1.5rem, 7vw, 2.5rem)', whiteSpace: 'nowrap' }}>⭐⭐⭐⭐⭐</div>
               <div>
                 <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold', color: '#2d1f0e' }}>4.8/5.0 Rating</p>
                 <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.85rem', color: '#666' }}>Based on 24 verified reviews</p>

@@ -3,9 +3,9 @@
 
 **Project**: Vukafia Trans-African Business Directory  
 **Operator**: SOT Smartybiz Ltd  
-**Date**: October 11, 2026 (Updated)  
-**Status**: Live & Operational (218+ Listings, 54+ Nations, Real Photos)  
-**Latest Updates**: Company branding added to footer, AI WhatsApp Assistant, WhatsApp Business API integration, Message templates, Bulk claim campaigns, Daily email notifications for crawler jobs
+**Date**: October 16, 2026 (Updated)  
+**Status**: Live & Operational (730+ listings, crawler covering all 54 nations, 4,000+ news articles)  
+**Latest Updates**: Africa Market News (54 countries), business crawler expanded to all 54 countries, LinkedIn enrichment, photo proxy, credential rotation, mobile layout fixes
 
 ---
 
@@ -29,6 +29,10 @@
 16. [Verified Reviews System](#verified-reviews-system-october-13-2026)
 17. [Trade Templates & Compliance Hub](#trade-templates--compliance-hub-october-13-2026)
 18. [Troubleshooting Reference](#troubleshooting-reference)
+19. [Africa Market News](#africa-market-news-october-15-2026)
+20. [Business Crawler Expansion & LinkedIn Enrichment](#business-crawler-expansion--linkedin-enrichment-october-16-2026)
+21. [Security & Credentials](#security--credentials-october-16-2026)
+22. [Mobile Layout](#mobile-layout-october-16-2026)
 
 ---
 
@@ -1834,6 +1838,10 @@ GET    /api/templates/experts            - Expert directory
 3. Test API: `curl http://localhost:5000/api/templates?country=NG`
 4. Check frontend console (F12) for fetch errors
 
+
+### Template buttons note
+The site's Content-Security-Policy (`script-src 'self'`, `script-src-attr 'none'`) blocks inline `<script>` and `onclick`. Template pages use `public/templates/template-actions.js` with `data-action="print|clear"` attributes instead.
+
 ---
 
 ## Africa Market News (October 15, 2026)
@@ -1855,27 +1863,83 @@ GET /api/news?category=banking&country=NG&q=cbn&page=1&limit=30
 GET /api/news/meta     - category and country lists
 ```
 
-### LinkedIn Enrichment (October 16, 2026)
+---
+
+## Business Crawler Expansion & LinkedIn Enrichment (October 16, 2026)
+
+### Coverage: all 54 countries
+- `services/googleMapsCrawler.js` covers all 54 countries and 99 commercial cities (`REGIONS`, grouped by region)
+- Each city gets `COMMON_QUERIES` (hospital, pharmacy, hotel, restaurant, supermarket, logistics, freight forwarder, construction, real estate, tech, fashion…) plus its country's `COUNTRY_SPECIALTIES` (key exports, e.g. cotton in Benin, bauxite in Guinea) → 1,566 searches in total
+- Nightly run (2 AM UTC) does `CRAWL_SEARCHES_PER_RUN` searches (default 60), rotating through the full list every ~27 nights; the list is ordered so each night spans many countries
+- Each search keeps up to 20 results (Google bills per search, not per result)
+- Raise `CRAWL_SEARCHES_PER_RUN` in Railway Variables to grow faster; the Google bill scales with it
+- Country names for the original 15 countries ("DRC", "Côte d'Ivoire") must not change: listings are deduped by name + country + city
+- Hotels (category Accommodations) are typed `tourism`
+
+### Nightly job fix
+- `jobs/crawlBusinessesJob.js` previously treated the crawler's summary as a list, crashed after saving, and swallowed the error, so the scheduler emailed a "success" report full of zeros
+- The job now reports the crawler's real counts (crawled / inserted / updated / failed) and rethrows real errors, so failures send the failure email
+- Target raised to 10,000 active listings (`TARGET_LISTINGS`); the crawl stops once reached
+- Photos from new crawls are stored as references and served via `/photos/:id` (see [Image Handling](#image-handling))
+
+### LinkedIn enrichment
 - LinkedIn is not crawled directly (its terms prohibit scraping and its API has no company discovery)
 - `services/linkedinEnricher.js` fetches each listing's own website homepage and extracts the LinkedIn company/school/showcase page it links to; personal `/in/` profiles are ignored
 - Saves to `listings.linkedin_url`; `linkedin_checked_at` prevents re-checking for 30 days
 - Runs daily at 3 AM UTC (500 listings per run); manual: `npm run enrich:linkedin [limit]`
 - Shown as "LinkedIn Page" in the Contact section of the business detail page
+- First full run (Oct 16): 114 LinkedIn pages found across ~500 listings with websites
 - Limitation: chain businesses (e.g. hotels) link to the parent company's page
 
-### Business Crawler Coverage (October 16, 2026)
-- `services/googleMapsCrawler.js` covers all 54 countries, 99 cities (`REGIONS`)
-- Each city gets `COMMON_QUERIES` plus its country's `COUNTRY_SPECIALTIES` → 1,566 searches in total
-- Nightly run (2 AM UTC) does `CRAWL_SEARCHES_PER_RUN` searches (default 60), rotating through the full list every ~27 nights; each search keeps up to 20 results
-- Raise `CRAWL_SEARCHES_PER_RUN` in Railway env vars to grow faster; Google bills per search, so cost scales with it
-- Stops once active listings reach 10,000 (`TARGET_LISTINGS` in `jobs/crawlBusinessesJob.js`)
-- Country names for the original 15 countries ("DRC", "Côte d'Ivoire") must not change: listings are deduped by name + country + city
+---
 
-### Template buttons note
-The site's Content-Security-Policy (`script-src 'self'`, `script-src-attr 'none'`) blocks inline `<script>` and `onclick`. Template pages use `public/templates/template-actions.js` with `data-action="print|clear"` attributes instead.
+## Security & Credentials (October 16, 2026)
+
+### What happened
+The GitHub repo (`smartybizness-beep/vukafia`) is **public**. From about September 20 until October 16, 2026 it contained the production database password (`db.js`, `check-internal-db.js`), the Google Maps API key (`DEPLOY_RAILWAY.md`, and inside every listing photo URL), the Bachs live payment key (`BACHS_INTEGRATION_SUMMARY.md`) and the production JWT secret (`.env.example`).
+
+All four were replaced on October 16, 2026, and each old value was verified as rejected:
+
+| Credential | Replaced in | Verified |
+|---|---|---|
+| Database password | Postgres (`ALTER USER`), Railway Variables, local `.env` | old password fails authentication |
+| JWT secret | Railway Variables | tokens signed with old secrets get 401 |
+| Bachs API key | Bachs dashboard, Railway Variables, local `.env` | old key returns "Invalid API key" |
+| Google Maps API key | Google Cloud Console, Railway Variables, local `.env` | old key returns "API key not valid" |
+
+The old values remain in git history but no longer work, so the history was not rewritten.
+
+### Rules going forward
+- Never put a real credential in any tracked file, including docs and examples. Use placeholders; real values live only in Railway Variables and the local `.env` (not tracked)
+- Never put an API key in a URL that reaches the browser. Listing photos go through `/photos/:id`
+- `JWT_SECRET` is required: the server refuses to start without it (no built-in fallback)
+- The new Google key is restricted to **Places API (New)**. Application restrictions are "None" because Railway has no fixed outbound IP; the key is used server-side only
+- The local `.env` points at the **production** database. Running the server, migrations or crawler scripts locally changes live data, and starting the server runs pending migrations on production. When a migration must ship together with new code, push first and let Railway run it
+
+### How to replace a credential
+1. Create the new value in the provider's dashboard (for the database: `ALTER USER postgres WITH PASSWORD '...'`)
+2. Update Railway Variables (Railway redeploys automatically) and the local `.env`
+3. Check the site: `/health` shows `"db":"connected"`, and test the affected feature
+4. Revoke or delete the old value, then confirm it is rejected
+
+---
+
+## Mobile Layout (October 16, 2026)
+
+Checked with phone emulation at 320px and 375px wide: `/news`, `/business/:id`, `/templates`, and the four template documents. None scroll sideways.
+
+Fixes applied:
+- **News page**: card grid uses `minmax(min(300px, 100%), 1fr)`; the search row can shrink; the category chip row scrolls on its own with the scrollbar hidden
+- **Business detail page**: the Verified Reviews rating row wraps, and the stars shrink on small screens
+- **Templates** (invoice, packing list, bill of lading): on screens ≤768px, item tables scroll sideways inside themselves (`display: block; overflow-x: auto`) with minimum input widths; the packing list's signature row stacks
+
+How to test:
+- Chrome or Edge DevTools → device toolbar (Ctrl+Shift+M) → pick a phone, or set width to 320 and 375
+- In the console, `document.documentElement.scrollWidth > innerWidth` should be `false`
+- A desktop browser window can't shrink below about 500px, so resizing the window does not test phone widths. Use device emulation
 
 ---
 
 **Document Created**: October 13, 2026  
-**Last Reviewed**: October 13, 2026  
-**Status**: Verified Reviews & Trade Templates deployed (templates need data verification) ⚠️
+**Last Reviewed**: October 16, 2026  
+**Status**: Live. News, 54-country crawler, LinkedIn enrichment, photo proxy and mobile fixes deployed; all leaked credentials replaced
