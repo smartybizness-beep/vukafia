@@ -11,7 +11,7 @@ const db = require('../db');
 
 const WA_PHONE_NUMBER_ID = process.env.WA_PHONE_NUMBER_ID;
 const WA_API_TOKEN = process.env.WA_API_TOKEN;
-const WA_API_URL = `https://graph.instagram.com/v18.0/${WA_PHONE_NUMBER_ID}/messages`;
+const WA_API_URL = `https://graph.facebook.com/v18.0/${WA_PHONE_NUMBER_ID}/messages`;
 const BASE_URL = process.env.BASE_URL || 'https://vukafia.com';
 
 /**

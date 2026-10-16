@@ -51,13 +51,12 @@ export default function App() {
 
   // Claim flow state
   const [showClaimModal, setShowClaimModal] = useState(false)
-  const [claimStep, setClaimStep] = useState('search') // search, verify, otp, edit, payment
+  const [claimStep, setClaimStep] = useState('search') // search, verify, edit, payment
   const [claimSearch, setClaimSearch] = useState('')
   const [claimCountry, setClaimCountry] = useState('')
   const [claimResults, setClaimResults] = useState([])
   const [selectedClaim, setSelectedClaim] = useState(null)
   const [skipSearch, setSkipSearch] = useState(false) // Skip search when claiming from detail page
-  const [claimPhone, setClaimPhone] = useState('')
   const [claimLoading, setClaimLoading] = useState(false)
   const [claimMessage, setClaimMessage] = useState('')
   const [claimFee, setClaimFee] = useState(14.99)
@@ -65,10 +64,7 @@ export default function App() {
   const [paystackLoading, setPaystackLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('bachs') // bachs or whatsapp (paystack hidden for now)
   // OTP verification state
-  const [claimOtpSent, setClaimOtpSent] = useState(false)
-  const [claimOtpInput, setClaimOtpInput] = useState('')
-  const [claimOtpExpiry, setClaimOtpExpiry] = useState(null)
-  const [claimOtpAttempts, setClaimOtpAttempts] = useState(0)
+  const [claimVerify, setClaimVerify] = useState(null) // WhatsApp ownership check: code, link, status
   // Edit business info state
   const [claimBusinessPhoto, setClaimBusinessPhoto] = useState('')
   const [claimBusinessPhone, setClaimBusinessPhone] = useState('')
@@ -124,7 +120,7 @@ export default function App() {
           website: businessData.website
         })
         setSkipSearch(true)
-        setClaimStep('edit')
+        setClaimStep('verify')
         setShowClaimModal(true)
       } else {
         // User not logged in - show auth modal first, keep claim data in sessionStorage
@@ -155,6 +151,22 @@ export default function App() {
   useEffect(() => {
     applyFilters()
   }, [listings, search, region, country, category])
+
+  // While the ownership step is open, wait for the owner's WhatsApp message to be confirmed
+  useEffect(() => {
+    if (!showClaimModal || claimStep !== 'verify' || !selectedClaim || claimVerify?.status !== 'pending') return
+    const timer = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/claims/verification-status?listing_id=${selectedClaim.id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
+        })
+        const data = await res.json()
+        if (data.status === 'verified') onOwnershipVerified()
+        else if (data.status === 'expired') setClaimVerify(v => ({ ...v, status: 'expired' }))
+      } catch (_) { /* keep waiting */ }
+    }, 4000)
+    return () => clearInterval(timer)
+  }, [showClaimModal, claimStep, selectedClaim?.id, claimVerify?.status])
 
   // Handle Paystack payment callback
   useEffect(() => {
@@ -361,128 +373,52 @@ export default function App() {
     }
   }
 
-  async function verifyOwnership() {
-    if (!selectedClaim || !claimPhone.trim()) {
-      setClaimMessage('Please select a business and enter your phone number')
+  async function startOwnershipCheck() {
+    if (!selectedClaim) return
+    const token = localStorage.getItem('auth_token')
+    if (!token) {
+      setClaimMessage('❌ Please log in or sign up first, then verify your business.')
+      setAuthMode('login')
+      setShowAuthModal(true)
       return
     }
     setClaimLoading(true)
     setClaimMessage('')
     try {
-      const res = await fetch(`${API_BASE}/api/claims/verify-ownership`, {
+      const res = await fetch(`${API_BASE}/api/claims/start-verification`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          listing_id: selectedClaim.id,
-          phone: claimPhone
-        })
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ listing_id: selectedClaim.id })
       })
       const data = await res.json()
-      if (data.success) {
-        // Phone matches, now send OTP
-        sendOtpVerification(claimPhone)
-      } else {
-        setClaimMessage('❌ ' + (data.error || 'Phone does not match this business'))
+      if (res.status === 401) {
+        setClaimMessage('❌ Your session expired. Please log in again.')
+        setAuthMode('login')
+        setShowAuthModal(true)
+        return
       }
+      if (!data.success) {
+        setClaimMessage('❌ ' + (data.error || 'Could not start verification'))
+        return
+      }
+      setClaimVerify(data)
+      if (data.status === 'verified') onOwnershipVerified()
     } catch (err) {
-      setClaimMessage('Error: ' + err.message)
+      setClaimMessage('❌ ' + err.message)
     } finally {
       setClaimLoading(false)
     }
   }
 
-  async function sendOtpVerification(phone) {
-    setClaimLoading(true)
-    setClaimMessage('')
-    try {
-      // Generate 6-digit OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString()
-
-      // In production, send via WhatsApp or SMS
-      // For now, we'll log it and send to backend
-      const res = await fetch(`${API_BASE}/api/claims/send-otp`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          listing_id: selectedClaim.id,
-          phone: phone,
-          otp: otp
-        })
-      })
-
-      const data = await res.json()
-      if (data.success || true) { // true allows demo mode
-        setClaimOtpSent(true)
-        setClaimOtpInput('')
-        setClaimOtpAttempts(0)
-        // Set OTP expiry to 10 minutes
-        setClaimOtpExpiry(Date.now() + 10 * 60 * 1000)
-        setClaimStep('otp')
-        setClaimMessage(`✅ OTP sent to ${phone}. Check WhatsApp.`)
-      } else {
-        setClaimMessage('❌ Failed to send OTP. Please try again.')
-      }
-    } catch (err) {
-      // In demo mode, still proceed
-      setClaimOtpSent(true)
-      setClaimOtpInput('')
-      setClaimOtpAttempts(0)
-      setClaimOtpExpiry(Date.now() + 10 * 60 * 1000)
-      setClaimStep('otp')
-      setClaimMessage(`✅ OTP sent to ${phone}. Check WhatsApp.`)
-    } finally {
-      setClaimLoading(false)
-    }
-  }
-
-  async function verifyOtp() {
-    if (!claimOtpInput.trim() || claimOtpInput.length !== 6) {
-      setClaimMessage('❌ Please enter a valid 6-digit OTP')
-      return
-    }
-
-    if (Date.now() > claimOtpExpiry) {
-      setClaimMessage('❌ OTP expired. Request a new one.')
-      return
-    }
-
-    setClaimLoading(true)
-    setClaimMessage('')
-    try {
-      const res = await fetch(`${API_BASE}/api/claims/verify-otp`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          listing_id: selectedClaim.id,
-          otp: claimOtpInput
-        })
-      })
-
-      const data = await res.json()
-      if (data.success || claimOtpInput === '000000') { // 000000 is demo OTP
-        // OTP verified, move to edit step
-        setClaimBusinessPhone(selectedClaim.phone || '')
-        setClaimBusinessEmail(selectedClaim.email || '')
-        setClaimBusinessWebsite(selectedClaim.website || '')
-        setClaimBusinessPhoto(selectedClaim.cover_photo || '')
-        setClaimContactName('')
-        setClaimStep('edit')
-        setClaimMessage('✅ OTP verified! Now update your business information')
-      } else {
-        setClaimOtpAttempts(prev => prev + 1)
-        const remaining = 3 - claimOtpAttempts
-        if (remaining <= 0) {
-          setClaimMessage('❌ Too many failed attempts. Please try again later.')
-          setClaimOtpInput('')
-        } else {
-          setClaimMessage(`❌ Invalid OTP. ${remaining} attempts remaining.`)
-        }
-      }
-    } catch (err) {
-      setClaimMessage('Error verifying OTP: ' + err.message)
-    } finally {
-      setClaimLoading(false)
-    }
+  function onOwnershipVerified() {
+    setClaimVerify(v => (v ? { ...v, status: 'verified' } : v))
+    setClaimBusinessPhone(selectedClaim?.phone || '')
+    setClaimBusinessEmail(selectedClaim?.email || '')
+    setClaimBusinessWebsite(selectedClaim?.website || '')
+    setClaimBusinessPhoto(selectedClaim?.cover_photo || '')
+    setClaimContactName('')
+    setClaimStep('edit')
+    setClaimMessage('✅ Ownership confirmed! Now check your business information.')
   }
 
   async function proceedToPayment() {
@@ -553,7 +489,7 @@ export default function App() {
     setClaimCountry('')
     setClaimResults([])
     setSelectedClaim(null)
-    setClaimPhone('')
+    setClaimVerify(null)
     setClaimMessage('')
     setSkipSearch(false)
   }
@@ -624,7 +560,7 @@ export default function App() {
           website: businessData.website
         })
         setSkipSearch(true)
-        setClaimStep('edit')
+        setClaimStep('verify')
         setShowClaimModal(true)
       }
     } catch (err) {
@@ -689,7 +625,7 @@ export default function App() {
           website: businessData.website
         })
         setSkipSearch(true)
-        setClaimStep('edit')
+        setClaimStep('verify')
         setShowClaimModal(true)
       }
     } catch (err) {
@@ -1379,7 +1315,6 @@ export default function App() {
               <h2 style={{ margin: 0, color: 'var(--earth)' }}>
                 {claimStep === 'search' && '🔍 Find Your Business'}
                 {claimStep === 'verify' && '📱 Verify Ownership'}
-                {claimStep === 'otp' && '🔐 Enter OTP'}
                 {claimStep === 'edit' && '✏️ Update Business Info'}
                 {claimStep === 'payment' && '💳 Complete Payment'}
               </h2>
@@ -1516,199 +1451,78 @@ export default function App() {
               </div>
             )}
 
-            {/* STEP 2: VERIFY */}
+            {/* STEP 2: VERIFY OWNERSHIP OVER WHATSAPP */}
             {claimStep === 'verify' && selectedClaim && (
               <div>
-                <p style={{ color: '#666', marginBottom: '1rem' }}>
-                  Verify that you own <strong>{selectedClaim.name}</strong> by confirming your business phone number.
+                <p style={{ color: '#444', marginBottom: '1rem', lineHeight: 1.6 }}>
+                  To confirm you own <strong>{selectedClaim.name}</strong>, send a short code to Vukafia
+                  {' '}<strong>from the business's own WhatsApp number</strong>
+                  {claimVerify?.business_phone_hint ? ` (${claimVerify.business_phone_hint})` : ''}.
                 </p>
-                <div style={{
-                  padding: '1rem',
-                  background: '#F0FDF4',
-                  borderRadius: '8px',
-                  marginBottom: '1.5rem',
-                  borderLeft: '4px solid #10B981'
-                }}>
-                  <div style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                    <strong>Business Phone on File:</strong>
-                  </div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
-                    {selectedClaim.phone}
-                  </div>
-                </div>
-                <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                  Enter your business phone number to verify:
-                </p>
-                <input
-                  type="tel"
-                  placeholder="+234..."
-                  value={claimPhone}
-                  onChange={e => setClaimPhone(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '8px',
-                    border: '1px solid #ddd',
-                    marginBottom: '1rem',
-                    boxSizing: 'border-box',
-                    fontSize: '1rem'
-                  }}
-                />
-                <button
-                  onClick={verifyOwnership}
-                  disabled={claimLoading}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    background: '#10B981',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                    cursor: claimLoading ? 'not-allowed' : 'pointer',
-                    opacity: claimLoading ? 0.6 : 1,
-                    marginBottom: '0.75rem'
-                  }}
-                >
-                  {claimLoading ? 'Verifying...' : 'Verify Phone'}
-                </button>
-                <button
-                  onClick={() => setClaimStep('search')}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    background: '#E5E7EB',
-                    color: '#333',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Back
-                </button>
 
-                {claimMessage && (
-                  <div style={{
-                    marginTop: '1rem',
-                    padding: '1rem',
-                    background: claimMessage.includes('✅') ? '#ECFDF5' : '#FEF2F2',
-                    color: claimMessage.includes('✅') ? '#065F46' : '#7F1D1D',
-                    borderRadius: '8px',
-                    fontSize: '0.9rem'
-                  }}>
-                    {claimMessage}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* STEP 3: OTP VERIFICATION */}
-            {claimStep === 'otp' && selectedClaim && (
-              <div>
-                <div style={{
-                  padding: '1.5rem',
-                  background: '#F0F9FF',
-                  borderRadius: '8px',
-                  marginBottom: '1.5rem',
-                  borderLeft: '4px solid #0284c7'
-                }}>
-                  <div style={{ fontSize: '0.95rem', color: '#0369A1', lineHeight: 1.6 }}>
-                    ✅ Phone verified! We've sent a 6-digit OTP to <strong>{claimPhone}</strong> via WhatsApp.<br/><br/>
-                    <strong>Demo tip:</strong> Use OTP <code style={{ background: '#fff', padding: '0.25rem 0.5rem', borderRadius: '4px', fontFamily: 'monospace' }}>000000</code> to test
-                  </div>
-                </div>
-
-                <p style={{ color: '#666', marginBottom: '1rem' }}>
-                  Enter the 6-digit code below:
-                </p>
-                <input
-                  type="text"
-                  placeholder="000000"
-                  maxLength="6"
-                  value={claimOtpInput}
-                  onChange={e => setClaimOtpInput(e.target.value.replace(/\D/g, ''))}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    borderRadius: '8px',
-                    border: '2px solid #0284c7',
-                    marginBottom: '1rem',
-                    boxSizing: 'border-box',
-                    fontSize: '1.5rem',
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                    letterSpacing: '0.5em',
-                    fontFamily: 'monospace'
-                  }}
-                />
-
-                {claimOtpExpiry && (
-                  <div style={{
-                    padding: '0.75rem',
-                    background: '#FEF3C7',
-                    borderRadius: '6px',
-                    fontSize: '0.85rem',
-                    color: '#92400E',
-                    marginBottom: '1rem',
-                    textAlign: 'center'
-                  }}>
-                    ⏱️ OTP expires in {Math.ceil((claimOtpExpiry - Date.now()) / 1000 / 60)} minutes
-                  </div>
+                {!claimVerify || claimVerify.status === 'expired' ? (
+                  <>
+                    {claimVerify?.status === 'expired' && (
+                      <div style={{ padding: '0.75rem', background: '#FEF3C7', borderRadius: '8px', color: '#92400E', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                        ⏱️ Your code expired. Get a new one below.
+                      </div>
+                    )}
+                    <button
+                      onClick={startOwnershipCheck}
+                      disabled={claimLoading}
+                      style={{ width: '100%', padding: '0.85rem', background: '#10B981', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: claimLoading ? 'not-allowed' : 'pointer', opacity: claimLoading ? 0.6 : 1, marginBottom: '0.75rem' }}
+                    >
+                      {claimLoading ? 'Preparing…' : 'Get my verification code'}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {claimVerify.has_phone ? (
+                      <>
+                        <div style={{ textAlign: 'center', padding: '1rem', background: '#F0FDF4', border: '2px dashed #10B981', borderRadius: '8px', marginBottom: '1rem' }}>
+                          <div style={{ fontSize: '0.8rem', color: '#555', marginBottom: '0.25rem' }}>Your message</div>
+                          <div style={{ fontSize: '1.4rem', fontWeight: 'bold', fontFamily: 'monospace', letterSpacing: '0.05em', color: '#065F46' }}>{claimVerify.message}</div>
+                        </div>
+                        <ol style={{ color: '#444', fontSize: '0.9rem', lineHeight: 1.6, paddingLeft: '1.2rem', margin: '0 0 1rem 0' }}>
+                          <li>Use the phone that has the business's WhatsApp{claimVerify.business_phone_hint ? ` (${claimVerify.business_phone_hint})` : ''}.</li>
+                          <li>Tap the button below and send the message exactly as it is.</li>
+                          <li>Keep this page open. It moves on by itself once we receive it.</li>
+                        </ol>
+                        <a
+                          href={claimVerify.whatsapp_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: 'block', textAlign: 'center', padding: '0.85rem', background: '#25D366', color: 'white', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', textDecoration: 'none', marginBottom: '0.75rem' }}
+                        >
+                          💬 Open WhatsApp and send code
+                        </a>
+                        <div role="status" style={{ textAlign: 'center', color: '#666', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                          ⏳ Waiting for your WhatsApp message…
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ padding: '0.9rem', background: '#FEF3C7', borderRadius: '8px', color: '#92400E', fontSize: '0.9rem', marginBottom: '1rem', lineHeight: 1.5 }}>
+                        This business has no phone number on file, so our team will verify you another way. Tap "Message our team" below.
+                      </div>
+                    )}
+                  </>
                 )}
 
-                <button
-                  onClick={verifyOtp}
-                  disabled={claimLoading || claimOtpInput.length !== 6}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    background: claimOtpInput.length === 6 ? '#10B981' : '#D1D5DB',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                    cursor: claimOtpInput.length === 6 ? 'pointer' : 'not-allowed',
-                    marginBottom: '0.75rem'
-                  }}
-                >
-                  {claimLoading ? 'Verifying...' : 'Verify OTP'}
-                </button>
+                <p style={{ color: '#666', fontSize: '0.85rem', margin: '0 0 1rem 0', lineHeight: 1.5 }}>
+                  Can't use WhatsApp on the business's number?{' '}
+                  <button
+                    type="button"
+                    onClick={() => openWhatsApp(`Hi Vukafia! I want to claim "${selectedClaim.name}" (listing #${selectedClaim.id}) but can't verify from the business's WhatsApp number.${claimVerify?.code ? ` My code is ${claimVerify.code}.` : ''} Please help me verify another way.`)}
+                    style={{ background: 'none', border: 'none', padding: 0, color: '#0284c7', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem' }}
+                  >
+                    Message our team
+                  </button>
+                  {' '}and we'll verify you another way.
+                </p>
 
                 <button
-                  onClick={() => {
-                    setClaimOtpInput('')
-                    sendOtpVerification(claimPhone)
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    background: '#E5E7EB',
-                    color: '#333',
-                    border: '1px solid #D1D5DB',
-                    borderRadius: '8px',
-                    fontSize: '0.9rem',
-                    cursor: 'pointer',
-                    marginBottom: '0.75rem'
-                  }}
-                >
-                  Resend OTP
-                </button>
-
-                <button
-                  onClick={() => setClaimStep('verify')}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    background: '#F3F4F6',
-                    color: '#333',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    cursor: 'pointer'
-                  }}
+                  onClick={() => { setClaimVerify(null); setClaimMessage(''); setClaimStep('search') }}
+                  style={{ width: '100%', padding: '0.75rem', background: '#E5E7EB', color: '#333', border: 'none', borderRadius: '8px', fontSize: '1rem', cursor: 'pointer' }}
                 >
                   Back
                 </button>

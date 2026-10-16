@@ -12,6 +12,7 @@ const { requireAuth, optionalAuth } = require('../middleware/auth');
 const { initializePayment, verifyPayment, getClaimFee, PAYSTACK_PUBLIC } = require('../services/paystack');
 const { createCheckoutSession, verifyPayment: verifyBachsPayment, processWebhookEvent } = require('../services/bachsPayment');
 const { sendPaymentConfirmationTemplate, sendClaimVerifiedTemplate } = require('../services/whatsappService');
+const { startVerification, getVerificationStatus, isOwnershipVerified } = require('../services/claimVerification');
 
 // ─── GET /api/claims/search ────────────────────────────────────────────────
 // Search for a listing to claim (by name + country)
@@ -162,6 +163,10 @@ router.post('/verify-payment', requireAuth, async (req, res, next) => {
       return res.status(403).json({ error: 'This listing is already claimed by another user' });
     }
 
+    if (!(await isOwnershipVerified(listing.id, req.user.id))) {
+      return res.status(403).json({ success: false, error: 'Please verify you own this business first.' });
+    }
+
     const used = await k('listing_claims').where('payment_ref', reference).first('id');
     if (used) {
       return res.status(409).json({ success: false, error: 'This payment has already been used' });
@@ -195,6 +200,30 @@ router.post('/verify-payment', requireAuth, async (req, res, next) => {
       message: 'Business claimed successfully!',
       listing_id
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── OWNERSHIP CHECK ──────────────────────────────────────────────────────
+// The owner sends "VERIFY <code>" from the business's WhatsApp number; routes/webhook.js confirms it.
+router.post('/start-verification', requireAuth, async (req, res, next) => {
+  try {
+    const listingId = parseInt(req.body.listing_id, 10);
+    if (!listingId) return res.status(400).json({ error: 'listing_id is required' });
+    const result = await startVerification(listingId, req.user.id);
+    if (result.error) return res.status(result.status).json({ success: false, error: result.error });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/verification-status', requireAuth, async (req, res, next) => {
+  try {
+    const listingId = parseInt(req.query.listing_id, 10);
+    if (!listingId) return res.status(400).json({ error: 'listing_id is required' });
+    res.json({ success: true, ...(await getVerificationStatus(listingId, req.user.id)) });
   } catch (err) {
     next(err);
   }
@@ -297,6 +326,10 @@ router.post('/verify-bachs-payment', requireAuth, async (req, res, next) => {
     }
     if (listing.user_id && listing.user_id !== req.user.id) {
       return res.status(403).json({ error: 'This listing is already claimed by another user' });
+    }
+
+    if (!(await isOwnershipVerified(listing.id, req.user.id))) {
+      return res.status(403).json({ success: false, error: 'Please verify you own this business first.' });
     }
 
     const used = await k('listing_claims').where('payment_ref', paymentResult.paymentId).first('id');

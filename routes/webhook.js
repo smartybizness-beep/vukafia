@@ -15,7 +15,21 @@ const { handleIncomingMessage } = require('../services/whatsappService');
 const { handleWhatsAppMessage } = require('../services/whatsappAssistant');
 const { sendMessage } = require('../services/whatsappService');
 
+const crypto = require('crypto');
+const { handleVerificationMessage } = require('../services/claimVerification');
+
 const WA_VERIFY_TOKEN = process.env.WA_VERIFY_TOKEN || 'vukafia_webhook_verify_2025';
+
+// Meta signs every webhook with the app secret (X-Hub-Signature-256). Without the secret we
+// can't tell a real message from a forged one.
+function metaSignatureValid(req) {
+  const secret = process.env.WA_APP_SECRET;
+  const header = req.get('x-hub-signature-256') || '';
+  if (!secret || !req.rawBody || !header.startsWith('sha256=')) return false;
+  const expected = Buffer.from('sha256=' + crypto.createHmac('sha256', secret).update(req.rawBody).digest('hex'));
+  const given = Buffer.from(header);
+  return given.length === expected.length && crypto.timingSafeEqual(given, expected);
+}
 
 // ─── GET /api/webhook/whatsapp ────────────────────────────────────────────
 // Meta webhook verification (called once during setup)
@@ -35,6 +49,12 @@ router.get('/whatsapp', (req, res) => {
 // Receives messages from WhatsApp Cloud API (Meta)
 router.post('/whatsapp', async (req, res, next) => {
   try {
+    const signed = metaSignatureValid(req);
+    if (process.env.WA_APP_SECRET && !signed) {
+      console.warn('[WEBHOOK] Rejected WhatsApp webhook with a missing or invalid signature');
+      return res.sendStatus(401);
+    }
+
     // Acknowledge immediately (Meta requires < 5s response)
     res.sendStatus(200);
 
@@ -55,6 +75,18 @@ router.post('/whatsapp', async (req, res, next) => {
     if (!text) return;                  // ignore non-text (images, etc.)
 
     console.log(`📨 WhatsApp msg from ${from}: ${text}`);
+
+    // ── BUSINESS CLAIM OWNERSHIP CODES ("VERIFY VK123456") ─────────────
+    if (/\bVERIFY\s+VK\d{6}\b/i.test(text)) {
+      if (!signed) {
+        console.warn('[WEBHOOK] Ignored ownership code: WA_APP_SECRET not set, so the sender cannot be trusted');
+        return;
+      }
+      const result = await handleVerificationMessage(from, text);
+      console.log(`[CLAIM VERIFY] ${from}: ${result.verified ? 'verified' : 'not verified'}`);
+      await sendMessage(from, result.reply).catch(() => {});
+      return;
+    }
 
     // ── PROCESS MESSAGE WITH AI ASSISTANT ──────────────────────────────
     const aiResponse = await handleWhatsAppMessage(from, text);

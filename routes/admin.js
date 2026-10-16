@@ -223,6 +223,79 @@ router.post('/reviews/:id/reject', async (req, res, next) => {
   }
 });
 
+// ─── CLAIMS ───────────────────────────────────────────────────────────────
+// GET /api/admin/claims — ownership checks waiting for payment confirmation
+router.get('/claims', async (req, res, next) => {
+  try {
+    const k = db.query();
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const claims = await k('claim_verifications as cv')
+      .join('listings as l', 'l.id', 'cv.listing_id')
+      .join('users as u', 'u.id', 'cv.user_id')
+      .where(q => q.where('cv.status', 'verified').orWhere(q2 => q2.where('cv.status', 'pending').where('cv.created_at', '>', weekAgo)))
+      .select(
+        'cv.id', 'cv.status', 'cv.code', 'cv.verified_phone', 'cv.verified_at', 'cv.created_at',
+        'l.id as listing_id', 'l.name as listing_name', 'l.country', 'l.phone as listing_phone', 'l.user_id as listing_owner',
+        'u.name as user_name', 'u.email as user_email', 'u.phone as user_phone'
+      )
+      .orderByRaw("CASE WHEN cv.status = 'verified' THEN 0 ELSE 1 END, cv.created_at DESC");
+    res.json({ success: true, data: claims });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/admin/claims/:id/complete — after confirming payment: give the user ownership and the badge.
+// Pending (not WhatsApp-verified) claims can be completed only after the admin checked ownership another way.
+router.post('/claims/:id/complete', async (req, res, next) => {
+  try {
+    const k = db.query();
+    const claim = await k('claim_verifications').where('id', req.params.id).first();
+    if (!claim) return res.status(404).json({ error: 'Claim not found' });
+    if (!['pending', 'verified'].includes(claim.status)) return res.status(409).json({ error: `Claim is already ${claim.status}` });
+
+    const listing = await k('listings').where('id', claim.listing_id).first('id', 'user_id');
+    if (listing.user_id && listing.user_id !== claim.user_id) {
+      return res.status(409).json({ error: 'This business is already owned by another account' });
+    }
+
+    const note = String(req.body?.note || '').slice(0, 500) || null;
+    const source = claim.status === 'verified' ? 'WhatsApp ownership check' : 'Manual ownership check';
+    await k.transaction(async trx => {
+      await trx('listings').where('id', claim.listing_id).update({ user_id: claim.user_id, verified: true, verified_source: source });
+      await trx('listing_claims').insert({
+        listing_id: claim.listing_id,
+        user_id: claim.user_id,
+        payment_ref: `admin-confirmed:${claim.id}`,
+        status: 'completed',
+        claimed_at: new Date(),
+      });
+      await trx('claim_verifications').where('id', claim.id)
+        .update({ status: 'completed', completed_at: new Date(), admin_notes: note, updated_at: new Date() });
+      await trx('claim_verifications')
+        .where('listing_id', claim.listing_id).whereNot('id', claim.id).whereIn('status', ['pending', 'verified'])
+        .update({ status: 'cancelled', admin_notes: 'Business claimed by another request', updated_at: new Date() });
+    });
+
+    res.json({ success: true, message: 'Claim completed. The user now owns this listing and it shows the verified badge.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/admin/claims/:id/cancel
+router.post('/claims/:id/cancel', async (req, res, next) => {
+  try {
+    const updated = await db.query()('claim_verifications')
+      .where('id', req.params.id).whereIn('status', ['pending', 'verified'])
+      .update({ status: 'cancelled', admin_notes: String(req.body?.note || '').slice(0, 500) || null, updated_at: new Date() });
+    if (!updated) return res.status(404).json({ error: 'Open claim not found' });
+    res.json({ success: true, message: 'Claim cancelled.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ─── SEARCH QUERIES (AI discovery log) ────────────────────────────────────
 // 'YYYY-MM-DD HH:MM:SS' in UTC — comparable as a string on both SQLite and Postgres
 function daysAgo(days) {

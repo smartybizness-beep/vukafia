@@ -1925,7 +1925,15 @@ The old values remain in git history but no longer work, so the history was not 
 - `POST /api/claims/claim` is **disabled (410)**. It accepted any text as a payment reference, letting anyone take over an unclaimed listing for free
 - `verify-bachs-payment` / `verify-payment` (Paystack) now require: the business phone, a payment made for *this* listing (checkout metadata), the full $14.99 in USD, a payment reference not used before, and the listing not already owned by someone else
 - `bachs-webhook` is unsigned, so it no longer trusts its body: it only acts on `checkout.completed` after looking the checkout up with Bachs
-- **Still open:** the claim screen's phone "verification" is fake (code made in the browser, `000000` accepted, no `/send-otp` or `/verify-otp` route). It needs a real ownership check. The WhatsApp API token expired on 2026-10-10, so nothing can be sent over WhatsApp until it is replaced
+- **Ownership check (WhatsApp)**: on the claim screen the owner taps "Get my verification code" (`POST /api/claims/start-verification`, login required) and sends `VERIFY VK123456` **from the business's own WhatsApp number** to Vukafia's number. `routes/webhook.js` checks Meta's signature, and `services/claimVerification.js` marks the claim verified only if the sender matches `listings.phone`. The screen polls `GET /api/claims/verification-status` and moves on by itself. Codes last 30 minutes; table `claim_verifications`
+- Owners who can't use WhatsApp on that number (landlines, no phone on file) tap "Message our team"; their request shows on the admin page as **not verified**
+- **Admin: `/admin/claims`** lists open claims. After confirming the $14.99 payment, "complete claim" gives the user ownership and the verified badge (`POST /api/admin/claims/:id/complete`); a not-verified claim should only be completed after checking ownership another way. `cancel` closes it
+- The old fake code step (browser-made code, `000000` "demo tip") is removed, and claiming from a business page now goes through the ownership step
+- **Required setup** (until done, ownership codes are ignored and nothing can be sent over WhatsApp):
+  1. `WA_APP_SECRET` in Railway: Meta app → App settings → Basic → App secret. With it set, unsigned or forged webhook calls are rejected
+  2. A new permanent `WA_API_TOKEN` (System User token); the old one expired 2026-10-10
+  3. Meta webhook callback URL `https://vukafia.com/api/webhook/whatsapp`, verify token = `WA_VERIFY_TOKEN`, subscribed to `messages`
+- `services/whatsappService.js` sent to `graph.instagram.com` instead of `graph.facebook.com`; fixed
 
 ### How to replace a credential
 1. Create the new value in the provider's dashboard (for the database: `ALTER USER postgres WITH PASSWORD '...'`)
