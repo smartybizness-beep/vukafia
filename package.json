@@ -16,7 +16,8 @@
     "crawl:scheduled": "node scripts/scheduledCrawl.js",
     "crawl:google-maps": "node scripts/crawlGoogleMaps.js",
     "crawl:news": "node scripts/crawlNews.js",
-    "enrich:linkedin": "node scripts/enrichLinkedIn.js"
+    "enrich:linkedin": "node scripts/enrichLinkedIn.js",
+    "make-admin": "node scripts/makeAdmin.js"
   },
   "keywords": [
     "africa",

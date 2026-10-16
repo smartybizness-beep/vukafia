@@ -10,80 +10,77 @@ const express = require('express');
 const router = express.Router();
 const { getKnex } = require('../db');
 const { requireAuth } = require('../middleware/auth');
+const { sendReviewPendingEmail } = require('../services/mailer');
 
 // ─── CREATE REVIEW ─────────────────────────────────────────────────────────
+// Every review waits for admin approval before it is shown. listings.rating/review_count
+// hold the Google rating and are never overwritten by Vukafia reviews.
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const { listing_id, rating, comment, reviewer_type, evidence_urls } = req.body;
     const knex = getKnex();
+    const listingId = parseInt(req.body.listing_id, 10);
+    const rating = Number(req.body.rating);
+    const comment = String(req.body.comment || '').trim();
 
-    // Validate
-    if (!listing_id || !rating || rating < 1 || rating > 5) {
-      return res.status(400).json({ error: 'Invalid rating (1-5 required)' });
+    if (!listingId) return res.status(400).json({ error: 'Missing business.' });
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'Please choose a rating from 1 to 5 stars.' });
+    }
+    if (comment.length < 10 || comment.length > 1000) {
+      return res.status(400).json({ error: 'Your review must be between 10 and 1,000 characters.' });
     }
 
-    // Insert review
-    const [reviewId] = await knex('reviews').insert({
-      listing_id,
-      reviewer_user_id: req.user.id,
-      reviewer_name: req.user.name,
-      reviewer_phone: req.user.phone,
-      rating,
-      comment,
-      reviewer_type: reviewer_type || 'buyer',  // 'buyer' or 'seller'
-      status: evidence_urls && evidence_urls.length > 0 ? 'pending' : 'approved',
-      evidence_required: evidence_urls && evidence_urls.length > 0,
-      approved: !evidence_urls || evidence_urls.length === 0
-    });
+    const listing = await knex('listings').where({ id: listingId, active: true }).first('id', 'name', 'user_id');
+    if (!listing) return res.status(404).json({ error: 'Business not found.' });
 
-    // Add evidence if provided
-    if (evidence_urls && Array.isArray(evidence_urls)) {
-      const evidenceRecords = evidence_urls.map(url => ({
-        review_id: reviewId,
-        file_url: url.file_url,
-        file_type: url.file_type || 'image',
-        mime_type: url.mime_type,
-        file_size: url.file_size,
-        description: url.description
-      }));
-      await knex('review_evidence').insert(evidenceRecords);
+    const user = await knex('users').where({ id: req.user.id, active: true }).first('id', 'name', 'email', 'phone');
+    if (!user) return res.status(401).json({ error: 'Please log in again.' });
+
+    if (listing.user_id && listing.user_id === user.id) {
+      return res.status(403).json({ error: "You can't review your own business." });
     }
 
-    // Auto-flag if rating <= 2 (bad review)
+    const existing = await knex('reviews')
+      .where({ listing_id: listingId, reviewer_user_id: user.id })
+      .where(q => q.whereNull('status').orWhereNot('status', 'rejected'))
+      .first('id');
+    if (existing) return res.status(409).json({ error: "You've already reviewed this business." });
+
+    const [{ id: reviewId }] = await knex('reviews')
+      .insert({
+        listing_id: listingId,
+        reviewer_user_id: user.id,
+        reviewer_name: user.name,
+        reviewer_phone: user.phone,
+        rating,
+        comment,
+        reviewer_type: 'buyer',
+        status: 'pending',
+        evidence_required: false,
+        approved: false,
+      })
+      .returning('id');
+
     if (rating <= 2) {
       await knex('review_disputes').insert({
         review_id: reviewId,
-        listing_id,
+        listing_id: listingId,
         dispute_reason: 'low_rating',
-        status: 'flagged'
+        status: 'flagged',
       });
     }
 
-    // Update listing rating average
-    const ratings = await knex('reviews')
-      .where('listing_id', listing_id)
-      .where('approved', true)
-      .select('rating');
-
-    const avgRating = ratings.length > 0
-      ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
-      : 0;
-
-    await knex('listings')
-      .where('id', listing_id)
-      .update({
-        rating: parseFloat(avgRating),
-        review_count: ratings.length
-      });
+    sendReviewPendingEmail({ id: reviewId, rating, comment, reviewer: user, listing })
+      .catch(err => console.error('[REVIEWS] notify email failed:', err.message));
 
     res.status(201).json({
       id: reviewId,
-      status: evidence_urls ? 'pending_approval' : 'published',
-      message: evidence_urls ? 'Review submitted with evidence, pending approval' : 'Review published'
+      status: 'pending',
+      message: 'Thanks! Your review will appear once our team approves it.',
     });
   } catch (err) {
     console.error('[REVIEWS]', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Could not submit your review. Please try again.' });
   }
 });
 
@@ -94,8 +91,8 @@ router.get('/listing/:listing_id', async (req, res) => {
     const knex = getKnex();
 
     const reviews = await knex('reviews')
-      .where('listing_id', listing_id)
-      .where('status', '!=', 'disputed')  // Don't show disputed reviews
+      .where({ listing_id, approved: true })
+      .select('id', 'listing_id', 'reviewer_name', 'rating', 'comment', 'reviewer_type', 'status', 'created_at')
       .orderBy('created_at', 'desc');
 
     // Fetch evidence and responses for each review
@@ -136,7 +133,7 @@ router.post('/:review_id/response', requireAuth, async (req, res) => {
     }
 
     // Insert response
-    const [responseId] = await knex('review_responses').insert({
+    const [{ id: responseId }] = await knex('review_responses').returning('id').insert({
       review_id,
       respondent_user_id: req.user.id,
       response_text,
@@ -174,7 +171,7 @@ router.post('/:review_id/dispute', requireAuth, async (req, res) => {
     if (existing) return res.status(400).json({ error: 'Dispute already flagged' });
 
     // Create dispute
-    const [disputeId] = await knex('review_disputes').insert({
+    const [{ id: disputeId }] = await knex('review_disputes').returning('id').insert({
       review_id,
       listing_id: review.listing_id,
       dispute_reason: dispute_reason || 'inappropriate_content',

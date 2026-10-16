@@ -5,7 +5,7 @@
 **Operator**: SOT Smartybiz Ltd  
 **Date**: October 16, 2026 (Updated)  
 **Status**: Live & Operational (730+ listings, crawler covering all 54 nations, 4,000+ news articles)  
-**Latest Updates**: Africa Market News (54 countries), business crawler expanded to all 54 countries, LinkedIn enrichment, photo proxy, credential rotation, mobile layout fixes
+**Latest Updates**: Africa Market News (54 countries), business crawler expanded to all 54 countries, LinkedIn enrichment, photo proxy, credential rotation, mobile layout fixes, review form with admin approval, sign-up fix
 
 ---
 
@@ -33,6 +33,7 @@
 20. [Business Crawler Expansion & LinkedIn Enrichment](#business-crawler-expansion--linkedin-enrichment-october-16-2026)
 21. [Security & Credentials](#security--credentials-october-16-2026)
 22. [Mobile Layout](#mobile-layout-october-16-2026)
+23. [Review Form & Moderation](#review-form--moderation-october-16-2026)
 
 ---
 
@@ -1940,6 +1941,47 @@ How to test:
 
 ---
 
+## Review Form & Moderation (October 16, 2026)
+
+### How it works
+1. A visitor clicks **Write a Review** on a business page. Logged-out visitors are sent to the home page with the login form open (`sessionStorage.afterLogin`), and after login or sign-up they return to `/business/:id?review=1` with the form open
+2. The form (`frontend/src/components/ReviewForm.jsx`) takes 1–5 stars and a 10–1,000 character comment
+3. `POST /api/reviews` saves the review as **pending** (`approved: false`, `status: 'pending'`) and emails `ADMIN_EMAIL` with a link to `/admin/reviews`
+4. An admin approves or rejects it at **`/admin/reviews`** (`public/admin/reviews.html` + `reviews.js`)
+5. Approved reviews appear in the business page's Verified Reviews box with the Vukafia average and count
+
+### Rules enforced by `POST /api/reviews`
+- Must be logged in; reviewer name comes from the `users` table
+- Rating is a whole number 1–5; comment 10–1,000 characters after trimming
+- One review per person per business (a rejected review doesn't count)
+- Business owners can't review their own listing
+- Ratings of 2 stars or less are also logged in `review_disputes` as `low_rating`, and shown with a "low rating" tag on the admin page
+- **`listings.rating` / `review_count` are the Google rating and are never overwritten** by Vukafia reviews; the Vukafia average is calculated from approved reviews when the page loads
+- Public endpoints (`GET /api/listings/:id`, `GET /api/reviews/listing/:id`) return only approved reviews, and never the reviewer's phone number
+
+### Admin endpoints (admin login required)
+```
+GET  /api/admin/reviews/pending      - pending reviews with business name and reviewer email
+POST /api/admin/reviews/:id/approve  - publish
+POST /api/admin/reviews/:id/reject   - hide (status 'rejected'; kept for the record)
+```
+
+### Admin accounts
+New accounts are `seller`. To make someone an admin (they must sign up first):
+```
+npm run make-admin -- person@example.com
+```
+As of October 16, 2026 there is no admin account yet, so `/admin/reviews` and `/admin/searches` can't be used until one is created.
+
+### Fixed alongside: sign-up and other inserts failed on Postgres
+`const [id] = await k('users').insert(...)` does not return the new id on Postgres, so **sign-up crashed with a 500 after creating the account** (visitors saw an error, and retrying said the email already existed). This had been present since the first backend version. The same pattern was fixed in business registration (`routes/business.js`), the second and third account-creation paths in `routes/auth.js`, review responses and review disputes. Use `.returning('id')` and read `[{ id }]` for every insert that needs the new id.
+
+### Not built yet
+- Evidence uploads (photos of receipts): the old form only sent placeholder file names; there is no file storage yet
+- Seller responses to reviews have an API (`POST /api/reviews/:id/response`) but no screen
+
+---
+
 **Document Created**: October 13, 2026  
 **Last Reviewed**: October 16, 2026  
-**Status**: Live. News, 54-country crawler, LinkedIn enrichment, photo proxy and mobile fixes deployed; all leaked credentials replaced
+**Status**: Live. News, 54-country crawler, LinkedIn enrichment, photo proxy, mobile fixes and review form deployed; all leaked credentials replaced

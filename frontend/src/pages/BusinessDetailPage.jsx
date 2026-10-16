@@ -1,18 +1,44 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout';
+import ReviewForm from '../components/ReviewForm';
 
 export default function BusinessDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewMessage, setReviewMessage] = useState('');
 
   useEffect(() => {
     fetchBusiness();
   }, [id]);
+
+  // Returning from login with ?review=1 opens the form straight away
+  useEffect(() => {
+    if (searchParams.get('review') === '1') {
+      if (localStorage.getItem('auth_token')) setShowReviewForm(true);
+      searchParams.delete('review');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, []);
+
+  const goToLoginForReview = () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    sessionStorage.setItem('afterLogin', `/business/${id}?review=1`);
+    navigate('/');
+  };
+
+  const startReview = () => {
+    setReviewMessage('');
+    if (!localStorage.getItem('auth_token')) return goToLoginForReview();
+    setShowReviewForm(true);
+  };
 
   const fetchBusiness = async () => {
     try {
@@ -446,21 +472,36 @@ export default function BusinessDetailPage() {
               </p>
             </div>
 
-            <button
-              onClick={() => alert('Review form coming soon - login to write a review')}
-              style={{
-                padding: '0.7rem 1.5rem',
-                background: '#d4a017',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                fontSize: '0.95rem'
-              }}
-            >
-              ✍️ Write a Review
-            </button>
+            {reviewMessage && (
+              <div role="status" style={{ background: '#e8f5e9', color: '#1b5e20', padding: '0.9rem 1rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.95rem' }}>
+                ✅ {reviewMessage}
+              </div>
+            )}
+
+            {showReviewForm ? (
+              <ReviewForm
+                listingId={business.id}
+                onSubmitted={message => { setShowReviewForm(false); setReviewMessage(message); }}
+                onCancel={() => setShowReviewForm(false)}
+                onAuthRequired={goToLoginForReview}
+              />
+            ) : !reviewMessage && (
+              <button
+                onClick={startReview}
+                style={{
+                  padding: '0.7rem 1.5rem',
+                  background: '#d4a017',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  fontSize: '0.95rem'
+                }}
+              >
+                ✍️ Write a Review
+              </button>
+            )}
           </div>
 
           {/* CTA */}

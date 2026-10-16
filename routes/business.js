@@ -59,7 +59,7 @@ router.post('/register', requireAuth, async (req, res, next) => {
     }
 
     // ── INSERT ────────────────────────────────────────────────────────────
-    const [id] = await k('listings').insert({
+    const [{ id }] = await k('listings').returning('id').insert({
       user_id: user.id,
       type, region, country, country_code, flag,
       state, city, town, name, category,

@@ -155,6 +155,7 @@ router.get('/:id', optionalAuth, async (req, res, next) => {
     // Get reviews
     const reviews = await k('reviews')
       .where({ listing_id: req.params.id, approved: true })
+      .select('id', 'reviewer_name', 'rating', 'comment', 'created_at')
       .orderBy('created_at', 'desc')
       .limit(20);
 

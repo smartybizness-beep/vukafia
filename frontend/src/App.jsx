@@ -96,6 +96,12 @@ export default function App() {
       setUser(JSON.parse(userData))
     }
 
+    // Sent here to log in from another page (e.g. "Write a Review") — open the login form
+    if (sessionStorage.getItem('afterLogin') && !token) {
+      setAuthMode('login')
+      setShowAuthModal(true)
+    }
+
     // Check if user came from business detail page to claim
     const claimBusinessId = sessionStorage.getItem('claimBusinessId')
     const claimBusinessDataStr = sessionStorage.getItem('claimBusinessData')
@@ -591,6 +597,13 @@ export default function App() {
       setShowAuthModal(false)
       setAuthMessage('')
       setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
+
+      const afterSignup = sessionStorage.getItem('afterLogin')
+      if (afterSignup) {
+        sessionStorage.removeItem('afterLogin')
+        navigate(afterSignup)
+        return
+      }
       setAuthMode('login')
 
       // Check if user was trying to claim a business
@@ -650,6 +663,13 @@ export default function App() {
       setShowAuthModal(false)
       setAuthMessage('')
       setLoginData({ email: '', password: '' })
+
+      const afterLogin = sessionStorage.getItem('afterLogin')
+      if (afterLogin) {
+        sessionStorage.removeItem('afterLogin')
+        navigate(afterLogin)
+        return
+      }
 
       // Check if user was trying to claim a business
       const claimBusinessId = sessionStorage.getItem('claimBusinessId')

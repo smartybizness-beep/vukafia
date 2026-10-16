@@ -178,9 +178,14 @@ router.get('/reviews/pending', async (req, res, next) => {
   try {
     const k = db.query();
     const reviews = await k('reviews')
-      .where('approved', false)
+      .where('reviews.approved', false)
+      .where(q => q.whereNull('reviews.status').orWhereNot('reviews.status', 'rejected'))
       .join('listings', 'listings.id', 'reviews.listing_id')
-      .select('reviews.*', 'listings.name as listing_name', 'listings.country')
+      .leftJoin('users', 'users.id', 'reviews.reviewer_user_id')
+      .select(
+        'reviews.id', 'reviews.listing_id', 'reviews.reviewer_name', 'reviews.rating', 'reviews.comment', 'reviews.created_at',
+        'users.email as reviewer_email', 'listings.name as listing_name', 'listings.country'
+      )
       .orderBy('reviews.created_at', 'asc');
     res.json({ success: true, data: reviews });
   } catch (err) {
@@ -195,23 +200,24 @@ router.post('/reviews/:id/approve', async (req, res, next) => {
     const review = await k('reviews').where('id', req.params.id).first();
     if (!review) return res.status(404).json({ error: 'Review not found' });
 
-    await k('reviews').where('id', req.params.id).update({ approved: true });
+    // listings.rating/review_count hold the Google rating; the Vukafia average is computed from approved reviews on read.
+    await k('reviews').where('id', req.params.id).update({ approved: true, status: 'approved', updated_at: new Date() });
 
-    // Recalculate average rating for the listing
-    const { avg, count } = await k('reviews')
-      .where({ listing_id: review.listing_id, approved: true })
-      .select(
-        k.raw('AVG(rating) as avg'),
-        k.raw('COUNT(id) as count'),
-      )
-      .first();
+    res.json({ success: true, message: 'Review approved and now visible on the business page.' });
+  } catch (err) {
+    next(err);
+  }
+});
 
-    await k('listings').where('id', review.listing_id).update({
-      rating:       parseFloat(avg || 0).toFixed(1),
-      review_count: parseInt(count || 0),
-    });
-
-    res.json({ success: true, message: 'Review approved and rating recalculated.' });
+// ─── POST /api/admin/reviews/:id/reject ──────────────────────────────────
+router.post('/reviews/:id/reject', async (req, res, next) => {
+  try {
+    const k = db.query();
+    const updated = await k('reviews')
+      .where('id', req.params.id)
+      .update({ approved: false, status: 'rejected', admin_notes: req.body?.reason || null, updated_at: new Date() });
+    if (!updated) return res.status(404).json({ error: 'Review not found' });
+    res.json({ success: true, message: 'Review rejected.' });
   } catch (err) {
     next(err);
   }

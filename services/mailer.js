@@ -261,8 +261,41 @@ async function testEmailConfigDetailed() {
   }
 }
 
+const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/**
+ * Tell the admin a new review is waiting for approval
+ */
+async function sendReviewPendingEmail({ id, rating, comment, reviewer, listing }) {
+  const mailer = initializeMailer();
+  if (!mailer) return;
+
+  const recipientEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+  const stars = '⭐'.repeat(rating);
+  const adminUrl = `${process.env.BASE_URL || 'https://vukafia.com'}/admin/reviews`;
+
+  await mailer.sendMail({
+    from: process.env.EMAIL_USER,
+    to: recipientEmail,
+    subject: `New review waiting for approval: ${listing.name} (${rating}★)`,
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2 style="margin-top: 0;">New review waiting for approval</h2>
+        <p><strong>Business:</strong> ${escapeHtml(listing.name)} (listing #${listing.id})</p>
+        <p><strong>Rating:</strong> ${stars} (${rating}/5)${rating <= 2 ? ' — flagged as a low rating' : ''}</p>
+        <p><strong>From:</strong> ${escapeHtml(reviewer.name)} &lt;${escapeHtml(reviewer.email)}&gt;</p>
+        <blockquote style="border-left: 3px solid #d4a017; margin: 1rem 0; padding: 0.5rem 1rem; background: #fafafa;">${escapeHtml(comment)}</blockquote>
+        <p><a href="${adminUrl}">Review and approve it →</a></p>
+        <p style="color: #888; font-size: 12px;">Review #${id}</p>
+      </div>`,
+    text: `New review waiting for approval\n\nBusiness: ${listing.name} (#${listing.id})\nRating: ${rating}/5\nFrom: ${reviewer.name} <${reviewer.email}>\n\n${comment}\n\nApprove at ${adminUrl}`,
+  });
+  console.log(`[MAILER] Review #${id} pending email sent to ${recipientEmail}`);
+}
+
 module.exports = {
   initializeMailer,
+  sendReviewPendingEmail,
   sendSuccessEmail,
   sendFailureEmail,
   testEmailConfig,

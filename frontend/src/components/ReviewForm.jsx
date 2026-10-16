@@ -1,59 +1,41 @@
 import { useState } from 'react';
 
-export default function ReviewForm({ listingId, onSubmit, onCancel }) {
-  const [rating, setRating] = useState(5);
+const MIN_LENGTH = 10;
+const MAX_LENGTH = 1000;
+const LABELS = ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'];
+
+export default function ReviewForm({ listingId, onSubmitted, onCancel, onAuthRequired }) {
+  const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [reviewerType, setReviewerType] = useState('buyer');
-  const [selectedFiles, setSelectedFiles] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const handleFileChange = (e) => {
-    setSelectedFiles(Array.from(e.target.files));
-  };
+  const trimmed = comment.trim();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!comment.trim()) {
-      setError('Please write a comment');
-      return;
-    }
+    if (!rating) return setError('Please choose a star rating.');
+    if (trimmed.length < MIN_LENGTH) return setError(`Please write at least ${MIN_LENGTH} characters.`);
 
     setSubmitting(true);
     setError('');
-
     try {
-      // In production, upload files to S3/Cloudinary first
-      const evidenceUrls = selectedFiles.map(file => ({
-        file_url: `file_placeholder_${file.name}`,
-        file_type: 'image',
-        mime_type: file.type,
-        file_size: file.size,
-        description: `Evidence from ${file.name}`
-      }));
-
-      const response = await fetch('/api/reviews', {
+      const res = await fetch('/api/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
         },
-        body: JSON.stringify({
-          listing_id: listingId,
-          rating: parseInt(rating),
-          comment,
-          reviewer_type: reviewerType,
-          evidence_urls: evidenceUrls
-        })
+        body: JSON.stringify({ listing_id: listingId, rating, comment: trimmed }),
       });
+      const data = await res.json().catch(() => ({}));
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to submit review');
+      if (res.status === 401) {
+        onAuthRequired();
+        return;
       }
-
-      const result = await response.json();
-      onSubmit(result);
+      if (!res.ok) throw new Error(data.error || 'Could not submit your review. Please try again.');
+      onSubmitted(data.message);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -62,170 +44,103 @@ export default function ReviewForm({ listingId, onSubmit, onCancel }) {
   };
 
   return (
-    <div style={{
-      background: '#f9f9f9',
-      padding: '2rem',
-      borderRadius: '8px',
-      marginBottom: '2rem'
-    }}>
-      <h3 style={{ marginTop: 0, color: '#2d1f0e' }}>Leave a Review</h3>
+    <form onSubmit={handleSubmit} style={{ background: '#fafafa', padding: 'clamp(1rem, 4vw, 1.5rem)', borderRadius: '8px', marginBottom: '1rem' }}>
+      <h3 style={{ marginTop: 0, color: '#2d1f0e', fontSize: '1.1rem' }}>Write a review</h3>
 
-      <form onSubmit={handleSubmit}>
-        {/* Reviewer Type */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            I am a:
-          </label>
-          <select
-            value={reviewerType}
-            onChange={(e) => setReviewerType(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
-          >
-            <option value="buyer">Buyer (purchased from this seller)</option>
-            <option value="seller">Seller (rating a buyer)</option>
-          </select>
-        </div>
-
-        {/* Rating */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Rating: {rating} / 5 ⭐
-          </label>
-          <input
-            type="range"
-            min="1"
-            max="5"
-            value={rating}
-            onChange={(e) => setRating(e.target.value)}
-            style={{ width: '100%' }}
-          />
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-            {[1, 2, 3, 4, 5].map(r => (
+      <fieldset style={{ border: 'none', padding: 0, margin: '0 0 1rem 0' }}>
+        <legend style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#2d1f0e' }}>Your rating</legend>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.25rem 0.75rem' }}>
+          <div role="radiogroup" aria-label="Rating" style={{ display: 'flex' }}>
+            {[1, 2, 3, 4, 5].map(n => (
               <button
-                key={r}
+                key={n}
                 type="button"
-                onClick={() => setRating(r)}
+                role="radio"
+                aria-checked={rating === n}
+                aria-label={`${n} star${n > 1 ? 's' : ''} – ${LABELS[n]}`}
+                onClick={() => { setRating(n); setError(''); }}
                 style={{
-                  flex: 1,
-                  padding: '0.5rem',
-                  background: rating >= r ? '#c0522a' : '#eee',
-                  color: rating >= r ? '#fff' : '#666',
+                  background: 'none',
                   border: 'none',
-                  borderRadius: '4px',
+                  padding: '0.2rem',
+                  minWidth: '44px',
+                  minHeight: '44px',
+                  fontSize: '1.9rem',
+                  lineHeight: 1,
                   cursor: 'pointer',
-                  fontWeight: 'bold'
+                  filter: n <= rating ? 'none' : 'grayscale(1) opacity(0.35)',
                 }}
               >
-                {r === 1 ? '😞' : r === 2 ? '😐' : r === 3 ? '😊' : r === 4 ? '😄' : '🥰'}
+                ⭐
               </button>
             ))}
           </div>
+          <span style={{ color: '#666', fontSize: '0.95rem' }}>{rating ? LABELS[rating] : 'Tap a star'}</span>
         </div>
+      </fieldset>
 
-        {/* Comment */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Your Review:
-          </label>
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Share your experience... (min 10 characters)"
-            style={{
-              width: '100%',
-              minHeight: '120px',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem',
-              fontFamily: 'inherit'
-            }}
-          />
+      <label htmlFor="review-comment" style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem', color: '#2d1f0e' }}>
+        Your experience
+      </label>
+      <textarea
+        id="review-comment"
+        value={comment}
+        maxLength={MAX_LENGTH}
+        onChange={e => { setComment(e.target.value); setError(''); }}
+        placeholder="What did you buy or order? How were the quality, communication and delivery?"
+        style={{
+          width: '100%',
+          boxSizing: 'border-box',
+          minHeight: '120px',
+          padding: '0.75rem',
+          border: '1px solid #ddd',
+          borderRadius: '6px',
+          fontSize: '1rem',
+          fontFamily: 'inherit',
+          resize: 'vertical',
+        }}
+      />
+      <div style={{ textAlign: 'right', fontSize: '0.8rem', color: trimmed.length < MIN_LENGTH ? '#999' : '#2e7d32', margin: '0.25rem 0 1rem' }}>
+        {trimmed.length < MIN_LENGTH ? `${MIN_LENGTH - trimmed.length} more characters needed` : `${trimmed.length} / ${MAX_LENGTH}`}
+      </div>
+
+      {error && (
+        <div role="alert" style={{ background: '#fdecea', color: '#b71c1c', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem', fontSize: '0.9rem' }}>
+          {error}
         </div>
+      )}
 
-        {/* Evidence Upload */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            📸 Upload Evidence (Optional):
-          </label>
-          <p style={{ fontSize: '0.9rem', color: '#666', margin: '0 0 0.5rem 0' }}>
-            Screenshots of payment, delivery receipts, or product photos help verify your review
-          </p>
-          <input
-            type="file"
-            multiple
-            onChange={handleFileChange}
-            accept="image/*,.pdf"
-            style={{
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              width: '100%'
-            }}
-          />
-          {selectedFiles.length > 0 && (
-            <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#666' }}>
-              ✅ {selectedFiles.length} file(s) selected
-            </div>
-          )}
-        </div>
+      <p style={{ fontSize: '0.8rem', color: '#777', margin: '0 0 1rem 0' }}>
+        Your name will be shown with your review. Reviews appear after our team approves them.
+      </p>
 
-        {/* Error */}
-        {error && (
-          <div style={{
-            background: '#fee',
-            color: '#c33',
-            padding: '1rem',
-            borderRadius: '4px',
-            marginBottom: '1rem'
-          }}>
-            {error}
-          </div>
-        )}
-
-        {/* Actions */}
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button
-            type="submit"
-            disabled={submitting}
-            style={{
-              flex: 1,
-              padding: '0.75rem',
-              background: '#c0522a',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: submitting ? 'not-allowed' : 'pointer',
-              fontWeight: 'bold',
-              opacity: submitting ? 0.7 : 1
-            }}
-          >
-            {submitting ? 'Submitting...' : 'Submit Review'}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            style={{
-              flex: 1,
-              padding: '0.75rem',
-              background: '#eee',
-              color: '#333',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <button
+          type="submit"
+          disabled={submitting}
+          style={{
+            flex: '1 1 160px',
+            padding: '0.8rem',
+            background: '#c0522a',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: submitting ? 'not-allowed' : 'pointer',
+            fontWeight: 700,
+            fontSize: '1rem',
+            opacity: submitting ? 0.7 : 1,
+          }}
+        >
+          {submitting ? 'Submitting…' : 'Submit review'}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          style={{ flex: '1 1 120px', padding: '0.8rem', background: '#eee', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }

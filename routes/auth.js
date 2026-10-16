@@ -47,7 +47,7 @@ router.post('/register', async (req, res, next) => {
     }
 
     const password_hash = await bcrypt.hash(password, 12);
-    const [id] = await k('users').insert({
+    const [{ id }] = await k('users').returning('id').insert({
       name, email, phone, password_hash,
       wa_number: wa_number || phone,
       role: 'seller',
@@ -211,7 +211,7 @@ router.post('/google-callback', async (req, res, next) => {
     }
 
     // Create new user
-    const [userId] = await k('users').insert({
+    const [{ id: userId }] = await k('users').returning('id').insert({
       name: name || email.split('@')[0],
       email,
       phone: '',
@@ -279,7 +279,7 @@ router.post('/google', async (req, res, next) => {
       }
 
       // Create new user with Google info
-      const [userId] = await k('users').insert({
+      const [{ id: userId }] = await k('users').returning('id').insert({
         name: name || email.split('@')[0],
         email,
         phone: '', // Not required for Google users
