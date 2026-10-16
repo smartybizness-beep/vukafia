@@ -12,58 +12,171 @@ const db = require('../db');
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
-// Agricultural products, commodities, minerals & services by country
-// Target specific B2B products for cross-border trade under AfCFTA
-const PRODUCTS_AND_SERVICES = {
-  'Nigeria': {
-    'Lagos': ['hospital', 'clinic', 'cafe Lagos', 'cocoa exporter', 'cashew supplier', 'shea butter producer', 'textile manufacturer', 'cement producer', 'fintech startup', 'fashion designer', 'beauty cosmetics', 'pharmaceutical company', 'oil and gas', 'medical center', 'pharmacy', 'dental clinic'],
-    'Abuja': ['hospital', 'clinic', 'cafe Abuja', 'agriculture cooperative', 'food processor', 'spice producer', 'tech company', 'logistics company', 'payment processor', 'medical center']
+// Country names for the original 15 countries must stay as-is: existing listings are deduped by name + country + city.
+const REGIONS = {
+  'West Africa': {
+    'Nigeria': ['Lagos', 'Abuja', 'Port Harcourt', 'Kano', 'Ibadan'],
+    'Ghana': ['Accra', 'Kumasi', 'Tema', 'Takoradi'],
+    'Côte d\'Ivoire': ['Abidjan', 'San-Pédro', 'Bouaké'],
+    'Senegal': ['Dakar', 'Thiès'],
+    'Benin': ['Cotonou', 'Porto-Novo'],
+    'Togo': ['Lomé'],
+    'Burkina Faso': ['Ouagadougou', 'Bobo-Dioulasso'],
+    'Mali': ['Bamako'],
+    'Niger': ['Niamey'],
+    'Guinea': ['Conakry'],
+    'Guinea-Bissau': ['Bissau'],
+    'Sierra Leone': ['Freetown'],
+    'Liberia': ['Monrovia'],
+    'Gambia': ['Banjul', 'Serrekunda'],
+    'Cape Verde': ['Praia'],
+    'Mauritania': ['Nouakchott'],
   },
-  'Ghana': {
-    'Accra': ['hospital', 'clinic', 'cafe Accra', 'cocoa exporter', 'gold mining', 'shea butter processor', 'textile manufacturer', 'food processor', 'tourism', 'tech startup', 'fintech', 'pharmacy'],
-    'Kumasi': ['hospital', 'clinic', 'cafe Kumasi', 'cocoa buying station', 'artisan crafts', 'agriculture cooperative', 'food processing']
+  'Central Africa': {
+    'Cameroon': ['Douala', 'Yaoundé'],
+    'DRC': ['Kinshasa', 'Lubumbashi'],
+    'Republic of the Congo': ['Brazzaville', 'Pointe-Noire'],
+    'Gabon': ['Libreville'],
+    'Equatorial Guinea': ['Malabo'],
+    'Chad': ['N\'Djamena'],
+    'Central African Republic': ['Bangui'],
+    'São Tomé and Príncipe': ['São Tomé'],
   },
-  'Côte d\'Ivoire': {
-    'Abidjan': ['hospital', 'clinic', 'cafe Abidjan', 'cocoa exporter', 'cashew processor', 'agricultural cooperative', 'food processor', 'textile company', 'shipping and logistics', 'medical center']
+  'East Africa': {
+    'Kenya': ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru'],
+    'Tanzania': ['Dar es Salaam', 'Arusha', 'Dodoma', 'Mwanza'],
+    'Uganda': ['Kampala', 'Entebbe'],
+    'Rwanda': ['Kigali'],
+    'Burundi': ['Bujumbura'],
+    'Ethiopia': ['Addis Ababa', 'Dire Dawa'],
+    'Somalia': ['Mogadishu', 'Hargeisa'],
+    'Djibouti': ['Djibouti'],
+    'Eritrea': ['Asmara'],
+    'South Sudan': ['Juba'],
+    'Sudan': ['Khartoum', 'Port Sudan'],
+    'Madagascar': ['Antananarivo', 'Toamasina'],
+    'Mauritius': ['Port Louis'],
+    'Seychelles': ['Victoria'],
+    'Comoros': ['Moroni'],
   },
-  'Kenya': {
-    'Nairobi': ['hospital', 'clinic', 'cafe Nairobi', 'coffee exporter', 'cut flower supplier', 'tech startup', 'fintech', 'logistics company', 'fashion designer', 'tourism agency', 'agri-tech', 'telecom', 'pharmaceutical', 'pharmacy', 'dental clinic'],
-    'Mombasa': ['hospital', 'clinic', 'cafe Mombasa', 'coffee exporter', 'spice trader', 'shipping port', 'tourism']
+  'North Africa': {
+    'Egypt': ['Cairo', 'Alexandria', 'Giza'],
+    'Morocco': ['Casablanca', 'Rabat', 'Marrakech', 'Tangier'],
+    'Algeria': ['Algiers', 'Oran'],
+    'Tunisia': ['Tunis', 'Sfax'],
+    'Libya': ['Tripoli', 'Benghazi'],
   },
-  'Ethiopia': {
-    'Addis Ababa': ['hospital', 'clinic', 'cafe Addis Ababa', 'coffee exporter', 'cut flower supplier', 'textile manufacturer', 'pharmaceutical company', 'leather goods', 'tech startup', 'medical center']
+  'Southern Africa': {
+    'South Africa': ['Johannesburg', 'Cape Town', 'Durban', 'Pretoria'],
+    'Botswana': ['Gaborone', 'Francistown'],
+    'Zambia': ['Lusaka', 'Kitwe'],
+    'Zimbabwe': ['Harare', 'Bulawayo'],
+    'Mozambique': ['Maputo', 'Beira'],
+    'Angola': ['Luanda'],
+    'Namibia': ['Windhoek', 'Walvis Bay'],
+    'Malawi': ['Lilongwe', 'Blantyre'],
+    'Lesotho': ['Maseru'],
+    'Eswatini': ['Mbabane', 'Manzini'],
   },
-  'Uganda': {
-    'Kampala': ['hospital', 'clinic', 'cafe Kampala', 'coffee exporter', 'agricultural cooperative', 'tech startup', 'fintech', 'textile company', 'food processor', 'pharmacy']
-  },
-  'Tanzania': {
-    'Dar es Salaam': ['hospital', 'clinic', 'cafe Dar es Salaam', 'coffee exporter', 'tea producer', 'cashew processor', 'mining company', 'logistics', 'tourism agency', 'fintech', 'medical center']
-  },
-  'Rwanda': {
-    'Kigali': ['hospital', 'clinic', 'cafe Kigali', 'coffee exporter', 'tea producer', 'tech startup', 'fintech', 'pharmaceutical', 'tourism']
-  },
-  'Egypt': {
-    'Cairo': ['hospital', 'clinic', 'cafe Cairo', 'cotton exporter', 'date exporter', 'citrus exporter', 'pharmaceutical company', 'textile manufacturer', 'cement producer', 'fintech', 'tourism', 'medical center', 'pharmacy']
-  },
-  'Morocco': {
-    'Casablanca': ['hospital', 'clinic', 'cafe Casablanca', 'phosphate exporter', 'leather goods', 'argan oil producer', 'textile manufacturer', 'car assembly', 'fintech', 'tourism']
-  },
-  'South Africa': {
-    'Johannesburg': ['hospital', 'clinic', 'cafe Johannesburg', 'gold mining', 'diamond mining', 'platinum mining', 'car assembly', 'pharmaceutical company', 'textile manufacturer', 'fintech', 'logistics', 'medical center', 'pharmacy']
-  },
-  'Botswana': {
-    'Gaborone': ['hospital', 'clinic', 'cafe Gaborone', 'diamond mining', 'beef exporter', 'tourism agency']
-  },
-  'DRC': {
-    'Kinshasa': ['hospital', 'clinic', 'cafe Kinshasa', 'copper mining', 'cobalt mining', 'timber exporter', 'agricultural cooperative']
-  },
-  'Zambia': {
-    'Lusaka': ['hospital', 'clinic', 'cafe Lusaka', 'copper mining', 'cobalt mining', 'agriculture', 'food processor']
-  },
-  'Madagascar': {
-    'Antananarivo': ['hospital', 'clinic', 'cafe Antananarivo', 'vanilla exporter', 'spice trader', 'textile company', 'mining']
-  }
 };
+
+// Searched in every city
+const COMMON_QUERIES = [
+  'hospital', 'clinic', 'pharmacy', 'hotel', 'restaurant', 'supermarket',
+  'logistics company', 'freight forwarder', 'construction company',
+  'real estate agency', 'tech company', 'fashion designer',
+];
+
+// Each country's key export and industry searches, added to every city in that country
+const COUNTRY_SPECIALTIES = {
+  'Nigeria': ['cocoa exporter', 'cashew supplier', 'shea butter producer', 'textile manufacturer', 'cement producer', 'fintech', 'oil and gas', 'pharmaceutical company', 'beauty cosmetics', 'spice producer', 'payment processor'],
+  'Ghana': ['cocoa exporter', 'gold mining', 'shea butter processor', 'textile manufacturer', 'food processor', 'fintech', 'artisan crafts'],
+  'Côte d\'Ivoire': ['cocoa exporter', 'cashew processor', 'agricultural cooperative', 'textile company', 'shipping and logistics'],
+  'Senegal': ['fish exporter', 'groundnut exporter', 'fintech'],
+  'Benin': ['cotton exporter', 'cashew processor'],
+  'Togo': ['phosphate exporter', 'shipping and logistics'],
+  'Burkina Faso': ['cotton exporter', 'gold mining', 'shea butter producer'],
+  'Mali': ['gold mining', 'cotton exporter'],
+  'Niger': ['mining company', 'livestock exporter'],
+  'Guinea': ['bauxite mining'],
+  'Guinea-Bissau': ['cashew processor'],
+  'Sierra Leone': ['diamond mining'],
+  'Liberia': ['rubber exporter'],
+  'Gambia': ['groundnut exporter', 'tourism agency'],
+  'Cape Verde': ['fish exporter', 'tourism agency'],
+  'Mauritania': ['fish exporter', 'iron ore mining'],
+  'Cameroon': ['cocoa exporter', 'coffee exporter', 'timber exporter'],
+  'DRC': ['copper mining', 'cobalt mining', 'timber exporter', 'agricultural cooperative'],
+  'Republic of the Congo': ['timber exporter', 'oil and gas'],
+  'Gabon': ['timber exporter', 'manganese mining'],
+  'Equatorial Guinea': ['oil and gas'],
+  'Chad': ['oil and gas', 'livestock exporter'],
+  'Central African Republic': ['timber exporter', 'diamond mining'],
+  'São Tomé and Príncipe': ['cocoa exporter'],
+  'Kenya': ['coffee exporter', 'cut flower supplier', 'tea producer', 'fintech', 'agri-tech', 'telecom', 'tourism agency', 'pharmaceutical'],
+  'Tanzania': ['coffee exporter', 'cashew processor', 'tea producer', 'mining company', 'tourism agency', 'fintech'],
+  'Uganda': ['coffee exporter', 'agricultural cooperative', 'fintech', 'food processor'],
+  'Rwanda': ['coffee exporter', 'tea producer', 'fintech', 'tourism agency'],
+  'Burundi': ['coffee exporter', 'tea producer'],
+  'Ethiopia': ['coffee exporter', 'cut flower supplier', 'leather goods', 'textile manufacturer', 'pharmaceutical company'],
+  'Somalia': ['livestock exporter'],
+  'Djibouti': ['shipping and logistics'],
+  'Eritrea': ['mining company'],
+  'South Sudan': ['oil and gas'],
+  'Sudan': ['gum arabic exporter', 'livestock exporter'],
+  'Madagascar': ['vanilla exporter', 'spice trader', 'textile company'],
+  'Mauritius': ['textile manufacturer', 'sugar producer', 'fintech'],
+  'Seychelles': ['fish exporter', 'tourism agency'],
+  'Comoros': ['vanilla exporter'],
+  'Egypt': ['cotton exporter', 'date exporter', 'citrus exporter', 'pharmaceutical company', 'textile manufacturer', 'cement producer', 'fintech'],
+  'Morocco': ['phosphate exporter', 'argan oil producer', 'leather goods', 'car assembly', 'textile manufacturer', 'fintech'],
+  'Algeria': ['oil and gas', 'date exporter'],
+  'Tunisia': ['olive oil exporter', 'date exporter', 'textile manufacturer'],
+  'Libya': ['oil and gas'],
+  'South Africa': ['gold mining', 'platinum mining', 'car assembly', 'wine exporter', 'fintech', 'pharmaceutical company'],
+  'Botswana': ['diamond mining', 'beef exporter', 'tourism agency'],
+  'Zambia': ['copper mining', 'cobalt mining', 'agricultural cooperative'],
+  'Zimbabwe': ['tobacco exporter', 'gold mining'],
+  'Mozambique': ['cashew processor', 'coal mining'],
+  'Angola': ['oil and gas', 'diamond mining'],
+  'Namibia': ['diamond mining', 'fish exporter', 'uranium mining'],
+  'Malawi': ['tobacco exporter', 'tea producer'],
+  'Lesotho': ['textile manufacturer', 'diamond mining'],
+  'Eswatini': ['sugar producer', 'textile manufacturer'],
+};
+
+const COUNTRY_REGION = Object.fromEntries(
+  Object.entries(REGIONS).flatMap(([region, countries]) => Object.keys(countries).map(c => [c, region]))
+);
+
+// Ordered query-major so any slice of the list spreads across many cities and countries.
+function buildCrawlTasks() {
+  const cityLists = Object.values(REGIONS).flatMap(countries =>
+    Object.entries(countries).flatMap(([country, cities]) =>
+      cities.map(city => ({ country, city, queries: [...COMMON_QUERIES, ...(COUNTRY_SPECIALTIES[country] || [])] }))
+    )
+  );
+  const longest = Math.max(...cityLists.map(c => c.queries.length));
+  const tasks = [];
+  for (let i = 0; i < longest; i++) {
+    for (const c of cityLists) {
+      if (c.queries[i]) tasks.push({ country: c.country, city: c.city, query: c.queries[i] });
+    }
+  }
+  return tasks;
+}
+
+const CRAWL_TASKS = buildCrawlTasks();
+
+// Max Google Places searches per nightly run; this sets the API bill.
+const SEARCHES_PER_RUN = parseInt(process.env.CRAWL_SEARCHES_PER_RUN, 10) || 60;
+
+function tasksForToday() {
+  const day = Math.floor(Date.now() / 86400000);
+  const count = Math.min(SEARCHES_PER_RUN, CRAWL_TASKS.length);
+  const start = (day * count) % CRAWL_TASKS.length;
+  return Array.from({ length: count }, (_, i) => CRAWL_TASKS[(start + i) % CRAWL_TASKS.length]);
+}
 
 // Category mapping for Vukafia - now focused on B2B commodities & services
 const CATEGORY_MAP = {
@@ -140,17 +253,31 @@ const CATEGORY_MAP = {
   'argan oil producer': 'Beauty & Personal Care',
   'hotel': 'Accommodations',
   'guest house': 'Accommodations',
-  'shipping port': 'Services'
+  'shipping port': 'Services',
+
+  // Added with 54-country coverage
+  'cotton exporter': 'Agricultural Products',
+  'groundnut exporter': 'Agricultural Products',
+  'fish exporter': 'Agricultural Products',
+  'rubber exporter': 'Agricultural Products',
+  'livestock exporter': 'Agricultural Products',
+  'gum arabic exporter': 'Agricultural Products',
+  'olive oil exporter': 'Agricultural Products',
+  'tobacco exporter': 'Agricultural Products',
+  'wine exporter': 'Agricultural Products',
+  'sugar producer': 'Agricultural Products',
+  'timber exporter': 'Agricultural Products',
+  'bauxite mining': 'Minerals & Mining',
+  'iron ore mining': 'Minerals & Mining',
+  'manganese mining': 'Minerals & Mining',
+  'uranium mining': 'Minerals & Mining',
+  'coal mining': 'Minerals & Mining',
+  'artisan crafts': 'Manufacturing',
+  'supermarket': 'General Retail',
+  'freight forwarder': 'Services',
+  'construction company': 'Services',
+  'real estate agency': 'Services'
 };
-
-const QUERIES_PER_CITY_PER_RUN = 3;
-
-// Rotate through each city's full query list across nightly runs instead of repeating the first few.
-function queriesForToday(queries) {
-  const day = Math.floor(Date.now() / 86400000);
-  const start = (day * QUERIES_PER_CITY_PER_RUN) % queries.length;
-  return Array.from({ length: Math.min(QUERIES_PER_CITY_PER_RUN, queries.length) }, (_, i) => queries[(start + i) % queries.length]);
-}
 
 async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -237,6 +364,10 @@ function determineType(query, category) {
     return 'restaurant';
   }
 
+  if (category === 'Accommodations') {
+    return 'tourism';
+  }
+
   const q = query.toLowerCase();
 
   // Medical
@@ -259,27 +390,7 @@ function determineType(query, category) {
  * Get region from country
  */
 function getRegion(country) {
-  const regionMap = {
-    'Nigeria': 'West Africa',
-    'Ghana': 'West Africa',
-    'Côte d\'Ivoire': 'West Africa',
-    'Cameroon': 'West Africa',
-    'Senegal': 'West Africa',
-    'Kenya': 'East Africa',
-    'Tanzania': 'East Africa',
-    'Uganda': 'East Africa',
-    'Rwanda': 'East Africa',
-    'Ethiopia': 'East Africa',
-    'Egypt': 'North Africa',
-    'Morocco': 'North Africa',
-    'Algeria': 'North Africa',
-    'South Africa': 'Southern Africa',
-    'Botswana': 'Southern Africa',
-    'Zambia': 'Southern Africa',
-    'DRC': 'Central Africa',
-    'Madagascar': 'East Africa'
-  };
-  return regionMap[country] || 'Africa';
+  return COUNTRY_REGION[country] || 'Africa';
 }
 
 /**
@@ -292,78 +403,70 @@ async function crawlGoogleMaps() {
 
   console.log('🌐 Crawling African B2B commodities & services from Google Maps...\n');
 
-  for (const [country, cities] of Object.entries(PRODUCTS_AND_SERVICES)) {
-    console.log(`🇳🇬 ${country}:`);
+  const tasks = tasksForToday();
+  console.log(`Running ${tasks.length} of ${CRAWL_TASKS.length} searches across 54 countries\n`);
 
-    for (const [city, queries] of Object.entries(cities)) {
-      console.log(`  📍 ${city}:`);
+  for (const { country, city, query } of tasks) {
+    console.log(`  Searching: "${query}" in ${city}, ${country}...`);
+    const places = await searchPlaces(query, `${city}, ${country}`);
 
-      const queriesToSearch = queriesForToday(queries);
+    if (places.length === 0) {
+      console.log('    No results');
+      await sleep(500);
+      continue;
+    }
 
-      for (const query of queriesToSearch) {
-        console.log(`    Searching: "${query}" in ${city}...`);
-        const places = await searchPlaces(query, city);
+    for (const place of places) {
+      const businessName = place.displayName?.text || place.name || null;
+      if (!businessName) {
+        skipped++;
+        continue;
+      }
 
-        if (places.length === 0) {
-          console.log(`      No results`);
-          await sleep(500);
-          continue;
-        }
+      const city_name = extractCity(place.formattedAddress || businessName);
+      const category = CATEGORY_MAP[query.toLowerCase()] || 'General Retail';
 
-        for (const place of places) {
-          const businessName = place.displayName?.text || place.name || null;
-          if (!businessName) {
-            skipped++;
-            continue;
-          }
-
-          const city_name = extractCity(place.formattedAddress || businessName);
-          const category = CATEGORY_MAP[query.toLowerCase()] || 'General Retail';
-
-          let coverPhoto = generateCoverPhoto(category);
-          if (place.photos && place.photos.length > 0) {
-            const photo = place.photos[0];
-            if (photo.name) {
-              coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
-            }
-          }
-
-          let instagramHandle = null;
-          if (place.websiteUri) {
-            const instagramMatch = place.websiteUri.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
-            if (instagramMatch) {
-              instagramHandle = `@${instagramMatch[1]}`;
-            }
-          }
-
-          businesses.push({
-            name: businessName,
-            phone: place.internationalPhoneNumber || null,
-            website: place.websiteUri || null,
-            instagram: instagramHandle,
-            address: place.formattedAddress || businessName,
-            city: city_name,
-            country,
-            region: getRegion(country),
-            category,
-            type: determineType(query, category),
-            rating: place.rating || 0,
-            review_count: place.userRatingCount || 0,
-            latitude: place.location?.latitude || null,
-            longitude: place.location?.longitude || null,
-            cover_photo: coverPhoto,
-            verified_source: 'Google Maps',
-            verified_at: new Date(),
-            verification_score: calculateScore(place)
-          });
-
-          total++;
-          console.log(`      ✅ ${businessName}`);
-          await sleep(200);
+      let coverPhoto = generateCoverPhoto(category);
+      if (place.photos && place.photos.length > 0) {
+        const photo = place.photos[0];
+        if (photo.name) {
+          coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
         }
       }
-      await sleep(500);
+
+      let instagramHandle = null;
+      if (place.websiteUri) {
+        const instagramMatch = place.websiteUri.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
+        if (instagramMatch) {
+          instagramHandle = `@${instagramMatch[1]}`;
+        }
+      }
+
+      businesses.push({
+        name: businessName,
+        phone: place.internationalPhoneNumber || null,
+        website: place.websiteUri || null,
+        instagram: instagramHandle,
+        address: place.formattedAddress || businessName,
+        city: city_name,
+        country,
+        region: getRegion(country),
+        category,
+        type: determineType(query, category),
+        rating: place.rating || 0,
+        review_count: place.userRatingCount || 0,
+        latitude: place.location?.latitude || null,
+        longitude: place.location?.longitude || null,
+        cover_photo: coverPhoto,
+        verified_source: 'Google Maps',
+        verified_at: new Date(),
+        verification_score: calculateScore(place)
+      });
+
+      total++;
+      console.log(`      ✅ ${businessName}`);
     }
+    await sleep(500);
   }
 
   console.log(`\n✅ Crawl complete! Found: ${total} businesses, Skipped: ${skipped}`);

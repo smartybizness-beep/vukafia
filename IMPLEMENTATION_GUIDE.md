@@ -1879,6 +1879,14 @@ GET /api/news/meta     - category and country lists
 - Shown as "LinkedIn Page" in the Contact section of the business detail page
 - Limitation: chain businesses (e.g. hotels) link to the parent company's page
 
+### Business Crawler Coverage (October 16, 2026)
+- `services/googleMapsCrawler.js` covers all 54 countries, 99 cities (`REGIONS`)
+- Each city gets `COMMON_QUERIES` plus its country's `COUNTRY_SPECIALTIES` → 1,566 searches in total
+- Nightly run (2 AM UTC) does `CRAWL_SEARCHES_PER_RUN` searches (default 60), rotating through the full list every ~27 nights; each search keeps up to 20 results
+- Raise `CRAWL_SEARCHES_PER_RUN` in Railway env vars to grow faster; Google bills per search, so cost scales with it
+- Stops once active listings reach 10,000 (`TARGET_LISTINGS` in `jobs/crawlBusinessesJob.js`)
+- Country names for the original 15 countries ("DRC", "Côte d'Ivoire") must not change: listings are deduped by name + country + city
+
 ### Template buttons note
 The site's Content-Security-Policy (`script-src 'self'`, `script-src-attr 'none'`) blocks inline `<script>` and `onclick`. Template pages use `public/templates/template-actions.js` with `data-action="print|clear"` attributes instead.
 
