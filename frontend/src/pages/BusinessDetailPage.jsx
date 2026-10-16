@@ -68,6 +68,11 @@ export default function BusinessDetailPage() {
     );
   }
 
+  const verifiedReviews = business.reviews || [];
+  const verifiedAverage = verifiedReviews.length
+    ? verifiedReviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / verifiedReviews.length
+    : 0;
+
   const openWhatsApp = () => {
     const message = `Hi, I'm interested in your business on Vukafia: ${business.name}`;
     const cleanPhone = business.phone.replace(/\s+/g, '').replace(/^0+/, '');
@@ -384,22 +389,50 @@ export default function BusinessDetailPage() {
           }}>
             <h2 style={{ color: '#2d1f0e', marginTop: 0, fontSize: 'clamp(1.3rem, 4vw, 1.5rem)' }}>⭐ Verified Reviews</h2>
 
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '0.5rem 1rem',
-              marginBottom: '1.5rem',
-              padding: '1rem',
-              background: '#fafafa',
-              borderRadius: '8px'
-            }}>
-              <div style={{ fontSize: 'clamp(1.5rem, 7vw, 2.5rem)', whiteSpace: 'nowrap' }}>⭐⭐⭐⭐⭐</div>
-              <div>
-                <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold', color: '#2d1f0e' }}>4.8/5.0 Rating</p>
-                <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.85rem', color: '#666' }}>Based on 24 verified reviews</p>
-              </div>
-            </div>
+            {verifiedReviews.length > 0 ? (
+              <>
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  gap: '0.5rem 1rem',
+                  marginBottom: '1.5rem',
+                  padding: '1rem',
+                  background: '#fafafa',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ fontSize: 'clamp(1.5rem, 7vw, 2.5rem)', whiteSpace: 'nowrap' }}>
+                    {'⭐'.repeat(Math.round(verifiedAverage))}
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold', color: '#2d1f0e' }}>
+                      {verifiedAverage.toFixed(1)}/5.0 Rating
+                    </p>
+                    <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.85rem', color: '#666' }}>
+                      Based on {verifiedReviews.length} verified review{verifiedReviews.length === 1 ? '' : 's'}
+                    </p>
+                  </div>
+                </div>
+
+                {verifiedReviews.slice(0, 5).map(review => (
+                  <div key={review.id} style={{ borderTop: '1px solid #eee', padding: '0.9rem 0' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.25rem 1rem', fontSize: '0.9rem' }}>
+                      <strong style={{ color: '#2d1f0e' }}>{review.reviewer_name || 'Vukafia user'}</strong>
+                      <span>{'⭐'.repeat(Math.round(Number(review.rating) || 0))}</span>
+                    </div>
+                    {review.comment && (
+                      <p style={{ margin: '0.4rem 0 0 0', color: '#444', fontSize: '0.9rem', lineHeight: 1.5, wordBreak: 'break-word' }}>
+                        {review.comment}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </>
+            ) : (
+              <p style={{ margin: '0 0 1.5rem 0', padding: '1rem', background: '#fafafa', borderRadius: '8px', color: '#666', fontSize: '0.95rem' }}>
+                No verified reviews on Vukafia yet. Have you traded with this business? Be the first to share your experience.
+              </p>
+            )}
 
             <div style={{
               background: '#f0f9ff',
@@ -409,7 +442,7 @@ export default function BusinessDetailPage() {
               marginBottom: '1rem'
             }}>
               <p style={{ margin: 0, fontSize: '0.9rem', color: '#0c4a6e', lineHeight: 1.6 }}>
-                ✅ All reviews are verified by Vukafia. Buyers can only review after trade completion.
+                ✅ Reviews come from Vukafia users and are only shown after our team approves them.
               </p>
             </div>
 

@@ -1764,14 +1764,14 @@ GET    /api/reviews/user/:id     - Get user's reviews
 ### Frontend Components
 - **ReviewForm.jsx**: 5-star rating, emoji feedback, comment textarea, file upload
 - **ReviewsList.jsx**: Display reviews with evidence gallery, seller responses, status badges
-- **Business Detail Page**: Integrated reviews section showing 4.8/5.0 sample rating
+- **Business Detail Page**: Verified Reviews section shows the real average and count from approved reviews (`business.reviews` from `GET /api/listings/:id`), up to 5 reviews, or "No verified reviews on Vukafia yet" when there are none
 
 ### Status
 - ✅ Database migrations created
 - ✅ API routes implemented
 - ✅ Frontend components built
 - ✅ Reviews section added to business detail pages
-- ⚠️ Sample data: Shows 4.8/5.0 with 24 reviews (placeholder)
+- ✅ (Oct 16, 2026) Removed the hard-coded "4.8/5.0 from 24 verified reviews" placeholder, which appeared on every business and contradicted the real Google rating above it. The note now says reviews are shown after team approval; the earlier "buyers can only review after trade completion" claim was not enforced in code, so it was removed
 - 📝 **TODO**: Implement actual review form submission
 
 ---
