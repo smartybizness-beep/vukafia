@@ -11,9 +11,8 @@ const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const axios   = require('axios');
 const db      = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, JWT_SECRET } = require('../middleware/auth');
 
-const JWT_SECRET  = process.env.JWT_SECRET  || 'vukafia_dev_secret_change_in_prod';
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '7d';
 
 function signToken(user) {

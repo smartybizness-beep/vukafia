@@ -6,7 +6,9 @@
 'use strict';
 
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'vukafia_dev_secret_change_in_prod';
+const JWT_SECRET = process.env.JWT_SECRET;
+// A default secret would be public (the repo is public), letting anyone forge admin tokens.
+if (!JWT_SECRET) throw new Error('JWT_SECRET environment variable is not set');
 
 function extractToken(req) {
   const auth = req.headers.authorization;
@@ -47,4 +49,4 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, optionalAuth, requireAdmin };
+module.exports = { requireAuth, optionalAuth, requireAdmin, JWT_SECRET };
