@@ -74,7 +74,7 @@ router.post('/verify-ownership', async (req, res, next) => {
 // ─── GET /api/claims/fee ──────────────────────────────────────────────────
 // Get claim fee for a listing
 router.get('/fee', (req, res) => {
-  const { currency = 'NGN' } = req.query;
+  const { currency = 'USD' } = req.query;
   const fee = getClaimFee(currency);
   res.json({
     success: true,
@@ -135,10 +135,22 @@ router.post('/verify-payment', requireAuth, async (req, res, next) => {
       return res.status(400).json({ error: 'reference and listing_id are required' });
     }
 
+    if (!phone) {
+      return res.status(400).json({ error: 'phone is required' });
+    }
+
     // Verify payment with Paystack
     const paymentResult = await verifyPayment(reference);
     if (!paymentResult.success) {
       return res.status(400).json({ success: false, error: 'Payment verification failed' });
+    }
+
+    // The payment must have been started for this listing and be for the full fee (Paystack amounts are in cents)
+    if (String(paymentResult.metadata?.listing_id) !== String(listing_id)) {
+      return res.status(400).json({ success: false, error: 'This payment was not made for this business' });
+    }
+    if (paymentResult.currency !== 'USD' || paymentResult.amount < Math.round(getClaimFee('USD') * 100)) {
+      return res.status(400).json({ success: false, error: 'Payment amount does not match the claim fee' });
     }
 
     const k = db.query();
@@ -146,13 +158,18 @@ router.post('/verify-payment', requireAuth, async (req, res, next) => {
     if (!listing) {
       return res.status(404).json({ error: 'Listing not found' });
     }
+    if (listing.user_id && listing.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'This listing is already claimed by another user' });
+    }
 
-    // Optional: verify phone if provided
-    if (phone) {
-      const normalizePhone = (p) => p.replace(/\D/g, '');
-      if (normalizePhone(listing.phone) !== normalizePhone(phone)) {
-        return res.status(403).json({ error: 'Phone does not match this business' });
-      }
+    const used = await k('listing_claims').where('payment_ref', reference).first('id');
+    if (used) {
+      return res.status(409).json({ success: false, error: 'This payment has already been used' });
+    }
+
+    const normalizePhone = (p) => String(p || '').replace(/\D/g, '');
+    if (normalizePhone(listing.phone) !== normalizePhone(phone)) {
+      return res.status(403).json({ error: 'Phone does not match this business' });
     }
 
     // Mark listing as claimed by WhatsApp AI verified user
@@ -184,53 +201,12 @@ router.post('/verify-payment', requireAuth, async (req, res, next) => {
 });
 
 // ─── POST /api/claims/claim ───────────────────────────────────────────────
-// Claim a listing (requires auth + payment proof)
-router.post('/claim', requireAuth, async (req, res, next) => {
-  try {
-    const { listing_id, phone, payment_ref } = req.body;
-    if (!listing_id || !phone || !payment_ref) {
-      return res.status(400).json({ error: 'listing_id, phone, and payment_ref are required' });
-    }
-
-    const k = db.query();
-    const listing = await k('listings').where('id', listing_id).first();
-    if (!listing) {
-      return res.status(404).json({ error: 'Listing not found' });
-    }
-
-    if (listing.user_id && listing.user_id !== req.user.id) {
-      return res.status(403).json({ error: 'This listing is already claimed by another user' });
-    }
-
-    // Verify phone matches
-    const normalizePhone = (p) => p.replace(/\D/g, '');
-    if (normalizePhone(listing.phone) !== normalizePhone(phone)) {
-      return res.status(403).json({ error: 'Phone does not match this business' });
-    }
-
-    // Update listing with user_id and verification
-    await k('listings').where('id', listing_id).update({
-      user_id: req.user.id,
-      verified: true, // Auto-verify claimed listings
-    });
-
-    // Log the claim transaction
-    await k('listing_claims').insert({
-      listing_id,
-      user_id: req.user.id,
-      payment_ref,
-      status: 'completed',
-      claimed_at: new Date(),
-    }).catch(() => {}); // Table may not exist, that's OK
-
-    res.json({
-      success: true,
-      message: 'Listing claimed successfully',
-      listing_id,
-    });
-  } catch (err) {
-    next(err);
-  }
+// Disabled: it accepted any text as a "payment reference" and only checked the business's
+// public phone number, so anyone could take over an unclaimed listing for free.
+router.post('/claim', (req, res) => {
+  res.status(410).json({
+    error: 'Claims are completed after your payment is confirmed. Please use the Claim Business form on vukafia.com.',
+  });
 });
 
 // ─── GET /api/claims/my-claims ────────────────────────────────────────────
@@ -296,10 +272,22 @@ router.post('/verify-bachs-payment', requireAuth, async (req, res, next) => {
       return res.status(400).json({ error: 'session_id and listing_id are required' });
     }
 
+    if (!phone) {
+      return res.status(400).json({ error: 'phone is required' });
+    }
+
     // Verify payment with Bachs
     const paymentResult = await verifyBachsPayment(session_id);
     if (!paymentResult.success) {
       return res.status(400).json({ success: false, error: 'Payment verification failed' });
+    }
+
+    // The checkout must have been created for this listing and be for the full fee
+    if (String(paymentResult.metadata?.claim_id) !== String(listing_id)) {
+      return res.status(400).json({ success: false, error: 'This payment was not made for this business' });
+    }
+    if (paymentResult.currency !== 'USD' || parseFloat(paymentResult.amount) < 14.99) {
+      return res.status(400).json({ success: false, error: 'Payment amount does not match the claim fee' });
     }
 
     const k = db.query();
@@ -307,13 +295,18 @@ router.post('/verify-bachs-payment', requireAuth, async (req, res, next) => {
     if (!listing) {
       return res.status(404).json({ error: 'Listing not found' });
     }
+    if (listing.user_id && listing.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'This listing is already claimed by another user' });
+    }
 
-    // Optional: verify phone if provided
-    if (phone) {
-      const normalizePhone = (p) => p.replace(/\D/g, '');
-      if (normalizePhone(listing.phone) !== normalizePhone(phone)) {
-        return res.status(403).json({ error: 'Phone does not match this business' });
-      }
+    const used = await k('listing_claims').where('payment_ref', paymentResult.paymentId).first('id');
+    if (used) {
+      return res.status(409).json({ success: false, error: 'This payment has already been used' });
+    }
+
+    const normalizePhone = (p) => String(p || '').replace(/\D/g, '');
+    if (normalizePhone(listing.phone) !== normalizePhone(phone)) {
+      return res.status(403).json({ error: 'Phone does not match this business' });
     }
 
     // Mark listing as claimed
@@ -366,20 +359,19 @@ router.post('/bachs-webhook', async (req, res, next) => {
     const event = req.body;
     console.log('[BACHS WEBHOOK] Received event:', event.type);
 
-    // Verify webhook signature (optional - add Bachs webhook secret verification here)
-
     const result = processWebhookEvent(event);
 
-    // If payment succeeded, mark claim as verified
-    if (result.success && result.action === 'payment_completed' && result.claimId) {
-      const k = db.query();
-      await k('listings')
-        .where('id', result.claimId)
-        .update({
-          verified: true,
-          verified_source: 'Bachs Webhook'
-        })
-        .catch(() => {});
+    // The webhook is unsigned, so never trust its contents: look the checkout up with Bachs
+    // and only act on a completed checkout that Bachs itself says was for this listing.
+    if (result.action === 'checkout_completed' && result.checkoutId) {
+      const confirmed = await verifyBachsPayment(result.checkoutId);
+      const claimId = confirmed.success && confirmed.metadata?.claim_id;
+      if (claimId) {
+        await db.query()('listings')
+          .where('id', claimId)
+          .update({ verified: true, verified_source: 'Bachs Webhook' })
+          .catch(() => {});
+      }
     }
 
     // Always respond with 200 OK to Bachs

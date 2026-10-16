@@ -61,7 +61,7 @@ export default function App() {
   const [claimLoading, setClaimLoading] = useState(false)
   const [claimMessage, setClaimMessage] = useState('')
   const [claimFee, setClaimFee] = useState(14.99)
-  const [currency, setCurrency] = useState('NGN')
+  const [currency] = useState('USD')
   const [paystackLoading, setPaystackLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('bachs') // bachs or whatsapp (paystack hidden for now)
   // OTP verification state
@@ -1957,10 +1957,13 @@ export default function App() {
                       {selectedClaim.city}, {selectedClaim.country}
                     </div>
                     <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#D97706', marginBottom: '0.5rem' }}>
-                      {paymentMethod === 'bachs' ? '$14.99' : (currency === 'NGN' ? '₦6,000' : '$14.99')}
+                      $14.99
                     </div>
                     <div style={{ color: '#666', fontSize: '0.9rem' }}>
                       One-time claim & verification fee
+                    </div>
+                    <div style={{ color: '#888', fontSize: '0.8rem', marginTop: '0.35rem' }}>
+                      Card payments are charged in your local currency at checkout
                     </div>
                   </div>
                 )}
@@ -2009,45 +2012,6 @@ export default function App() {
                     </button>
                   </div>
                 </div>
-
-                {paymentMethod === 'whatsapp' && (
-                  <div style={{
-                    marginBottom: '1.5rem',
-                    display: 'flex',
-                    gap: '0.5rem'
-                  }}>
-                    <button
-                      onClick={() => setCurrency('NGN')}
-                      style={{
-                        flex: 1,
-                        padding: '0.5rem',
-                        background: currency === 'NGN' ? '#D97706' : '#E5E7EB',
-                        color: currency === 'NGN' ? 'white' : '#333',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      NGN (Nigeria)
-                    </button>
-                    <button
-                      onClick={() => setCurrency('USD')}
-                      style={{
-                        flex: 1,
-                        padding: '0.5rem',
-                        background: currency === 'USD' ? '#D97706' : '#E5E7EB',
-                        color: currency === 'USD' ? 'white' : '#333',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      USD (International)
-                    </button>
-                  </div>
-                )}
 
                 <div style={{
                   background: '#E0F2FE',
@@ -2115,13 +2079,13 @@ export default function App() {
                       fontSize: '0.85rem',
                       color: '#166534'
                     }}>
-                      ✅ Instant automated payment. Supports card payments globally. You'll receive your verified badge immediately after payment.
+                      ✅ Secure card payment, charged in your local currency. Once our team confirms your payment, your verified badge is added to your listing.
                     </div>
                   </>
                 ) : (
                   <>
                     <button
-                      onClick={() => openWhatsApp(`Hi Vukafia! I want to claim my business and am ready to pay ${currency === 'NGN' ? '₦6,000' : '$14.99'} ${currency}. Please send me payment instructions.`)}
+                      onClick={() => openWhatsApp(`Hi Vukafia! I want to claim my business "${selectedClaim?.name || ''}" (listing #${selectedClaim?.id || ''}) and am ready to pay $14.99 USD. Please send me payment instructions.`)}
                       style={{
                         width: '100%',
                         padding: '0.75rem',

@@ -1918,6 +1918,15 @@ The old values remain in git history but no longer work, so the history was not 
 - The new Google key is restricted to **Places API (New)**. Application restrictions are "None" because Railway has no fixed outbound IP; the key is used server-side only
 - The local `.env` points at the **production** database. Running the server, migrations or crawler scripts locally changes live data, and starting the server runs pending migrations on production. When a migration must ship together with new code, push first and let Railway run it
 
+### Claims & payments (October 16, 2026)
+- **Claim fee: $14.99 USD, one-time.** No naira price is shown; Bachs charges card payments in the customer's local currency. Set `CLAIM_FEE_USD=14.99` in Railway (it was `15`). The fee is now read with `parseFloat` (`parseInt` turned 14.99 into 14)
+- **Payment options on the claim screen:** 💳 Bachs (fixed payment link) or 💬 WhatsApp (team sends instructions). **Paystack is not configured and is hidden**
+- **Claims are completed manually**: the Bachs button opens one fixed payment link not tied to a listing, so the team matches payments to businesses and adds the verified badge. The claim screen and chatbot say so
+- `POST /api/claims/claim` is **disabled (410)**. It accepted any text as a payment reference, letting anyone take over an unclaimed listing for free
+- `verify-bachs-payment` / `verify-payment` (Paystack) now require: the business phone, a payment made for *this* listing (checkout metadata), the full $14.99 in USD, a payment reference not used before, and the listing not already owned by someone else
+- `bachs-webhook` is unsigned, so it no longer trusts its body: it only acts on `checkout.completed` after looking the checkout up with Bachs
+- **Still open:** the claim screen's phone "verification" is fake (code made in the browser, `000000` accepted, no `/send-otp` or `/verify-otp` route). It needs a real ownership check. The WhatsApp API token expired on 2026-10-10, so nothing can be sent over WhatsApp until it is replaced
+
 ### How to replace a credential
 1. Create the new value in the provider's dashboard (for the database: `ALTER USER postgres WITH PASSWORD '...'`)
 2. Update Railway Variables (Railway redeploys automatically) and the local `.env`

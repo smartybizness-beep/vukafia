@@ -9,8 +9,8 @@ const axios = require('axios');
 
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY;
 const PAYSTACK_PUBLIC = process.env.PAYSTACK_PUBLIC_KEY;
-const CLAIM_FEE_NGN = parseInt(process.env.CLAIM_FEE_NGN || '6000');
-const CLAIM_FEE_USD = parseInt(process.env.CLAIM_FEE_USD || '15');
+const CLAIM_FEE_NGN = parseFloat(process.env.CLAIM_FEE_NGN || '6000');
+const CLAIM_FEE_USD = parseFloat(process.env.CLAIM_FEE_USD || '14.99');
 
 const paystackAPI = axios.create({
   baseURL: 'https://api.paystack.co',
@@ -36,7 +36,7 @@ async function initializePayment(options) {
       };
     }
 
-    const amount = currency === 'USD' ? CLAIM_FEE_USD * 100 : CLAIM_FEE_NGN * 100; // Paystack uses cents
+    const amount = Math.round((currency === 'USD' ? CLAIM_FEE_USD : CLAIM_FEE_NGN) * 100); // Paystack uses cents
     const reference = `CLAIM_${listing_id}_${Date.now()}`;
 
     const response = await paystackAPI.post('/transaction/initialize', {
@@ -92,6 +92,7 @@ async function verifyPayment(reference) {
         success: true,
         status: 'success',
         amount: response.data.data.amount,
+        currency: response.data.data.currency,
         customer_email: response.data.data.customer.email,
         reference: response.data.data.reference,
         paid_at: response.data.data.paid_at,

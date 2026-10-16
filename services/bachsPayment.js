@@ -15,14 +15,15 @@ const BACHS_API_URL = process.env.BACHS_API_URL || 'https://api.bachs.io/v1';
 /**
  * Create a Bachs checkout session for claim fee
  */
-async function createCheckoutSession(claimId, email, currency = 'USD') {
+async function createCheckoutSession(claimId, email) {
   if (!BACHS_API_KEY) {
     throw new Error('Bachs API key not configured');
   }
 
   try {
-    // Determine amount based on currency
-    const amount = currency === 'NGN' ? '6000.00' : '14.99';
+    // Priced in USD; Bachs charges the customer in their local currency at checkout
+    const amount = '14.99';
+    const currency = 'USD';
     const callbackUrl = process.env.BACHS_CALLBACK_URL || 'https://vukafia.com/api/claims/bachs-callback';
 
     const payload = {
