@@ -1852,6 +1852,30 @@ GET    /api/templates/experts            - Expert directory
 
 ---
 
+## Africa Market News (October 15, 2026)
+
+### Overview
+Page at `/news` showing headlines from all 54 African countries, filterable by category, country and keyword search.
+
+### Crawler
+- `services/newsCrawler.js` queries Google News RSS for each country × category (54 × 10 = 540 queries, ~4 min per run)
+- Categories: Government, Politics, Technology, Banking, Agriculture, Economy, Energy, Trade, Mining, Health
+- Stores in `news_articles` (unique on `link`), deletes articles older than 30 days
+- Scheduled every 6 hours (`30 */6 * * *` UTC) in `jobs/scheduler.js`; also runs on startup if the table is empty
+- Manual run: `npm run crawl:news` (all countries) or `npm run crawl:news -- NG KE` (selected countries)
+- Articles link out to the original publisher; only headline, source and date are stored
+
+### API Endpoints
+```
+GET /api/news?category=banking&country=NG&q=cbn&page=1&limit=30
+GET /api/news/meta     - category and country lists
+```
+
+### Template buttons note
+The site's Content-Security-Policy (`script-src 'self'`, `script-src-attr 'none'`) blocks inline `<script>` and `onclick`. Template pages use `public/templates/template-actions.js` with `data-action="print|clear"` attributes instead.
+
+---
+
 **Document Created**: October 13, 2026  
 **Last Reviewed**: October 13, 2026  
 **Status**: Verified Reviews & Trade Templates deployed (templates need data verification) ⚠️
