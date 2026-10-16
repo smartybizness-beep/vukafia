@@ -263,17 +263,18 @@ TTL: Automatic
 
 ### Primary Source: Google Maps Photos (via /photos proxy, Oct 16 2026)
 **Never put the API key in an image URL.** The repo and site are public.
-- Crawler stores only the photo reference in  and sets - :  asks Google for the image address (key sent as the  header, ), caches it in memory for 1 hour, and 302-redirects the browser to the keyless  image
+- Crawler stores only the photo reference in `listings.google_photo_name` and sets `cover_photo` to `/photos/{listingId}`
+- `routes/photos.js`: `GET /photos/:id` asks Google for the image address (key sent as the `X-Goog-Api-Key` header, `skipHttpRedirect=true`), caches it in memory for 1 hour, and 302-redirects the browser to the keyless `https://lh3.googleusercontent.com/` image
 - Rate limited to 600 requests per IP per 15 minutes; each uncached request is a billed Google photo request
-- If there is no photo reference or Google fails, redirects to the category stock image ()
+- If there is no photo reference or Google fails, redirects to the category stock image (`generateCoverPhoto`)
 
 ### Fallback: Unsplash Category Photos
 When Google Maps photo is unavailable, fallback to category-based Unsplash stock photos:
 - Electronics, Fashion & Textiles, Food & Groceries
 - Restaurant (dining photos)
 - Accommodations, Medical, Agricultural Products, etc.
-3. Store URL in `listings.cover_photo` database column
-4. Frontend displays via `<img src={listing.cover_photo} />`
+
+Frontend displays via `<img src={listing.cover_photo} />` (either `/photos/{id}` or a stock image URL).
 
 ---
 
