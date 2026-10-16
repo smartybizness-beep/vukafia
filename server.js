@@ -35,6 +35,7 @@ const campaignsRouter = require('./routes/campaigns');
 const reviewsRouter  = require('./routes/reviews');
 const templatesRouter = require('./routes/templates');
 const newsRouter     = require('./routes/news');
+const photosRouter   = require('./routes/photos');
 
 const app  = express();
 app.set('trust proxy', 1);
@@ -45,7 +46,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       scriptSrc: ["'self'", 'https://accounts.google.com'],
-      imgSrc: ["'self'", 'data:', 'https://images.unsplash.com', 'https://places.googleapis.com', 'https://lh3.googleusercontent.com']
+      imgSrc: ["'self'", 'data:', 'https://images.unsplash.com', 'https://lh3.googleusercontent.com']
     }
   }
 }));
@@ -131,6 +132,7 @@ app.use('/api/campaigns',  campaignsRouter);  // Marketing campaigns (admin only
 app.use('/api/reviews',    reviewsRouter);    // Verified reviews with evidence
 app.use('/api/templates',  templatesRouter);  // Trade docs & compliance hub
 app.use('/api/news',       newsRouter);
+app.use('/photos',         photosRouter);   // Listing photos (keeps the Google API key server-side)
 app.use('/api/admin',      crawlerRouter);  // Crawler management (must come first - uses admin token)
 app.use('/api/admin',      adminRouter);    // Admin dashboard (uses JWT auth)
 app.use('/api/webhook',    webhookRouter);  // WhatsApp webhook

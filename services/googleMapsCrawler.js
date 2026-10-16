@@ -426,13 +426,8 @@ async function crawlGoogleMaps() {
       const city_name = extractCity(place.formattedAddress || businessName);
       const category = CATEGORY_MAP[query.toLowerCase()] || 'General Retail';
 
-      let coverPhoto = generateCoverPhoto(category);
-      if (place.photos && place.photos.length > 0) {
-        const photo = place.photos[0];
-        if (photo.name) {
-          coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
-        }
-      }
+      const coverPhoto = generateCoverPhoto(category);
+      const googlePhotoName = place.photos?.[0]?.name || null;
 
       let instagramHandle = null;
       if (place.websiteUri) {
@@ -458,6 +453,7 @@ async function crawlGoogleMaps() {
         latitude: place.location?.latitude || null,
         longitude: place.location?.longitude || null,
         cover_photo: coverPhoto,
+        google_photo_name: googlePhotoName,
         verified_source: 'Google Maps',
         verified_at: new Date(),
         verification_score: calculateScore(place)
@@ -512,7 +508,8 @@ async function saveBusinessesToDatabase(businesses) {
               review_count: biz.review_count,
               latitude: biz.latitude,
               longitude: biz.longitude,
-              cover_photo: biz.cover_photo,
+              cover_photo: biz.google_photo_name ? `/photos/${existing.id}` : biz.cover_photo,
+              google_photo_name: biz.google_photo_name,
               verified: true,
               verified_source: biz.verified_source,
               updated_at: new Date().toISOString()
@@ -520,7 +517,7 @@ async function saveBusinessesToDatabase(businesses) {
           updated++;
         } else {
           // Insert new
-          await k('listings').insert({
+          const [row] = await k('listings').returning('id').insert({
             name: biz.name,
             type: biz.type,
             region: biz.region,
@@ -535,6 +532,7 @@ async function saveBusinessesToDatabase(businesses) {
             latitude: biz.latitude,
             longitude: biz.longitude,
             cover_photo: biz.cover_photo,
+            google_photo_name: biz.google_photo_name,
             verified: true,
             verified_source: biz.verified_source,
             active: true,
@@ -542,6 +540,10 @@ async function saveBusinessesToDatabase(businesses) {
             products_services: biz.category,
             description: biz.category
           });
+          if (biz.google_photo_name) {
+            const newId = typeof row === 'object' ? row.id : row;
+            await k('listings').where({ id: newId }).update({ cover_photo: `/photos/${newId}` });
+          }
           inserted++;
         }
       } catch (err) {
@@ -589,4 +591,4 @@ function generateCoverPhoto(category) {
   return photos[category] || 'https://images.unsplash.com/photo-1553729783-c91953dec042?w=500&q=75';
 }
 
-module.exports = { crawlGoogleMaps };
+module.exports = { crawlGoogleMaps, generateCoverPhoto };
