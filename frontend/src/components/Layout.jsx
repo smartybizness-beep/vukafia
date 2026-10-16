@@ -48,6 +48,14 @@ export default function Layout({ children }) {
           }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
             Home
           </Link>
+          <Link to="/news" style={{
+            color: 'rgba(255,255,255,0.8)',
+            textDecoration: 'none',
+            fontSize: '0.95rem',
+            fontWeight: 500
+          }}>
+            Market News
+          </Link>
         </div>
       </nav>
 

@@ -14,7 +14,8 @@
     "build:frontend": "cd frontend && npm run build",
     "crawl": "node scripts/crawlBusinesses.js",
     "crawl:scheduled": "node scripts/scheduledCrawl.js",
-    "crawl:google-maps": "node scripts/crawlGoogleMaps.js"
+    "crawl:google-maps": "node scripts/crawlGoogleMaps.js",
+    "crawl:news": "node scripts/crawlNews.js"
   },
   "keywords": [
     "africa",

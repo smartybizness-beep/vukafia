@@ -227,8 +227,8 @@
 <body>
   <div class="container">
     <div class="button-bar">
-      <button class="btn btn-print" onclick="window.print()">🖨️ Print Checklist</button>
-      <button class="btn btn-clear" onclick="clearChecks()">🔄 Reset Checks</button>
+      <button class="btn btn-print" data-action="print">🖨️ Print Checklist</button>
+      <button class="btn btn-clear" data-action="clear">🔄 Reset Checks</button>
     </div>
 
     <div id="checklist">
@@ -265,7 +265,7 @@
         <div class="section-title">🇳🇬 NIGERIA - Pre-Export Requirements</div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Register with Nigerian Customs Service (NCS)</div>
             <div class="item-detail">Obtain importer/exporter code. Contact: NCS Tariff and Trade Department</div>
@@ -274,7 +274,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Obtain Certificate of Origin</div>
             <div class="item-detail">Get from the appropriate chamber of commerce (e.g., Nigerian Association of Chambers of Commerce, Industry, Mines and Agriculture)</div>
@@ -283,7 +283,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Prepare Commercial Invoice</div>
             <div class="item-detail">Include: product description, HS codes, quantities, prices, terms of sale, exporter details</div>
@@ -292,7 +292,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Arrange Pre-shipment Inspection</div>
             <div class="item-detail">Contact: COTECNA or COTECNA-accredited inspectors in Nigeria</div>
@@ -301,7 +301,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Obtain Export License (if applicable)</div>
             <div class="item-detail">Contact: Federal Ministry of Trade, Investment and Industry</div>
@@ -310,7 +310,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Prepare Packing List & Bill of Lading</div>
             <div class="item-detail">Detailed documentation of all packages and shipping details</div>
@@ -324,7 +324,7 @@
         <div class="section-title">📦 SHIPPING & LOGISTICS</div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Arrange Freight Forwarder</div>
             <div class="item-detail">Select FMDQ-registered forwarder for customs clearance assistance</div>
@@ -333,7 +333,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Arrange Cargo Insurance</div>
             <div class="item-detail">Obtain marine cargo insurance covering Lagos to Mombasa/Nairobi route</div>
@@ -342,7 +342,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">File Shipping Documents</div>
             <div class="item-detail">Submit documents to shipping company: invoice, packing list, B/L, insurance</div>
@@ -351,7 +351,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Obtain Bill of Lading</div>
             <div class="item-detail">Receive signed B/L from shipping line confirming cargo loaded</div>
@@ -365,7 +365,7 @@
         <div class="section-title">🇰🇪 KENYA - Import Requirements</div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Notify Kenya Revenue Authority (KRA)</div>
             <div class="item-detail">Buyer/importer must declare arrival of cargo at port. Contact: KRA Customs</div>
@@ -374,7 +374,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Customs Entry Procedure</div>
             <div class="item-detail">File customs entry form with KRA including: invoice, B/L, packing list, insurance</div>
@@ -383,7 +383,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Goods Inspection (if required)</div>
             <div class="item-detail">KRA may conduct physical inspection at Mombasa or Nairobi port</div>
@@ -392,7 +392,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Pay Customs Duties & Taxes</div>
             <div class="item-detail">Pay applicable import duties and VAT (standard rate: 16% VAT)</div>
@@ -401,7 +401,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Obtain Customs Clearance Certificate</div>
             <div class="item-detail">Receive C7 form confirming goods cleared through customs</div>
@@ -410,7 +410,7 @@
         </div>
 
         <div class="checklist-item">
-          <input type="checkbox" onchange="updateProgress()">
+          <input type="checkbox">
           <div class="item-content">
             <div class="item-title">Collect Goods from Port</div>
             <div class="item-detail">Arrange transport from Mombasa Port/JKIA to final destination</div>
@@ -432,29 +432,6 @@
     </div>
   </div>
 
-  <script>
-    function updateProgress() {
-      const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
-      const checked = document.querySelectorAll('.checklist-item input[type="checkbox"]:checked').length;
-      const total = checkboxes.length;
-      const percentage = Math.round((checked / total) * 100);
-
-      document.getElementById('completed').textContent = checked;
-      document.getElementById('total').textContent = total;
-      document.getElementById('percentage').textContent = percentage + '%';
-      document.getElementById('progressFill').style.width = percentage + '%';
-      document.getElementById('progressFill').textContent = percentage + '%';
-    }
-
-    function clearChecks() {
-      if (confirm('Reset all checks?')) {
-        document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb => cb.checked = false);
-        updateProgress();
-      }
-    }
-
-    // Initialize progress on page load
-    window.addEventListener('load', updateProgress);
-  </script>
+  <script src="/templates/template-actions.js"></script>
 </body>
 </html>

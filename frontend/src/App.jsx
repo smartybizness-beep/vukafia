@@ -2348,6 +2348,9 @@ export default function App() {
               </button>
             </p>
             <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
+              <Link to="/news" style={{ color: '#d4a017', textDecoration: 'none' }}>Africa Market News</Link>
+            </p>
+            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0' }}>
               <button onClick={() => navigate('/contact')} style={{
                 background: 'transparent',
                 color: '#d4a017',

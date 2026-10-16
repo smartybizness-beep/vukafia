@@ -251,9 +251,9 @@
 <body>
   <div class="container">
     <div class="button-bar">
-      <button class="btn btn-download" onclick="savePDF()">📥 Save as PDF</button>
-      <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
-      <button class="btn btn-clear" onclick="clearForm()">🔄 Clear Form</button>
+      <button class="btn btn-download" data-action="print">📥 Save as PDF</button>
+      <button class="btn btn-print" data-action="print">🖨️ Print</button>
+      <button class="btn btn-clear" data-action="clear">🔄 Clear Form</button>
     </div>
 
     <div class="note">
@@ -483,21 +483,6 @@
     </div>
   </div>
 
-  <script>
-    function savePDF() {
-      window.print();
-    }
-
-    function clearForm() {
-      if (confirm('Are you sure you want to clear all fields?')) {
-        const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="number"]');
-        inputs.forEach(input => {
-          if (!input.hasAttribute('readonly') && input.value !== '1' && input.value !== '2' && input.value !== '3') {
-            input.value = '';
-          }
-        });
-      }
-    }
-  </script>
+  <script src="/templates/template-actions.js"></script>
 </body>
 </html>

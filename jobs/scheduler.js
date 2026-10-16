@@ -11,6 +11,8 @@
 const { CronJob } = require('cron');
 const { crawlBusinessesJob } = require('./crawlBusinessesJob');
 const { sendSuccessEmail, sendFailureEmail } = require('../services/mailer');
+const { crawlNews } = require('../services/newsCrawler');
+const { getKnex } = require('../db');
 
 let scheduledJobs = [];
 
@@ -58,6 +60,28 @@ function initializeScheduler() {
   });
 
   console.log('[SCHEDULER] ✅ Crawler job scheduled for 2 AM UTC daily');
+
+  const newsJob = new CronJob(
+    '30 */6 * * *',
+    () => crawlNews().catch(err => console.error('[SCHEDULER] News crawl failed:', err.message)),
+    null,
+    true,
+    'UTC'
+  );
+  scheduledJobs.push({
+    name: 'crawlNews',
+    job: newsJob,
+    schedule: '30 */6 * * * (every 6 hours)',
+    status: 'running'
+  });
+  console.log('[SCHEDULER] ✅ News crawler scheduled every 6 hours');
+
+  getKnex()('news_articles').first('id').then(row => {
+    if (!row) {
+      console.log('[SCHEDULER] News table empty, running initial crawl...');
+      crawlNews().catch(err => console.error('[SCHEDULER] Initial news crawl failed:', err.message));
+    }
+  }).catch(err => console.error('[SCHEDULER] News table check failed:', err.message));
 
   // Optional: Run every 6 hours during off-peak
   // Uncomment to increase crawl frequency
@@ -109,6 +133,9 @@ function getSchedulerStatus() {
 async function triggerJob(jobName) {
   if (jobName === 'crawlBusinesses') {
     return await crawlBusinessesJob();
+  }
+  if (jobName === 'crawlNews') {
+    return await crawlNews();
   }
   throw new Error(`Unknown job: ${jobName}`);
 }
