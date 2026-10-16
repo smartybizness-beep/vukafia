@@ -261,34 +261,17 @@ TTL: Automatic
 
 ## Image Handling
 
-### Primary Source: Google Maps Photos
-**Real business photos** from Google Places API are prioritized:
-- URL format: `https://places.googleapis.com/v1/{photo.name}/media?key=...`
-- Actual photo URLs served from: `https://lh3.googleusercontent.com/`
-- Quality: Real business photos taken by Google or customers
+### Primary Source: Google Maps Photos (via /photos proxy, Oct 16 2026)
+**Never put the API key in an image URL.** The repo and site are public.
+- Crawler stores only the photo reference in  and sets - :  asks Google for the image address (key sent as the  header, ), caches it in memory for 1 hour, and 302-redirects the browser to the keyless  image
+- Rate limited to 600 requests per IP per 15 minutes; each uncached request is a billed Google photo request
+- If there is no photo reference or Google fails, redirects to the category stock image ()
 
 ### Fallback: Unsplash Category Photos
 When Google Maps photo is unavailable, fallback to category-based Unsplash stock photos:
 - Electronics, Fashion & Textiles, Food & Groceries
 - Restaurant (dining photos)
 - Accommodations, Medical, Agricultural Products, etc.
-
-### Photo Selection Logic
-**File**: `services/googleMapsCrawler.js` (lines 293-305)
-
-```javascript
-let coverPhoto = generateCoverPhoto(category); // fallback
-if (place.photos && place.photos.length > 0) {
-  const photo = place.photos[0];
-  if (photo.name) {
-    // Use real Google Places photo
-    coverPhoto = `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_MAPS_API_KEY}&maxHeightPx=500`;
-  }
-}
-```
-
-1. Try to fetch **real photo** from Google Places API
-2. If unavailable, use **category-based Unsplash fallback**
 3. Store URL in `listings.cover_photo` database column
 4. Frontend displays via `<img src={listing.cover_photo} />`
 
