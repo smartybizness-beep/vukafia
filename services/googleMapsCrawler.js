@@ -143,6 +143,15 @@ const CATEGORY_MAP = {
   'shipping port': 'Services'
 };
 
+const QUERIES_PER_CITY_PER_RUN = 3;
+
+// Rotate through each city's full query list across nightly runs instead of repeating the first few.
+function queriesForToday(queries) {
+  const day = Math.floor(Date.now() / 86400000);
+  const start = (day * QUERIES_PER_CITY_PER_RUN) % queries.length;
+  return Array.from({ length: Math.min(QUERIES_PER_CITY_PER_RUN, queries.length) }, (_, i) => queries[(start + i) % queries.length]);
+}
+
 async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -157,7 +166,7 @@ async function searchPlaces(query, location) {
     const payload = {
       textQuery: `${query} in ${location}`,
       languageCode: 'en',
-      maxResultCount: 5
+      maxResultCount: 20
     };
 
     const response = await axios.post(url, payload, {
@@ -289,8 +298,7 @@ async function crawlGoogleMaps() {
     for (const [city, queries] of Object.entries(cities)) {
       console.log(`  📍 ${city}:`);
 
-      // Search top 2-3 products per city
-      const queriesToSearch = queries.slice(0, 3);
+      const queriesToSearch = queriesForToday(queries);
 
       for (const query of queriesToSearch) {
         console.log(`    Searching: "${query}" in ${city}...`);
@@ -302,7 +310,7 @@ async function crawlGoogleMaps() {
           continue;
         }
 
-        for (const place of places.slice(0, 3)) {
+        for (const place of places) {
           const businessName = place.displayName?.text || place.name || null;
           if (!businessName) {
             skipped++;
