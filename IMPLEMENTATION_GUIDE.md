@@ -846,7 +846,7 @@ GET /api/listings?page=3&limit=50
 
 ### Architecture
 
-**File**: `frontend/src/components/Chatbot.jsx`
+**Files**: `frontend/src/components/Chatbot.jsx` (widget), `frontend/src/components/chatbotKnowledge.js` (stock Q&A and matcher)
 
 ### Knowledge Base Coverage
 
@@ -928,20 +928,21 @@ The knowledge base includes 50+ Q&A pairs organized by topic:
 - Wrong information shown
 - False claims reported
 
-### Question Matching Algorithm
+### Question Matching Algorithm (rewritten October 16, 2026)
 
-**Smart Matching with Confidence Scoring**:
-1. **Direct match** - Exact question key found → Return answer immediately
-2. **Keyword matching** - Split question into words (3+ chars)
-3. **Score calculation** - Count matching keywords with answer keys
-4. **Confidence threshold** - Only return answer if 2+ word matches (high confidence)
-5. **Fallback** - If no match found → Offer inquiry button
+**File**: `frontend/src/components/chatbotKnowledge.js` (stock Q&A + matcher); `Chatbot.jsx` imports `findAnswer`.
 
-**Benefits**:
-- Reduces false positives (wrong answers)
-- Handles variations in user questions
-- "How do I search?" vs "How to find businesses?" both work
-- Unknown questions still get routed to support
+**Why it was rewritten**: "How do I claim my business?" got the *search* answer. The old matcher counted a word as matched if any question word merely *contained* it, so "i" and "a" matched inside "claim", which tied "how do i find a business" with "how do i claim a business", and the first in the list won.
+
+**How it works now**:
+1. Normalize (lowercase, strip punctuation); an exact stock question returns its answer
+2. Greetings only ("hi there", "hello trima") return a greeting
+3. Drop filler words (how, do, I, a, my, what…), trim word endings (claim/claims/claiming, business/businesses), and map synonyms (add/register → list; company/supplier/vendor → business)
+4. Score each stock question by **coverage** (share of its words the visitor used) and **precision** (share of the visitor's words it explains); both must be at least 50%. Same question type ("how"/"what") breaks ties
+5. Generic words ("business", "vukafia") can't carry a match alone. "delete my business" gets the inquiry offer, not a random answer
+6. No good match → offer to send an inquiry
+
+**Testing**: 32 real phrasings plus all 65 stock questions answer correctly. When adding a stock question, check common phrasings of it still pick the right answer.
 
 ### User Flow
 
