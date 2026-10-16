@@ -7,7 +7,7 @@ const k = knex({
     host: 'postgres.railway.internal',
     port: 5432,
     user: 'postgres',
-    password: 'sAbPhLWlWEUGSXQDLNNYuPJQIrLDqiOr',
+    password: process.env.PGPASSWORD,
     database: 'railway',
     ssl: { rejectUnauthorized: false }
   }

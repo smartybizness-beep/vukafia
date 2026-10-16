@@ -32,8 +32,8 @@ In Railway dashboard:
 NODE_ENV=production
 PORT=5000
 JWT_SECRET=your-secret-key-here-change-in-prod
-GOOGLE_MAPS_API_KEY=AIzaSyDCU21aqaojuRJ_DyD8SLfVD3lH6K7lik4
-ANTHROPIC_API_KEY=sk-ant-api03-...
+GOOGLE_MAPS_API_KEY=your-google-maps-key
+ANTHROPIC_API_KEY=your-anthropic-key
 PAYSTACK_SECRET_KEY=sk_live_... (add later)
 PAYSTACK_PUBLIC_KEY=pk_live_... (add later)
 CLAIM_FEE_USD=15

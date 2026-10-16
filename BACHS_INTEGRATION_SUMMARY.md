@@ -53,7 +53,7 @@ services/bachsPayment.js
 - ✅ POST /api/claims/bachs-webhook
 
 ### Test 4: Environment Config
-- ⚠️ BACHS_API_KEY: In .env (sk_live_e8a696d3...)
+- ⚠️ BACHS_API_KEY: In .env (sk_live_...)
 - ✅ BACHS_API_URL: Configured
 
 ### Test 5: Frontend Integration
@@ -152,7 +152,7 @@ For Bachs:
 ### API Key Management
 ```
 .env Configuration:
-BACHS_API_KEY=sk_live_e8a696d3_M6MSmkoRNpZ74euG06UBtCfikvxzm0K0_LEMv380h28
+BACHS_API_KEY=sk_live_...
 BACHS_API_URL=https://api.bachs.io/v1
 ```
 

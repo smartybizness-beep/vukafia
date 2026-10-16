@@ -18,7 +18,7 @@ function getKnex() {
 
   // Simple logic: if DATABASE_URL is set (to a non-empty string), use PostgreSQL
   const usePostgres = !!(process.env.DATABASE_URL && process.env.DATABASE_URL.trim());
-  const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:sAbPhLWlWEUGSXQDLNNYuPJQIrLDqiOr@metro.proxy.rlwy.net:25557/railway';
+  const dbUrl = process.env.DATABASE_URL;
 
   if (usePostgres) {
     // ── POSTGRESQL (production) ──────────────────────────────────────────
