@@ -12,6 +12,7 @@ const { CronJob } = require('cron');
 const { crawlBusinessesJob } = require('./crawlBusinessesJob');
 const { sendSuccessEmail, sendFailureEmail } = require('../services/mailer');
 const { crawlNews } = require('../services/newsCrawler');
+const { enrichLinkedIn } = require('../services/linkedinEnricher');
 const { getKnex } = require('../db');
 
 let scheduledJobs = [];
@@ -76,6 +77,21 @@ function initializeScheduler() {
   });
   console.log('[SCHEDULER] ✅ News crawler scheduled every 6 hours');
 
+  const linkedinJob = new CronJob(
+    '0 3 * * *',
+    () => enrichLinkedIn().catch(err => console.error('[SCHEDULER] LinkedIn enrichment failed:', err.message)),
+    null,
+    true,
+    'UTC'
+  );
+  scheduledJobs.push({
+    name: 'enrichLinkedIn',
+    job: linkedinJob,
+    schedule: '0 3 * * * (3 AM UTC daily)',
+    status: 'running'
+  });
+  console.log('[SCHEDULER] ✅ LinkedIn enrichment scheduled for 3 AM UTC daily');
+
   getKnex()('news_articles').first('id').then(row => {
     if (!row) {
       console.log('[SCHEDULER] News table empty, running initial crawl...');
@@ -136,6 +152,9 @@ async function triggerJob(jobName) {
   }
   if (jobName === 'crawlNews') {
     return await crawlNews();
+  }
+  if (jobName === 'enrichLinkedIn') {
+    return await enrichLinkedIn();
   }
   throw new Error(`Unknown job: ${jobName}`);
 }

@@ -1871,6 +1871,14 @@ GET /api/news?category=banking&country=NG&q=cbn&page=1&limit=30
 GET /api/news/meta     - category and country lists
 ```
 
+### LinkedIn Enrichment (October 16, 2026)
+- LinkedIn is not crawled directly (its terms prohibit scraping and its API has no company discovery)
+- `services/linkedinEnricher.js` fetches each listing's own website homepage and extracts the LinkedIn company/school/showcase page it links to; personal `/in/` profiles are ignored
+- Saves to `listings.linkedin_url`; `linkedin_checked_at` prevents re-checking for 30 days
+- Runs daily at 3 AM UTC (500 listings per run); manual: `npm run enrich:linkedin [limit]`
+- Shown as "LinkedIn Page" in the Contact section of the business detail page
+- Limitation: chain businesses (e.g. hotels) link to the parent company's page
+
 ### Template buttons note
 The site's Content-Security-Policy (`script-src 'self'`, `script-src-attr 'none'`) blocks inline `<script>` and `onclick`. Template pages use `public/templates/template-actions.js` with `data-action="print|clear"` attributes instead.
 

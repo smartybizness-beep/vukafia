@@ -348,6 +348,13 @@ export default function BusinessDetailPage() {
                 </a>
               </p>
             )}
+            {business.linkedin_url && (
+              <p style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', color: '#2d1f0e', margin: '0.5rem 0' }}>
+                💼 <a href={business.linkedin_url} target="_blank" rel="noopener noreferrer" style={{ color: '#0a66c2', textDecoration: 'none' }}>
+                  LinkedIn Page
+                </a>
+              </p>
+            )}
           </div>
 
           {/* Verification */}

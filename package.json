@@ -15,7 +15,8 @@
     "crawl": "node scripts/crawlBusinesses.js",
     "crawl:scheduled": "node scripts/scheduledCrawl.js",
     "crawl:google-maps": "node scripts/crawlGoogleMaps.js",
-    "crawl:news": "node scripts/crawlNews.js"
+    "crawl:news": "node scripts/crawlNews.js",
+    "enrich:linkedin": "node scripts/enrichLinkedIn.js"
   },
   "keywords": [
     "africa",
